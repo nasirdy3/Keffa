@@ -4,13 +4,13 @@
 
 {% block content %}
 <div class="card" style="max-width: 800px; margin: 0 auto;">
-    <h1 style="margin-bottom: 2rem; color: #667eea;">Join KEFA</h1>
-    <p style="margin-bottom: 2rem; color: #666;">Create your account and become part of the eFootball community in Birnin Kebbi</p>
+    <h1 class="card-title" style="text-align: center;">Join KEFA ⚽</h1>
+    <p style="margin-bottom: 2rem; text-align: center; opacity: 0.8;">Create your account and become part of the eFootball community in Birnin Kebbi</p>
     
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
-        <h3 style="margin-bottom: 1rem; color: #333;">Account Information</h3>
+        <h3 style="margin-bottom: 1rem; color: var(--gold);">Account Information</h3>
         {% for field in user_form %}
             <div class="form-group">
                 <label>{{ field.label }}</label>
@@ -28,7 +28,7 @@
             </div>
         {% endfor %}
         
-        <h3 style="margin: 2rem 0 1rem; color: #333;">Player Profile</h3>
+        <h3 style="margin: 2rem 0 1rem; color: var(--gold);">Player Profile</h3>
         {% for field in player_form %}
             <div class="form-group">
                 <label>{{ field.label }}</label>
@@ -43,7 +43,7 @@
             </div>
         {% endfor %}
         
-        <h3 style="margin: 2rem 0 1rem; color: #333;">Team Information</h3>
+        <h3 style="margin: 2rem 0 1rem; color: var(--gold);">Team Information</h3>
         {% for field in team_form %}
             <div class="form-group">
                 <label>{{ field.label }}</label>
@@ -65,7 +65,7 @@
     </form>
     
     <p style="margin-top: 1.5rem; text-align: center;">
-        Already have an account? <a href="{% url 'login' %}" style="color: #667eea; font-weight: 600;">Login here</a>
+        Already have an account? <a href="{% url 'login' %}" style="color: var(--gold); font-weight: 600; text-decoration: underline;">Login here</a>
     </p>
 </div>
 {% endblock %}

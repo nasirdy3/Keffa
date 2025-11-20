@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Game Code - {{ match.home_team.team_name }} vs {{ match.away_team.team_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">🎮 Create Game Code</h1>
+    
+    <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+        <div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem;">
+            <span style="color: var(--gold);">{{ match.home_team.team_name }}</span> 
+            <span style="opacity: 0.6;">vs</span> 
+            <span style="color: var(--gold);">{{ match.away_team.team_name }}</span>
+        </div>
+        <div style="opacity: 0.8;">{{ match.tournament.name }}</div>
+    </div>
+    
+    <div style="padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="color: var(--success); margin-bottom: 1rem;">✓ Both Teams Ready!</h3>
+        <p style="line-height: 1.6;">
+            As the <strong>home team</strong>, you need to:
+        </p>
+        <ol style="margin: 1rem 0 0 1.5rem; line-height: 1.8;">
+            <li>Create a <strong>Friendly Match</strong> in eFootball mobile</li>
+            <li>Set up the game room</li>
+            <li>Copy the <strong>Game Code</strong></li>
+            <li>Enter it below so your opponent can join</li>
+        </ol>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_game_code">Game Code *</label>
+            <input 
+                type="text" 
+                name="game_code" 
+                id="id_game_code" 
+                placeholder="Enter the game code from eFootball" 
+                required
+                style="font-size: 1.2rem; text-align: center; letter-spacing: 2px; text-transform: uppercase;"
+            >
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Submit Game Code</button>
+            <a href="{% url 'player_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

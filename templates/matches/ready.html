@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Ready - {{ match.home_team.team_name }} vs {{ match.away_team.team_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">⏰ Match Ready Check</h1>
+    
+    <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 12px; margin-bottom: 2rem;">
+        <div style="font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 1rem;">
+            <span style="color: var(--gold);">{{ match.home_team.team_name }}</span> 
+            <span style="opacity: 0.6;">vs</span> 
+            <span style="color: var(--gold);">{{ match.away_team.team_name }}</span>
+        </div>
+        <div style="text-align: center; opacity: 0.8;">
+            📅 {{ match.match_date }} • ⏰ {{ match.match_time }}
+        </div>
+    </div>
+    
+    <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="color: var(--warning); margin-bottom: 0.75rem;">⚠️ Important</h3>
+        <p style="line-height: 1.6;">
+            Once you mark yourself as ready, you have <strong>5 minutes</strong> to complete the match setup. 
+            If either team fails to mark ready or complete their actions within the time window, they will be 
+            <strong>automatically forfeited</strong>.
+        </p>
+    </div>
+    
+    <form method="post" style="text-align: center;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2.5rem;">
+            ✓ I'm Ready to Play
+        </button>
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'player_dashboard' %}" class="btn btn-secondary">Go Back</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

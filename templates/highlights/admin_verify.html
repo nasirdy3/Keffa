@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Highlights - Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">🎬 Highlight Verification Queue</h1>
+    <p style="opacity: 0.8;">Review and verify match highlights from players</p>
+</div>
+
+{% if pending_highlights %}
+    <div style="display: grid; gap: 1.5rem;">
+        {% for highlight in pending_highlights %}
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <h3 style="color: var(--gold); font-size: 1.25rem; margin-bottom: 0.5rem;">
+                        {{ highlight.match.home_team.team_name }} vs {{ highlight.match.away_team.team_name }}
+                    </h3>
+                    <p style="opacity: 0.7; font-size: 0.9rem;">{{ highlight.match.tournament.name }}</p>
+                </div>
+                <span class="badge badge-warning">Pending Verification</span>
+            </div>
+            
+            <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.05); border-radius: 10px; margin-bottom: 1.5rem;">
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: var(--gold);">Video URL:</strong><br>
+                    <a href="{{ highlight.video_url }}" target="_blank" style="color: var(--gold); text-decoration: underline; word-break: break-all;">
+                        {{ highlight.video_url }}
+                    </a>
+                </div>
+                
+                {% if highlight.description %}
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: var(--gold);">Description:</strong><br>
+                    {{ highlight.description }}
+                </div>
+                {% endif %}
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div><strong style="color: var(--gold);">Uploaded by:</strong> {{ highlight.uploaded_by.team_name }}</div>
+                    <div><strong style="color: var(--gold);">Upload Date:</strong> {{ highlight.uploaded_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+            
+            <form method="post" action="{% url 'highlights:admin_verify' highlight.id %}" style="display: inline-block; margin-right: 1rem;">
+                {% csrf_token %}
+                <input type="number" name="home_score" placeholder="Home Score" min="0" required style="width: 100px; padding: 0.5rem; margin-right: 0.5rem; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 6px; color: var(--text);">
+                
+                <input type="number" name="away_score" placeholder="Away Score" min="0" required style="width: 100px; padding: 0.5rem; margin-right: 1rem; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 6px; color: var(--text);">
+                
+                <button type="submit" name="action" value="approve" class="btn btn-primary">✓ Approve</button>
+            </form>
+            
+            <form method="post" action="{% url 'highlights:admin_verify' highlight.id %}" style="display: inline-block;">
+                {% csrf_token %}
+                <button type="submit" name="action" value="reject" class="btn btn-danger">✗ Reject</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;">✓</div>
+        <p style="opacity: 0.7;">All highlights have been verified!</p>
+    </div>
+{% endif %}
+{% endblock %}

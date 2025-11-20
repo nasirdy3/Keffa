@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Join Game - {{ match.home_team.team_name }} vs {{ match.away_team.team_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">🎮 Join Game</h1>
+    
+    <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+        <div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem;">
+            <span style="color: var(--gold);">{{ match.home_team.team_name }}</span> 
+            <span style="opacity: 0.6;">vs</span> 
+            <span style="color: var(--gold);">{{ match.away_team.team_name }}</span>
+        </div>
+        <div style="opacity: 0.8;">{{ match.tournament.name }}</div>
+    </div>
+    
+    <div style="padding: 2rem; background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(218, 165, 32, 0.15)); border-radius: 16px; margin-bottom: 2rem; text-align: center;">
+        <div style="font-size: 0.9rem; color: var(--gold); margin-bottom: 0.5rem; font-weight: 600;">GAME CODE</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold); letter-spacing: 4px; font-family: monospace;">
+            {{ match.game_code }}
+        </div>
+        <div style="margin-top: 1rem; opacity: 0.8;">
+            Use this code to join the friendly match in eFootball mobile
+        </div>
+    </div>
+    
+    <div style="padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="color: var(--success); margin-bottom: 1rem;">How to Join:</h3>
+        <ol style="margin: 0 0 0 1.5rem; line-height: 1.8;">
+            <li>Open <strong>eFootball mobile</strong> app</li>
+            <li>Go to <strong>Friendly Match</strong> → <strong>Join Room</strong></li>
+            <li>Enter the game code above</li>
+            <li>Click <strong>"I've Joined"</strong> below once you're in the game</li>
+        </ol>
+    </div>
+    
+    <form method="post" style="text-align: center;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2.5rem;">
+            ✓ I've Joined the Game
+        </button>
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'player_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

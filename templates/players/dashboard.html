@@ -3,51 +3,137 @@
 {% block title %}Dashboard - KEFA{% endblock %}
 
 {% block content %}
-<h1 style="color: white; margin-bottom: 2rem;">Welcome, {{ player.full_name }}!</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="card-title">Welcome, {{ player.full_name }}! 👋</h1>
+            <p style="opacity: 0.8;">Team: <strong style="color: var(--gold);">{{ team.team_name }}</strong></p>
+        </div>
+        {% if player.profile_picture %}
+            <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--gold);">
+        {% else %}
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; color: var(--dark);">
+                {{ player.full_name.0 }}
+            </div>
+        {% endif %}
+    </div>
+</div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-    <div class="card">
-        <h2 style="color: #667eea; margin-bottom: 1rem;">Player Profile</h2>
-        <div style="margin-bottom: 1rem;">
-            {% if player.profile_picture %}
-                <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
-            {% else %}
-                <div style="width: 120px; height: 120px; border-radius: 50%; background: #667eea; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                    {{ player.full_name.0 }}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Tournaments</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ tournaments_count|default:0 }}</div>
+    </div>
+    
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Matches Played</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ matches_count|default:0 }}</div>
+    </div>
+    
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Win Rate</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ win_rate|default:0 }}%</div>
+    </div>
+    
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Achievements</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ achievements_count|default:0 }}</div>
+    </div>
+</div>
+
+{% if upcoming_matches %}
+<div class="card">
+    <h2 class="card-title">📅 Your Upcoming Matches</h2>
+    <div style="display: grid; gap: 1rem;">
+        {% for match in upcoming_matches %}
+        <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.05); border-radius: 10px; border-left: 4px solid var(--gold);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <strong style="color: var(--gold);">{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
                 </div>
-            {% endif %}
+                <span class="badge badge-{% if match.status == 'scheduled' %}gold{% elif match.status == 'ready_pending' %}success{% else %}warning{% endif %}">
+                    {{ match.get_status_display }}
+                </span>
+            </div>
+            
+            <div style="opacity: 0.8; margin-bottom: 1rem;">
+                📅 {{ match.match_date }} • ⏰ {{ match.match_time }} • 🏆 {{ match.tournament.name }}
+            </div>
+            
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                {% if match.status == 'ready_pending' %}
+                    <a href="{% url 'matches:ready' match.id %}" class="btn btn-primary">Mark Ready ✓</a>
+                {% elif match.status == 'creating_game' %}
+                    {% if match.home_team == team %}
+                        <a href="{% url 'matches:create_code' match.id %}" class="btn btn-primary">Create Game Code</a>
+                    {% else %}
+                        <div class="badge badge-warning" style="padding: 0.75rem 1rem;">Waiting for home team to create game...</div>
+                    {% endif %}
+                {% elif match.status == 'waiting_join' %}
+                    <div style="width: 100%;">
+                        <div style="margin-bottom: 0.75rem;">Game Code: <strong style="color: var(--gold); font-size: 1.3rem; letter-spacing: 2px;">{{ match.game_code }}</strong></div>
+                        {% if match.away_team == team %}
+                            <a href="{% url 'matches:join' match.id %}" class="btn btn-primary">Join Game Now</a>
+                        {% else %}
+                            <div class="badge badge-warning" style="padding: 0.75rem 1rem;">Waiting for away team to join...</div>
+                        {% endif %}
+                    </div>
+                {% elif match.status == 'in_progress' %}
+                    <a href="{% url 'matches:finished' match.id %}" class="btn btn-secondary">Mark as Finished</a>
+                {% elif match.status == 'awaiting_highlight' %}
+                    <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
+                {% elif match.status == 'scheduled' %}
+                    <a href="{% url 'matches:postpone' match.id %}" class="btn btn-secondary" style="font-size: 0.9rem;">Request Postponement</a>
+                {% endif %}
+            </div>
         </div>
-        <p><strong>Username:</strong> {{ player.user.username }}</p>
-        <p><strong>eFootball ID:</strong> {{ player.efootball_id }}</p>
-        <p><strong>Device:</strong> {{ player.get_device_type_display }}</p>
-        <p><strong>Phone:</strong> {{ player.phone_number }}</p>
-        <a href="{% url 'edit_profile' %}" class="btn btn-primary" style="margin-top: 1rem;">Edit Profile</a>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <h2 class="card-title">📅 Your Upcoming Matches</h2>
+    <p style="text-align: center; padding: 2rem; opacity: 0.7;">No upcoming matches. Join a tournament to start playing!</p>
+    <div style="text-align: center;">
+        <a href="{% url 'tournaments:list' %}" class="btn btn-primary">Browse Tournaments</a>
+    </div>
+</div>
+{% endif %}
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Player Info</h3>
+        <div style="display: grid; gap: 0.75rem;">
+            <div><strong style="color: var(--gold);">Username:</strong> {{ player.user.username }}</div>
+            <div><strong style="color: var(--gold);">eFootball ID:</strong> {{ player.efootball_id }}</div>
+            <div><strong style="color: var(--gold);">Device:</strong> {{ player.get_device_type_display }}</div>
+            <div><strong style="color: var(--gold);">Phone:</strong> {{ player.phone_number }}</div>
+        </div>
+        <a href="{% url 'edit_profile' %}" class="btn btn-secondary" style="margin-top: 1.5rem; width: 100%;">Edit Profile</a>
     </div>
     
     <div class="card">
-        <h2 style="color: #764ba2; margin-bottom: 1rem;">Team: {{ team.team_name }}</h2>
-        {% if team.logo %}
-            <img src="{{ team.logo.url }}" alt="{{ team.team_name }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">
-        {% endif %}
-        {% if team.squad_image %}
-            <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad" style="width: 100%; border-radius: 10px; margin-top: 1rem;">
-        {% endif %}
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Quick Actions</h3>
+        <div style="display: grid; gap: 0.75rem;">
+            <a href="{% url 'tournaments:list' %}" class="btn btn-secondary">Browse Tournaments</a>
+            <a href="{% url 'teams:profile' team.id %}" class="btn btn-secondary">View Team Profile</a>
+            <a href="{% url 'chat:community' %}" class="btn btn-secondary">Community Chat</a>
+            <a href="{% url 'highlights:gallery' %}" class="btn btn-secondary">Highlights Gallery</a>
+        </div>
     </div>
     
+    {% if recent_achievements %}
     <div class="card">
-        <h2 style="color: #667eea; margin-bottom: 1rem;">Quick Stats</h2>
-        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-            <p style="font-size: 0.9rem; color: #666;">Tournaments Joined</p>
-            <p style="font-size: 2rem; font-weight: bold; color: #667eea;">0</p>
-        </div>
-        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-            <p style="font-size: 0.9rem; color: #666;">Matches Played</p>
-            <p style="font-size: 2rem; font-weight: bold; color: #764ba2;">0</p>
-        </div>
-        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-            <p style="font-size: 0.9rem; color: #666;">Achievements</p>
-            <p style="font-size: 2rem; font-weight: bold; color: #667eea;">0</p>
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">🏅 Recent Achievements</h3>
+        <div style="display: grid; gap: 0.75rem;">
+            {% for achievement in recent_achievements %}
+            <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px; border-left: 3px solid var(--gold);">
+                <strong style="color: var(--gold);">{{ achievement.badge.name }}</strong>
+                <div style="opacity: 0.7; font-size: 0.85rem; margin-top: 0.25rem;">{{ achievement.awarded_at|date:"M d, Y" }}</div>
+            </div>
+            {% endfor %}
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

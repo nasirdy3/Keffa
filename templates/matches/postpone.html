@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Postponement - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">📅 Request Match Postponement</h1>
+    
+    <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+        <div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem;">
+            <span style="color: var(--gold);">{{ match.home_team.team_name }}</span> 
+            <span style="opacity: 0.6;">vs</span> 
+            <span style="color: var(--gold);">{{ match.away_team.team_name }}</span>
+        </div>
+        <div style="opacity: 0.8;">{{ match.tournament.name }}</div>
+        <div style="margin-top: 0.5rem; color: var(--gold);">📅 {{ match.match_date }} • ⏰ {{ match.match_time }}</div>
+    </div>
+    
+    <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="color: var(--warning); margin-bottom: 1rem;">⚠️ Important</h3>
+        <p style="line-height: 1.6;">
+            Postponement requests must be reviewed by admins. Please provide a valid reason.
+            Abuse of postponement requests may result in penalties.
+        </p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_reason">Reason for Postponement *</label>
+            <textarea 
+                name="reason" 
+                id="id_reason" 
+                rows="4"
+                placeholder="Explain why you need to postpone this match..."
+                required
+            ></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+            <a href="{% url 'player_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

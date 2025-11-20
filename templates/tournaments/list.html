@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Tournaments - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">🏆 Active Tournaments</h1>
+    
+    {% if active_tournaments %}
+        <div style="display: grid; gap: 1.5rem;">
+            {% for tournament in active_tournaments %}
+            <div class="card" style="border-left: 4px solid var(--gold);">
+                <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="color: var(--gold); font-size: 1.5rem; margin-bottom: 0.5rem;">
+                            <a href="{% url 'tournaments:detail' tournament.id %}" style="color: var(--gold); text-decoration: none;">
+                                {{ tournament.name }}
+                            </a>
+                        </h2>
+                        <p style="opacity: 0.8;">{{ tournament.get_tournament_type_display }}</p>
+                    </div>
+                    <span class="badge badge-{% if tournament.status == 'registration' %}success{% elif tournament.status == 'ongoing' %}gold{% else %}danger{% endif %}">
+                        {{ tournament.get_status_display }}
+                    </span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+                    <div>
+                        <strong style="color: var(--gold);">Teams:</strong> {{ tournament.current_teams_count }}/{{ tournament.team_limit }}
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold);">Entry Fee:</strong> ₦{{ tournament.registration_fee }}
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold);">Start Date:</strong> {{ tournament.start_date }}
+                    </div>
+                </div>
+                
+                {% if tournament.prize %}
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 8px;">
+                    <strong style="color: var(--gold);">Prize:</strong> {{ tournament.prize }}
+                </div>
+                {% endif %}
+                
+                <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                    <a href="{% url 'tournaments:detail' tournament.id %}" class="btn btn-primary">View Details</a>
+                    {% if tournament.status == 'registration' and not tournament.is_full %}
+                        <a href="{% url 'payments:initiate' tournament.id %}" class="btn btn-secondary">Register Now</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center; padding: 3rem; opacity: 0.7;">No active tournaments at the moment. Check back soon!</p>
+    {% endif %}
+</div>
+
+{% if completed_tournaments %}
+<div class="card" style="margin-top: 2rem;">
+    <h2 class="card-title">📜 Completed Tournaments</h2>
+    
+    <div style="display: grid; gap: 1rem;">
+        {% for tournament in completed_tournaments %}
+        <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; border-left: 3px solid rgba(255, 215, 0, 0.3);">
+            <h3 style="color: var(--gold); margin-bottom: 0.5rem;">
+                <a href="{% url 'tournaments:detail' tournament.id %}" style="color: var(--gold); text-decoration: none;">
+                    {{ tournament.name }}
+                </a>
+            </h3>
+            <p style="opacity: 0.6; font-size: 0.9rem;">{{ tournament.get_tournament_type_display }} • {{ tournament.start_date }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

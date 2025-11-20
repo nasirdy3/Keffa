@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tournament.name }} - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <h1 class="card-title">{{ tournament.name }}</h1>
+            <p style="opacity: 0.8;">{{ tournament.get_tournament_type_display }}</p>
+        </div>
+        <span class="badge badge-{% if tournament.status == 'registration' %}success{% elif tournament.status == 'ongoing' %}gold{% else %}danger{% endif %}">
+            {{ tournament.get_status_display }}
+        </span>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="padding: 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 8px;">
+            <div style="color: var(--gold); font-size: 0.9rem; margin-bottom: 0.25rem;">Teams</div>
+            <div style="font-size: 1.5rem; font-weight: 700;">{{ tournament.current_teams_count }}/{{ tournament.team_limit }}</div>
+        </div>
+        
+        <div style="padding: 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 8px;">
+            <div style="color: var(--gold); font-size: 0.9rem; margin-bottom: 0.25rem;">Entry Fee</div>
+            <div style="font-size: 1.5rem; font-weight: 700;">₦{{ tournament.registration_fee }}</div>
+        </div>
+        
+        <div style="padding: 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 8px;">
+            <div style="color: var(--gold); font-size: 0.9rem; margin-bottom: 0.25rem;">Start Date</div>
+            <div style="font-size: 1.5rem; font-weight: 700;">{{ tournament.start_date }}</div>
+        </div>
+    </div>
+    
+    {% if tournament.prize %}
+    <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 12px; margin-bottom: 2rem;">
+        <h3 style="color: var(--gold); margin-bottom: 0.5rem;">🏆 Prize</h3>
+        <p>{{ tournament.prize }}</p>
+    </div>
+    {% endif %}
+    
+    {% if tournament.rules %}
+    <div style="margin-bottom: 2rem;">
+        <h3 style="color: var(--gold); margin-bottom: 1rem;">📋 Rules</h3>
+        <p style="line-height: 1.6; opacity: 0.9;">{{ tournament.rules }}</p>
+    </div>
+    {% endif %}
+    
+    {% if tournament.status == 'registration' and not user_registered %}
+        <a href="{% url 'payments:initiate' tournament.id %}" class="btn btn-primary" style="display: inline-block;">Register for Tournament</a>
+    {% elif user_registered %}
+        <div class="badge badge-success" style="padding: 1rem 1.5rem; display: inline-block;">✓ You are registered</div>
+    {% endif %}
+</div>
+
+<div style="display: grid; gap: 1.5rem; margin-top: 2rem;">
+    <div class="card">
+        <h2 class="card-title">📊 Standings</h2>
+        {% if standings %}
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Team</th>
+                            <th>P</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                            <th>GD</th>
+                            <th>Pts</th>
+                            <th>Form</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for standing in standings %}
+                        <tr>
+                            <td style="font-weight: 700;">{{ forloop.counter }}</td>
+                            <td>
+                                <a href="{% url 'teams:profile' standing.team.id %}" style="color: var(--gold); text-decoration: none; font-weight: 600;">
+                                    {{ standing.team.team_name }}
+                                </a>
+                            </td>
+                            <td>{{ standing.played }}</td>
+                            <td>{{ standing.won }}</td>
+                            <td>{{ standing.drawn }}</td>
+                            <td>{{ standing.lost }}</td>
+                            <td>{{ standing.goals_for }}</td>
+                            <td>{{ standing.goals_against }}</td>
+                            <td>{{ standing.goal_difference }}</td>
+                            <td style="font-weight: 700; color: var(--gold);">{{ standing.points }}</td>
+                            <td>
+                                {% for char in standing.form %}
+                                    <span class="badge badge-{% if char == 'W' %}success{% elif char == 'D' %}gold{% else %}danger{% endif %}" style="padding: 0.2rem 0.4rem; font-size: 0.7rem;">{{ char }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="text-align: center; padding: 2rem; opacity: 0.7;">Standings will appear once matches begin</p>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h2 class="card-title">📅 Upcoming Fixtures</h2>
+        {% if upcoming_fixtures %}
+            <div style="display: grid; gap: 1rem;">
+                {% for match in upcoming_fixtures %}
+                <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1; text-align: right;">
+                        <a href="{% url 'teams:profile' match.home_team.id %}" style="color: var(--text); text-decoration: none; font-weight: 600;">
+                            {{ match.home_team.team_name }}
+                        </a>
+                    </div>
+                    <div style="padding: 0.5rem 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 6px; font-weight: 700;">VS</div>
+                    <div style="flex: 1;">
+                        <a href="{% url 'teams:profile' match.away_team.id %}" style="color: var(--text); text-decoration: none; font-weight: 600;">
+                            {{ match.away_team.team_name }}
+                        </a>
+                    </div>
+                    <div style="opacity: 0.7; font-size: 0.9rem;">{{ match.match_date }} • {{ match.match_time }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="text-align: center; padding: 2rem; opacity: 0.7;">No upcoming fixtures</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
