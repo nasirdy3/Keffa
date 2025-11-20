@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - KEFA{% endblock %}
+
+{% block content %}
+<h1 style="color: white; margin-bottom: 2rem;">Welcome, {{ player.full_name }}!</h1>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+    <div class="card">
+        <h2 style="color: #667eea; margin-bottom: 1rem;">Player Profile</h2>
+        <div style="margin-bottom: 1rem;">
+            {% if player.profile_picture %}
+                <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+                <div style="width: 120px; height: 120px; border-radius: 50%; background: #667eea; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                    {{ player.full_name.0 }}
+                </div>
+            {% endif %}
+        </div>
+        <p><strong>Username:</strong> {{ player.user.username }}</p>
+        <p><strong>eFootball ID:</strong> {{ player.efootball_id }}</p>
+        <p><strong>Device:</strong> {{ player.get_device_type_display }}</p>
+        <p><strong>Phone:</strong> {{ player.phone_number }}</p>
+        <a href="{% url 'edit_profile' %}" class="btn btn-primary" style="margin-top: 1rem;">Edit Profile</a>
+    </div>
+    
+    <div class="card">
+        <h2 style="color: #764ba2; margin-bottom: 1rem;">Team: {{ team.team_name }}</h2>
+        {% if team.logo %}
+            <img src="{{ team.logo.url }}" alt="{{ team.team_name }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">
+        {% endif %}
+        {% if team.squad_image %}
+            <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad" style="width: 100%; border-radius: 10px; margin-top: 1rem;">
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h2 style="color: #667eea; margin-bottom: 1rem;">Quick Stats</h2>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <p style="font-size: 0.9rem; color: #666;">Tournaments Joined</p>
+            <p style="font-size: 2rem; font-weight: bold; color: #667eea;">0</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <p style="font-size: 0.9rem; color: #666;">Matches Played</p>
+            <p style="font-size: 2rem; font-weight: bold; color: #764ba2;">0</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+            <p style="font-size: 0.9rem; color: #666;">Achievements</p>
+            <p style="font-size: 2rem; font-weight: bold; color: #667eea;">0</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

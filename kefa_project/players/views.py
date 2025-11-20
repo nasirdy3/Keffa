@@ -1,0 +1,124 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import transaction
+from .forms import UserRegistrationForm, PlayerProfileForm
+from kefa_project.teams.forms import TeamForm
+from .models import Player
+
+def register(request):
+    if request.method == 'POST':
+        user_form = UserRegistrationForm(request.POST)
+        player_form = PlayerProfileForm(request.POST, request.FILES)
+        team_form = TeamForm(request.POST, request.FILES)
+        
+        if user_form.is_valid() and player_form.is_valid() and team_form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = user_form.save()
+                    
+                    player = player_form.save(commit=False)
+                    player.user = user
+                    player.save()
+                    
+                    team = team_form.save(commit=False)
+                    team.player = player
+                    team.save()
+                    
+                    login(request, user)
+                    messages.success(request, f'Welcome to KEFA, {player.full_name}! Your account has been created successfully.')
+                    return redirect('player_dashboard')
+            except Exception as e:
+                messages.error(request, f'An error occurred during registration: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        user_form = UserRegistrationForm()
+        player_form = PlayerProfileForm()
+        team_form = TeamForm()
+    
+    return render(request, 'players/register.html', {
+        'user_form': user_form,
+        'player_form': player_form,
+        'team_form': team_form,
+    })
+
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'Welcome back, {user.username}!')
+            next_url = request.GET.get('next', 'player_dashboard')
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'players/login.html')
+
+
+@login_required
+def user_logout(request):
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('home')
+
+
+@login_required
+def player_dashboard(request):
+    try:
+        player = request.user.player_profile
+        team = player.team
+    except Player.DoesNotExist:
+        messages.error(request, 'Player profile not found. Please contact support.')
+        return redirect('home')
+    
+    return render(request, 'players/dashboard.html', {
+        'player': player,
+        'team': team,
+    })
+
+
+@login_required
+def player_profile(request, player_id):
+    player = get_object_or_404(Player, id=player_id)
+    try:
+        team = player.team
+    except:
+        team = None
+    
+    return render(request, 'players/profile.html', {
+        'player': player,
+        'team': team,
+    })
+
+
+@login_required
+def edit_profile(request):
+    player = request.user.player_profile
+    team = player.team
+    
+    if request.method == 'POST':
+        player_form = PlayerProfileForm(request.POST, request.FILES, instance=player)
+        team_form = TeamForm(request.POST, request.FILES, instance=team)
+        
+        if player_form.is_valid() and team_form.is_valid():
+            player_form.save()
+            team_form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('player_dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        player_form = PlayerProfileForm(instance=player)
+        team_form = TeamForm(instance=team)
+    
+    return render(request, 'players/edit_profile.html', {
+        'player_form': player_form,
+        'team_form': team_form,
+    })
