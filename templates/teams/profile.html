@@ -7,7 +7,7 @@
     <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 2rem;">
         <div style="flex: 1;">
             <h1 class="card-title">{{ team.team_name }}</h1>
-            <p style="opacity: 0.8;">Captain: <strong style="color: var(--gold);">{{ team.captain.full_name }}</strong></p>
+            <p style="opacity: 0.8;">Player: <strong style="color: var(--gold);">{{ player.full_name }}</strong></p>
         </div>
         {% if team.logo %}
             <img src="{{ team.logo.url }}" alt="{{ team.team_name }}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 3px solid var(--gold);">

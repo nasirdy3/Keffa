@@ -1,151 +1,177 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}KEFA - Kebbi eFootball Arena{% endblock %}
-
-{% block extra_css %}
-<style>
-    .hero {
-        text-align: center;
-        padding: 4rem 2rem;
-        animation: fadeIn 1s ease-out;
-    }
-    
-    .hero-title {
-        font-size: 4rem;
-        font-weight: 900;
-        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 1rem;
-        letter-spacing: 3px;
-    }
-    
-    .hero-tagline {
-        font-size: 1.5rem;
-        color: var(--text);
-        margin-bottom: 2rem;
-        opacity: 0.9;
-    }
-    
-    .hero-cta {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-top: 2rem;
-        flex-wrap: wrap;
-    }
-    
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        margin-top: 4rem;
-    }
-    
-    .feature-card {
-        text-align: center;
-        padding: 2.5rem;
-        transition: transform 0.3s;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-10px);
-    }
-    
-    .feature-icon {
-        font-size: 4rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .feature-title {
-        font-size: 1.5rem;
-        color: var(--gold);
-        margin-bottom: 1rem;
-        font-weight: 700;
-    }
-    
-    .feature-desc {
-        color: var(--text);
-        opacity: 0.8;
-        line-height: 1.6;
-    }
-    
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .hero-title {
-            font-size: 2.5rem;
-        }
-        
-        .hero-tagline {
-            font-size: 1.2rem;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}KEFA - The Premier eFootball Platform in Birnin Kebbi{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <h1 class="hero-title">⚽ KEFA</h1>
-    <p class="hero-tagline">Kebbi eFootball Arena</p>
-    <p style="font-size: 1.125rem; opacity: 0.9;">The Ultimate Digital Platform for eFootball Gamers in Birnin Kebbi</p>
-    
-    <div class="hero-cta">
-        {% if user.is_authenticated %}
-            <a href="{% url 'player_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
-            <a href="{% url 'tournaments:list' %}" class="btn btn-secondary">Browse Tournaments</a>
-        {% else %}
-            <a href="{% url 'register' %}" class="btn btn-primary">Join KEFA Today</a>
-            <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
-        {% endif %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">KEFA</h1>
+        <p class="hero-subtitle">Kebbi eFootball Arena - Where Champions Are Made</p>
+        <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2rem;">
+            The ultimate digital platform for eFootball mobile gamers in Birnin Kebbi. Compete in tournaments, track your stats, earn achievements, and build your legacy.
+        </p>
+        
+        <div class="btn-group" style="justify-content: center;">
+            {% if user.is_authenticated %}
+                <a href="{% url 'player_dashboard' %}" class="btn btn-primary">My Dashboard</a>
+                <a href="{% url 'tournaments:list' %}" class="btn btn-secondary">Browse Tournaments</a>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary">Join KEFA Today</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+            {% endif %}
+        </div>
     </div>
-</div>
+    
+    <!-- Platform Statistics -->
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <span class="hero-stat-value">{{ total_players }}</span>
+            <span class="hero-stat-label">Players</span>
+        </div>
+        <div class="hero-stat">
+            <span class="hero-stat-value">{{ total_teams }}</span>
+            <span class="hero-stat-label">Teams</span>
+        </div>
+        <div class="hero-stat">
+            <span class="hero-stat-value">{{ active_tournaments }}</span>
+            <span class="hero-stat-label">Active Tournaments</span>
+        </div>
+        <div class="hero-stat">
+            <span class="hero-stat-value">{{ total_matches }}</span>
+            <span class="hero-stat-label">Matches Played</span>
+        </div>
+    </div>
+</section>
 
-<div class="features-grid">
-    <div class="card feature-card">
-        <div class="feature-icon">🏆</div>
-        <h3 class="feature-title">Tournaments</h3>
-        <p class="feature-desc">Compete in professional leagues, knockouts & champions league formats with automatic fixtures</p>
+<!-- Featured Tournaments -->
+{% if featured_tournaments %}
+<section class="container" style="margin-top: 3rem;">
+    <h2 class="text-center" style="font-size: 2rem; color: var(--primary-gold); margin-bottom: 2rem;">
+        🏆 Active Tournaments
+    </h2>
+    
+    <div class="grid grid-3">
+        {% for tournament in featured_tournaments %}
+        <div class="tournament-card" onclick="window.location.href='{% url 'tournaments:detail' tournament.id %}'">
+            <div class="tournament-card-header">
+                <h3 class="tournament-name">{{ tournament.name }}</h3>
+                <p class="tournament-type">{{ tournament.get_tournament_type_display }}</p>
+            </div>
+            <div class="tournament-card-body">
+                <div class="tournament-info">
+                    <span class="tournament-status status-{{ tournament.status }}">
+                        {{ tournament.get_status_display }}
+                    </span>
+                    <span style="color: var(--text-muted);">
+                        {{ tournament.current_teams_count }}/{{ tournament.team_limit }} Teams
+                    </span>
+                </div>
+                
+                {% if tournament.registration_fee > 0 %}
+                <p style="color: var(--primary-gold); font-weight: 600; margin-bottom: 0.5rem;">
+                    Entry Fee: ₦{{ tournament.registration_fee }}
+                </p>
+                {% else %}
+                <p style="color: var(--success-green); font-weight: 600; margin-bottom: 0.5rem;">
+                    Free Entry
+                </p>
+                {% endif %}
+                
+                {% if tournament.prize %}
+                <p style="color: var(--text-muted); font-size: 0.875rem;">
+                    Prize: {{ tournament.prize|truncatewords:10 }}
+                </p>
+                {% endif %}
+                
+                <a href="{% url 'tournaments:detail' tournament.id %}" class="btn btn-primary" style="margin-top: 1rem; width: 100%;">
+                    View Tournament
+                </a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
     
-    <div class="card feature-card">
-        <div class="feature-icon">📊</div>
-        <h3 class="feature-title">Live Standings</h3>
-        <p class="feature-desc">Real-time tables, match results, form indicators, and comprehensive stats</p>
+    <div class="text-center" style="margin-top: 2rem;">
+        <a href="{% url 'tournaments:list' %}" class="btn btn-secondary">View All Tournaments</a>
     </div>
+</section>
+{% endif %}
+
+<!-- Features Section -->
+<section class="container" style="margin-top: 4rem;">
+    <h2 class="text-center" style="font-size: 2rem; color: var(--primary-gold); margin-bottom: 2rem;">
+        Why Join KEFA?
+    </h2>
     
-    <div class="card feature-card">
-        <div class="feature-icon">🏅</div>
-        <h3 class="feature-title">Achievements</h3>
-        <p class="feature-desc">Earn automatic badges and trophies - tournament winner, runner-up, top scorer & more</p>
+    <div class="grid grid-3">
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏆</div>
+            <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Professional Tournaments</h3>
+            <p style="color: var(--text-muted);">
+                Compete in leagues, knockouts, and Champions League formats with automatic fixture generation and live standings.
+            </p>
+        </div>
+        
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+            <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Real-Time Statistics</h3>
+            <p style="color: var(--text-muted);">
+                Track your performance with detailed stats, form indicators, and historical records. See how you stack up against other players.
+            </p>
+        </div>
+        
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏅</div>
+            <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Achievements & Badges</h3>
+            <p style="color: var(--text-muted);">
+                Earn automatic badges and trophies for tournament wins, top scorer awards, and other achievements.
+            </p>
+        </div>
+        
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
+            <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Match Highlights</h3>
+            <p style="color: var(--text-muted);">
+                Upload and share your best match moments. Every match must have verified highlights for authenticity.
+            </p>
+        </div>
+        
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
+            <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Community Chat</h3>
+            <p style="color: var(--text-muted);">
+                Connect with fellow gamers in real-time. Organize friendly matches and challenge other teams.
+            </p>
+        </div>
+        
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">💰</div>
+            <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">Prize Tournaments</h3>
+            <p style="color: var(--text-muted);">
+                Compete for real prizes and rewards. Secure payments through Paystack with offline options available.
+            </p>
+        </div>
     </div>
-    
-    <div class="card feature-card">
-        <div class="feature-icon">🎬</div>
-        <h3 class="feature-title">Match Highlights</h3>
-        <p class="feature-desc">Upload and share your best match moments with the community</p>
+</section>
+
+<!-- Call to Action -->
+{% if not user.is_authenticated %}
+<section class="container" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <div class="card text-center" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.1)); border-color: var(--primary-gold);">
+        <h2 style="font-size: 2.5rem; color: var(--primary-gold); margin-bottom: 1rem;">
+            Ready to Compete?
+        </h2>
+        <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem;">
+            Join KEFA today and start building your eFootball legacy in Birnin Kebbi!
+        </p>
+        <div class="btn-group" style="justify-content: center;">
+            <a href="{% url 'register' %}" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2rem;">
+                Create Your Account
+            </a>
+        </div>
     </div>
-    
-    <div class="card feature-card">
-        <div class="feature-icon">💬</div>
-        <h3 class="feature-title">Community Chat</h3>
-        <p class="feature-desc">Connect with fellow gamers and organize friendly matches in real-time</p>
-    </div>
-    
-    <div class="card feature-card">
-        <div class="feature-icon">💰</div>
-        <h3 class="feature-title">Prize Tournaments</h3>
-        <p class="feature-desc">Compete for real rewards and build your eFootball legacy</p>
-    </div>
-</div>
+</section>
+{% endif %}
 {% endblock %}
