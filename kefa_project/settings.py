@@ -203,3 +203,9 @@ REST_FRAMEWORK = {
 LOGIN_URL = '/players/login/'
 LOGIN_REDIRECT_URL = '/players/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Payment Gateway Configuration
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='')
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='')
+FLUTTERWAVE_SECRET_KEY = config('FLUTTERWAVE_SECRET_KEY', default='')
+FLUTTERWAVE_PUBLIC_KEY = config('FLUTTERWAVE_PUBLIC_KEY', default='')

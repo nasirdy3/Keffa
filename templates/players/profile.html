@@ -4,44 +4,44 @@
 
 {% block content %}
 <div class="card" style="max-width: 900px; margin: 0 auto;">
-    <div style="display: flex; gap: 2rem; align-items: start;">
+    <div style="display: flex; gap: 2rem; align-items: start; flex-wrap: wrap;">
         <div style="flex-shrink: 0;">
             {% if player.profile_picture %}
-                <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover;">
+                <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-gold); box-shadow: var(--shadow-glow);">
             {% else %}
-                <div style="width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 5rem;">
+                <div style="width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-gold), var(--gold-dark)); display: flex; align-items: center; justify-content: center; color: var(--dark-bg); font-size: 5rem; font-weight: 900; box-shadow: var(--shadow-glow);">
                     {{ player.full_name.0 }}
                 </div>
             {% endif %}
         </div>
         
         <div style="flex-grow: 1;">
-            <h1 style="color: #667eea; margin-bottom: 0.5rem;">{{ player.full_name }}</h1>
-            <p style="color: #666; margin-bottom: 2rem;">@{{ player.user.username }}</p>
+            <h1 class="card-title" style="margin-bottom: 0.5rem;">{{ player.full_name }}</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">@{{ player.user.username }}</p>
             
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
                 <div>
-                    <p style="color: #999; font-size: 0.9rem;">Team</p>
-                    <p style="font-weight: 600; color: #333;">{{ team.team_name }}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Team</p>
+                    <p style="font-weight: 600; color: var(--primary-gold);">{{ team.team_name }}</p>
                 </div>
                 <div>
-                    <p style="color: #999; font-size: 0.9rem;">eFootball ID</p>
-                    <p style="font-weight: 600; color: #333;">{{ player.efootball_id }}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">eFootball ID</p>
+                    <p style="font-weight: 600;">{{ player.efootball_id }}</p>
                 </div>
                 <div>
-                    <p style="color: #999; font-size: 0.9rem;">Device</p>
-                    <p style="font-weight: 600; color: #333;">{{ player.get_device_type_display }}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Device</p>
+                    <p style="font-weight: 600;">{{ player.get_device_type_display }}</p>
                 </div>
                 <div>
-                    <p style="color: #999; font-size: 0.9rem;">Joined</p>
-                    <p style="font-weight: 600; color: #333;">{{ player.created_at|date:"M d, Y" }}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Joined</p>
+                    <p style="font-weight: 600;">{{ player.created_at|date:"M d, Y" }}</p>
                 </div>
             </div>
             
             {% if player.bio %}
-                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-                    <p style="color: #999; font-size: 0.9rem; margin-bottom: 0.5rem;">Bio</p>
-                    <p style="color: #333;">{{ player.bio }}</p>
+                <div style="background: rgba(255, 215, 0, 0.05); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary-gold);">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Bio</p>
+                    <p>{{ player.bio }}</p>
                 </div>
             {% endif %}
         </div>
@@ -49,8 +49,8 @@
     
     {% if team.squad_image %}
         <div style="margin-top: 2rem;">
-            <h3 style="margin-bottom: 1rem; color: #333;">{{ team.team_name }} Squad</h3>
-            <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad" style="width: 100%; border-radius: 12px;">
+            <h3 style="margin-bottom: 1rem; color: var(--primary-gold);">{{ team.team_name }} Squad</h3>
+            <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad" style="width: 100%; border-radius: 12px; border: 2px solid var(--primary-gold);">
         </div>
     {% endif %}
 </div>

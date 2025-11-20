@@ -71,6 +71,11 @@ def user_logout(request):
 
 @login_required
 def player_dashboard(request):
+    from kefa_project.matches.models import Match
+    from kefa_project.tournaments.models import TournamentRegistration, Standing
+    from kefa_project.achievements.models import PlayerBadge
+    from django.db.models import Q, Count
+    
     try:
         player = request.user.player_profile
         team = player.team
@@ -78,9 +83,52 @@ def player_dashboard(request):
         messages.error(request, 'Player profile not found. Please contact support.')
         return redirect('home')
     
+    # Get tournament registrations
+    tournaments_count = TournamentRegistration.objects.filter(
+        team=team,
+        payment_verified=True
+    ).count()
+    
+    # Get matches statistics
+    completed_matches = Match.objects.filter(
+        Q(home_team=team) | Q(away_team=team),
+        status='completed'
+    )
+    matches_count = completed_matches.count()
+    
+    # Calculate win rate
+    wins = 0
+    for match in completed_matches:
+        if match.home_team == team and match.home_score > match.away_score:
+            wins += 1
+        elif match.away_team == team and match.away_score > match.home_score:
+            wins += 1
+    
+    win_rate = round((wins / matches_count * 100) if matches_count > 0 else 0, 1)
+    
+    # Get achievements count
+    achievements_count = PlayerBadge.objects.filter(player=player).count()
+    
+    # Get upcoming matches
+    upcoming_matches = Match.objects.filter(
+        Q(home_team=team) | Q(away_team=team),
+        status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress', 'awaiting_highlight']
+    ).order_by('match_date', 'match_time')[:5]
+    
+    # Get recent achievements
+    recent_achievements = PlayerBadge.objects.filter(
+        player=player
+    ).select_related('badge').order_by('-awarded_at')[:5]
+    
     return render(request, 'players/dashboard.html', {
         'player': player,
         'team': team,
+        'tournaments_count': tournaments_count,
+        'matches_count': matches_count,
+        'win_rate': win_rate,
+        'achievements_count': achievements_count,
+        'upcoming_matches': upcoming_matches,
+        'recent_achievements': recent_achievements,
     })
 
 

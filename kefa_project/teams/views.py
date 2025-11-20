@@ -26,19 +26,13 @@ def team_profile(request, team_id):
     badges = player.badges.all().select_related('badge', 'tournament')
     trophies = team.trophies.all().select_related('tournament')
     
-    stats = {
-        'total_matches': all_matches.filter(status='completed').count(),
-        'total_wins': 0,
-        'total_draws': 0,
-        'total_losses': 0,
-        'total_goals_scored': sum(s.goals_for for s in standings),
-        'total_goals_conceded': sum(s.goals_against for s in standings),
-    }
+    total_matches = all_matches.filter(status='completed').count()
+    total_wins = sum(s.won for s in standings)
+    total_draws = sum(s.drawn for s in standings)
+    total_losses = sum(s.lost for s in standings)
     
-    for standing in standings:
-        stats['total_wins'] += standing.won
-        stats['total_draws'] += standing.drawn
-        stats['total_losses'] += standing.lost
+    win_rate = round((total_wins / total_matches * 100) if total_matches > 0 else 0, 1)
+    trophies_count = trophies.count()
     
     return render(request, 'teams/profile.html', {
         'team': team,
@@ -48,5 +42,8 @@ def team_profile(request, team_id):
         'highlights': highlights,
         'badges': badges,
         'trophies': trophies,
-        'stats': stats
+        'total_matches': total_matches,
+        'total_wins': total_wins,
+        'win_rate': win_rate,
+        'trophies_count': trophies_count,
     })
