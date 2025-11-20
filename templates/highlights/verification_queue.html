@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Highlight Verification Queue - Admin - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">🎬 Highlight Verification Queue</h1>
+    <p style="opacity: 0.8;">Review and verify match highlights, confirm final scores</p>
+</div>
+
+{% if highlights %}
+<div style="display: grid; gap: 1.5rem;">
+    {% for highlight in highlights %}
+    <div class="card" style="border-left: 4px solid var(--warning-yellow);">
+        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <h3 style="color: var(--gold); font-size: 1.25rem; margin-bottom: 0.5rem;">
+                    {{ highlight.match.home_team.team_name }} vs {{ highlight.match.away_team.team_name }}
+                </h3>
+                <p style="opacity: 0.7;">{{ highlight.match.tournament.name }}</p>
+            </div>
+            <span class="badge badge-warning">Pending Verification</span>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <strong style="color: var(--gold);">Match Date:</strong> {{ highlight.match.match_date }}
+            </div>
+            <div>
+                <strong style="color: var(--gold);">Uploaded by:</strong> {{ highlight.uploaded_by_team.team_name }}
+            </div>
+            <div>
+                <strong style="color: var(--gold);">Uploaded Side:</strong> 
+                <span class="badge badge-{% if highlight.uploaded_by_side == 'home' %}gold{% else %}silver{% endif %}" style="padding: 0.3rem 0.75rem;">
+                    {{ highlight.get_uploaded_by_side_display }}
+                </span>
+            </div>
+            <div>
+                <strong style="color: var(--gold);">Uploaded:</strong> {{ highlight.uploaded_at|date:"M d, Y H:i" }}
+            </div>
+        </div>
+        
+        {% if highlight.video_file %}
+        <div style="margin-bottom: 1.5rem;">
+            <strong style="color: var(--gold); display: block; margin-bottom: 0.75rem;">Match Video:</strong>
+            <video controls style="max-width: 100%; border-radius: 12px; border: 2px solid var(--border-color);">
+                <source src="{{ highlight.video_file.url }}" type="video/mp4">
+                Your browser does not support video playback.
+            </video>
+        </div>
+        {% else %}
+        <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 3px solid var(--danger-red); margin-bottom: 1.5rem;">
+            ⚠️ No video file uploaded
+        </div>
+        {% endif %}
+        
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'highlights:verify' highlight.id %}" class="btn btn-primary">Review & Enter Score</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 4rem 2rem;">
+    <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;">✓</div>
+    <h3 style="color: var(--gold); margin-bottom: 0.5rem;">All Caught Up!</h3>
+    <p style="opacity: 0.7;">No pending highlights to verify</p>
+</div>
+{% endif %}
+{% endblock %}

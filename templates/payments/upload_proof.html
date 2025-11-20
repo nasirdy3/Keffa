@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Payment Proof - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Upload Payment Proof</h1>
+    <p style="opacity: 0.8;">{{ payment.registration.tournament.name }}</p>
+</div>
+
+<div style="display: grid; gap: 1.5rem;">
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Payment Details</h3>
+        
+        <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong>Tournament:</strong>
+                <span>{{ payment.registration.tournament.name }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong>Amount:</strong>
+                <span style="color: var(--gold); font-size: 1.25rem; font-weight: 700;">₦{{ payment.amount }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong>Reference:</strong>
+                <span style="font-family: monospace; color: var(--gold);">{{ payment.transaction_reference }}</span>
+            </div>
+        </div>
+        
+        <div style="padding: 1.5rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border-left: 4px solid #3b82f6; margin-bottom: 2rem;">
+            <h4 style="color: #3b82f6; margin-bottom: 0.75rem;">💡 Payment Instructions</h4>
+            <ol style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem;">
+                <li>Make a bank transfer or cash payment to the KEFA account</li>
+                <li>Take a clear screenshot or photo of the payment receipt</li>
+                <li>Upload the proof using the form below</li>
+                <li>Admin will verify your payment within 24 hours</li>
+                <li>You'll receive a notification once verified</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Upload Proof</h3>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="payment_proof">Payment Receipt/Screenshot <span style="color: var(--danger-red);">*</span></label>
+                <input 
+                    type="file" 
+                    name="payment_proof" 
+                    id="payment_proof" 
+                    accept="image/*" 
+                    required
+                    style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color); border-radius: 0.5rem; color: var(--text);"
+                >
+                <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                    Accepted formats: JPG, PNG. Maximum file size: 5MB
+                </small>
+            </div>
+            
+            {% if payment.payment_proof %}
+            <div style="padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border-left: 3px solid var(--success-green); margin-bottom: 1.5rem;">
+                <strong style="color: var(--success-green);">✓ Previous upload:</strong>
+                <a href="{{ payment.payment_proof.url }}" target="_blank" style="color: var(--gold); text-decoration: underline; margin-left: 0.5rem;">
+                    View uploaded proof
+                </a>
+            </div>
+            {% endif %}
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Upload Proof</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Go to Dashboard</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

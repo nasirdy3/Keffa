@@ -23,6 +23,7 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('players/', include('kefa_project.players.urls')),
     path('tournaments/', include('kefa_project.tournaments.urls')),
     path('matches/', include('kefa_project.matches.urls')),

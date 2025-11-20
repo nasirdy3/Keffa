@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Highlight - Admin - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Verify Match Highlight</h1>
+    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+        <span class="badge badge-warning">Pending Verification</span>
+        <a href="{% url 'highlights:verification_queue' %}" style="color: var(--gold); text-decoration: underline;">← Back to Queue</a>
+    </div>
+</div>
+
+<div style="display: grid; gap: 1.5rem;">
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Match Information</h3>
+        
+        <div style="display: grid; gap: 1rem;">
+            <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong style="color: var(--gold);">Tournament:</strong>
+                <div style="margin-top: 0.5rem;">{{ match.tournament.name }}</div>
+            </div>
+            
+            <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong style="color: var(--gold);">Match:</strong>
+                <div style="margin-top: 0.5rem; font-size: 1.25rem;">
+                    <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                    <strong style="color: var(--gold);">Match Date:</strong>
+                    <div style="margin-top: 0.5rem;">{{ match.match_date }} at {{ match.match_time }}</div>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                    <strong style="color: var(--gold);">Uploaded By:</strong>
+                    <div style="margin-top: 0.5rem;">
+                        {{ highlight.uploaded_by_team.team_name }}
+                        <span class="badge badge-{% if highlight.uploaded_by_side == 'home' %}gold{% else %}silver{% endif %}" style="padding: 0.2rem 0.5rem; margin-left: 0.5rem;">
+                            {{ highlight.get_uploaded_by_side_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                    <strong style="color: var(--gold);">Upload Time:</strong>
+                    <div style="margin-top: 0.5rem;">{{ highlight.uploaded_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if highlight.video_file %}
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Match Video</h3>
+        <video controls style="width: 100%; max-height: 500px; border-radius: 12px; border: 2px solid var(--border-color);">
+            <source src="{{ highlight.video_file.url }}" type="video/mp4">
+            Your browser does not support video playback.
+        </video>
+        <p style="text-align: center; margin-top: 1rem; opacity: 0.7; font-size: 0.9rem;">
+            Watch the video carefully and confirm the final score
+        </p>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Enter Match Score</h3>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="padding: 1.5rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border-left: 4px solid #3b82f6; margin-bottom: 2rem;">
+                <h4 style="color: #3b82f6; margin-bottom: 0.75rem;">⚠️ Important</h4>
+                <ul style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem;">
+                    <li>Verify the score by watching the entire highlight video</li>
+                    <li>The score will update the tournament standings immediately</li>
+                    <li>Achievements and badges will be awarded automatically</li>
+                    <li>This action cannot be undone</li>
+                </ul>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label for="home_score" style="font-size: 1.1rem;">
+                        {{ match.home_team.team_name }} (Home) Score
+                    </label>
+                    <input 
+                        type="number" 
+                        name="home_score" 
+                        id="home_score" 
+                        min="0" 
+                        max="20" 
+                        required
+                        style="width: 100%; padding: 1rem; font-size: 1.5rem; text-align: center; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color); border-radius: 0.5rem; color: var(--gold); font-weight: 700;"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="away_score" style="font-size: 1.1rem;">
+                        {{ match.away_team.team_name }} (Away) Score
+                    </label>
+                    <input 
+                        type="number" 
+                        name="away_score" 
+                        id="away_score" 
+                        min="0" 
+                        max="20" 
+                        required
+                        style="width: 100%; padding: 1rem; font-size: 1.5rem; text-align: center; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color); border-radius: 0.5rem; color: var(--gold); font-weight: 700;"
+                    >
+                </div>
+            </div>
+            
+            <div style="display: grid; gap: 1rem;">
+                <button 
+                    type="submit" 
+                    name="action" 
+                    value="approve" 
+                    class="btn btn-success"
+                    onclick="return confirm('Confirm the match score? This will update standings and award achievements.')"
+                    style="padding: 1.25rem; font-size: 1.1rem;"
+                >
+                    ✓ Approve & Confirm Score
+                </button>
+                
+                <button 
+                    type="submit" 
+                    name="action" 
+                    value="reject" 
+                    class="btn btn-danger"
+                    onclick="return confirm('Reject this highlight? The match will need to be re-submitted.')"
+                    style="padding: 1.25rem; font-size: 1.1rem;"
+                >
+                    ✗ Reject Highlight
+                </button>
+            </div>
+            
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="rejection_reason">Rejection Reason (required if rejecting)</label>
+                <textarea 
+                    name="rejection_reason" 
+                    id="rejection_reason" 
+                    rows="3" 
+                    placeholder="Explain why the highlight was rejected..."
+                    style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color); border-radius: 0.5rem; color: var(--text); resize: vertical;"
+                ></textarea>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
