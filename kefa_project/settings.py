@@ -29,6 +29,17 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
+# CSRF Trusted Origins for Replit
+CSRF_TRUSTED_ORIGINS = []
+replit_domains = os.getenv('REPLIT_DOMAINS', '').split(',')
+for domain in replit_domains:
+    if domain.strip():
+        CSRF_TRUSTED_ORIGINS.append(f'https://{domain.strip()}')
+
+# Also add the dev domain if available
+dev_domain = os.getenv('REPLIT_DEV_DOMAIN', '')
+if dev_domain and f'https://{dev_domain}' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{dev_domain}')
 
 # Application definition
 
