@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Count, Sum
 from django.contrib.admin.views.decorators import staff_member_required
-from kefa_project.tournaments.models import Tournament
+from kefa_project.tournaments.models import Tournament, Standing
 from kefa_project.players.models import Player
 from kefa_project.teams.models import Team
 from kefa_project.matches.models import Match
@@ -80,3 +80,25 @@ def admin_dashboard(request):
     }
     
     return render(request, 'admin/dashboard.html', context)
+
+
+def leaderboards(request):
+    """Leaderboards showing top teams and top scorers"""
+    
+    top_teams = Standing.objects.select_related('team', 'tournament').order_by('-points', '-goals_for')[:20]
+    
+    top_scorers = Standing.objects.select_related('team', 'tournament').filter(
+        goals_for__gt=0
+    ).order_by('-goals_for')[:20]
+    
+    top_players = Player.objects.annotate(
+        achievements_count=Count('badges')
+    ).filter(achievements_count__gt=0).order_by('-achievements_count')[:20]
+    
+    context = {
+        'top_teams': top_teams,
+        'top_scorers': top_scorers,
+        'top_players': top_players,
+    }
+    
+    return render(request, 'leaderboards.html', context)

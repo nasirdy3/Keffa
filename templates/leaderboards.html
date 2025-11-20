@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboards - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">🏆 KEFA Leaderboards</h1>
+    <p style="opacity: 0.8;">Top performers in the Kebbi eFootball Arena</p>
+</div>
+
+<div style="display: grid; gap: 2rem;">
+    <div class="card">
+        <h2 class="card-title">⭐ Top Teams by Points</h2>
+        {% if top_teams %}
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team</th>
+                            <th>Tournament</th>
+                            <th>P</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GD</th>
+                            <th>Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for standing in top_teams %}
+                        <tr>
+                            <td><strong style="color: var(--primary-gold);">{{ forloop.counter }}</strong></td>
+                            <td>
+                                <a href="{% url 'teams:profile' standing.team.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600;">
+                                    {{ standing.team.team_name }}
+                                </a>
+                            </td>
+                            <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.tournament.name }}</td>
+                            <td>{{ standing.played }}</td>
+                            <td>{{ standing.won }}</td>
+                            <td>{{ standing.drawn }}</td>
+                            <td>{{ standing.lost }}</td>
+                            <td>{{ standing.goal_difference }}</td>
+                            <td><strong style="color: var(--primary-gold);">{{ standing.points }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem; opacity: 0.5;">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏆</div>
+                <p>No standings yet</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h2 class="card-title">⚽ Top Scorers</h2>
+        {% if top_scorers %}
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team</th>
+                            <th>Tournament</th>
+                            <th>Goals Scored</th>
+                            <th>Matches</th>
+                            <th>Avg per Match</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for standing in top_scorers %}
+                        <tr>
+                            <td><strong style="color: var(--primary-gold);">{{ forloop.counter }}</strong></td>
+                            <td>
+                                <a href="{% url 'teams:profile' standing.team.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600;">
+                                    {{ standing.team.team_name }}
+                                </a>
+                            </td>
+                            <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.tournament.name }}</td>
+                            <td><strong style="color: var(--accent-orange);">{{ standing.goals_for }}</strong></td>
+                            <td>{{ standing.played }}</td>
+                            <td>
+                                {% widthratio standing.goals_for standing.played 1 %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem; opacity: 0.5;">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚽</div>
+                <p>No goals scored yet</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h2 class="card-title">🌟 Top Players by Achievements</h2>
+        {% if top_players %}
+            <div style="display: grid; gap: 1rem;">
+                {% for player in top_players %}
+                <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.05); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary-gold);">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary-gold); min-width: 40px;">
+                            #{{ forloop.counter }}
+                        </div>
+                        <div>
+                            <a href="{% url 'players:profile' player.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600; font-size: 1.1rem;">
+                                {{ player.full_name }}
+                            </a>
+                            <div style="opacity: 0.7; font-size: 0.9rem; margin-top: 0.25rem;">
+                                {{ player.team.team_name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--primary-gold);">🏅</div>
+                        <div style="font-weight: 700; color: var(--primary-gold);">{{ player.achievements_count }}</div>
+                        <div style="opacity: 0.7; font-size: 0.8rem;">Achievements</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem; opacity: 0.5;">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🌟</div>
+                <p>No achievements yet</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
