@@ -24,6 +24,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('players/', include('kefa_project.players.urls')),
+    path('tournaments/', include('kefa_project.tournaments.urls')),
+    path('matches/', include('kefa_project.matches.urls')),
+    path('highlights/', include('kefa_project.highlights.urls')),
+    path('payments/', include('kefa_project.payments.urls')),
+    path('teams/', include('kefa_project.teams.urls')),
+    path('chat/', include('kefa_project.chat.urls')),
 ]
 
 if settings.DEBUG:

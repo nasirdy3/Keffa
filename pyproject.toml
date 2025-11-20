@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "celery>=5.5.3",
     "channels>=4.3.1",
     "channels-redis>=4.3.0",
     "cloudinary>=1.44.1",
@@ -15,5 +16,6 @@ dependencies = [
     "pillow>=12.0.0",
     "psycopg2-binary>=2.9.11",
     "python-decouple>=3.8",
+    "redis>=7.1.0",
     "requests>=2.32.5",
 ]

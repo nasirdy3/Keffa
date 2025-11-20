@@ -34,6 +34,8 @@ class Tournament(models.Model):
     teams_to_promote = models.IntegerField(default=2)
     teams_to_relegate = models.IntegerField(default=2)
     
+    fixtures_generated = models.BooleanField(default=False)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
