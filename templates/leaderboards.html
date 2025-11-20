@@ -58,17 +58,19 @@
     
     <div class="card">
         <h2 class="card-title">⚽ Top Scorers</h2>
+        <p style="opacity: 0.7; margin-bottom: 1.5rem;">Players with the most goals scored in tournaments</p>
         {% if top_scorers %}
             <div style="overflow-x: auto;">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Player</th>
                             <th>Team</th>
                             <th>Tournament</th>
-                            <th>Goals Scored</th>
+                            <th>Goals</th>
                             <th>Matches</th>
-                            <th>Avg per Match</th>
+                            <th>Avg</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,15 +78,20 @@
                         <tr>
                             <td><strong style="color: var(--primary-gold);">{{ forloop.counter }}</strong></td>
                             <td>
-                                <a href="{% url 'teams:profile' standing.team.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600;">
-                                    {{ standing.team.team_name }}
+                                <a href="{% url 'players:profile' standing.team.player.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600;">
+                                    {{ standing.team.player.full_name }}
                                 </a>
                             </td>
+                            <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.team.team_name }}</td>
                             <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.tournament.name }}</td>
                             <td><strong style="color: var(--accent-orange);">{{ standing.goals_for }}</strong></td>
                             <td>{{ standing.played }}</td>
                             <td>
-                                {% widthratio standing.goals_for standing.played 1 %}
+                                {% if standing.played > 0 %}
+                                    {% widthratio standing.goals_for standing.played 1 %}
+                                {% else %}
+                                    0
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

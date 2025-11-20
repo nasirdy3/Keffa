@@ -35,6 +35,7 @@
             <ul class="navbar-menu">
                 <li><a href="{% url 'home' %}" class="navbar-link">Home</a></li>
                 <li><a href="{% url 'tournaments:list' %}" class="navbar-link">Tournaments</a></li>
+                <li><a href="{% url 'leaderboards' %}" class="navbar-link">Leaderboards</a></li>
                 <li><a href="{% url 'highlights:gallery' %}" class="navbar-link">Highlights</a></li>
                 
                 {% if user.is_authenticated %}

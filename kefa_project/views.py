@@ -87,7 +87,7 @@ def leaderboards(request):
     
     top_teams = Standing.objects.select_related('team', 'tournament').order_by('-points', '-goals_for')[:20]
     
-    top_scorers = Standing.objects.select_related('team', 'tournament').filter(
+    top_scorers = Standing.objects.select_related('team__player', 'tournament').filter(
         goals_for__gt=0
     ).order_by('-goals_for')[:20]
     
