@@ -1,9 +1,29 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from django.utils import timezone
 from django.db import transaction
 from .models import Tournament, TournamentRegistration, Standing
 from kefa_project.matches.models import Match
+
+
+def get_randomized_match_time(default_time):
+    """
+    Returns a randomized match time with 70-80% at default (usually 5 PM)
+    and the rest distributed among other valid times (3 PM, 4 PM, 6 PM, 7 PM)
+    """
+    random_choice = random.random()
+    
+    if random_choice < 0.75:
+        return default_time
+    
+    other_times = [
+        time(15, 0),
+        time(16, 0),
+        time(18, 0),
+        time(19, 0),
+    ]
+    
+    return random.choice(other_times)
 
 
 def lock_and_generate_fixtures(tournament):
@@ -42,12 +62,13 @@ def generate_league_fixtures(tournament, teams):
     fixtures = []
     
     match_date = tournament.start_date
-    match_time = tournament.default_match_time
     
     for round_num in range(num_teams - 1):
         for i in range(num_teams // 2):
             home_team = teams[i]
             away_team = teams[num_teams - 1 - i]
+            
+            match_time = get_randomized_match_time(tournament.default_match_time)
             
             fixtures.append(
                 Match(
@@ -65,6 +86,8 @@ def generate_league_fixtures(tournament, teams):
     
     second_leg_date = match_date + timedelta(days=3)
     for match in list(fixtures):
+        match_time = get_randomized_match_time(tournament.default_match_time)
+        
         fixtures.append(
             Match(
                 tournament=tournament,
@@ -85,11 +108,12 @@ def generate_knockout_fixtures(tournament, teams):
     random.shuffle(teams_list)
     
     match_date = tournament.start_date
-    match_time = tournament.default_match_time
     fixtures = []
     
     for i in range(0, len(teams_list) - 1, 2):
         if i + 1 < len(teams_list):
+            match_time = get_randomized_match_time(tournament.default_match_time)
+            
             fixtures.append(
                 Match(
                     tournament=tournament,
