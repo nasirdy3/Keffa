@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+from django.urls import reverse
 from .forms import UserRegistrationForm, PlayerProfileForm
 from kefa_project.teams.forms import TeamForm
 from .models import Player
@@ -28,7 +29,7 @@ def register(request):
                     
                     login(request, user)
                     messages.success(request, f'Welcome to KEFA, {player.full_name}! Your account has been created successfully.')
-                    return redirect('player_dashboard')
+                    return redirect('players:player_dashboard')
             except Exception as e:
                 messages.error(request, f'An error occurred during registration: {str(e)}')
         else:
@@ -54,7 +55,7 @@ def user_login(request):
         if user is not None:
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
-            next_url = request.GET.get('next', 'player_dashboard')
+            next_url = request.GET.get('next') or reverse('players:player_dashboard')
             return redirect(next_url)
         else:
             messages.error(request, 'Invalid username or password.')
@@ -207,7 +208,7 @@ def edit_profile(request):
             player_form.save()
             team_form.save()
             messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('player_dashboard')
+            return redirect('players:player_dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
