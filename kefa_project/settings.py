@@ -41,6 +41,12 @@ dev_domain = os.getenv('REPLIT_DEV_DOMAIN', '')
 if dev_domain and f'https://{dev_domain}' not in CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS.append(f'https://{dev_domain}')
 
+# CSRF and Session Cookie Settings for Replit iframe
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+
 # Application definition
 
 INSTALLED_APPS = [
