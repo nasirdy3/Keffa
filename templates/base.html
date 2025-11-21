@@ -5,8 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FFD700">
-    <meta name="description" content="KEFA - Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria">
+    <meta name="description" content="{% block meta_description %}KEFA - Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria. Join tournaments, compete for prizes, and build your legacy.{% endblock %}">
     <meta name="author" content="KEFA - Kebbi eFootball Arena">
+    <meta name="keywords" content="{% block meta_keywords %}eFootball, esports, gaming, Kebbi, Nigeria, mobile gaming, tournaments, competitive gaming{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}KEFA - Kebbi eFootball Arena{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'images/icon-512.png' %}{% endblock %}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:title" content="{% block twitter_title %}KEFA - Kebbi eFootball Arena{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}Digital esports platform for eFootball mobile gamers{% endblock %}">
+    <meta property="twitter:image" content="{% block twitter_image %}{% static 'images/icon-512.png' %}{% endblock %}">
     
     <!-- PWA -->
     <link rel="manifest" href="{% static 'manifest.json' %}">
@@ -18,6 +33,8 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     
     {% block extra_css %}{% endblock %}
+    
+    <script src="{% static 'js/notifications.js' %}" defer></script>
 </head>
 <body>
     <!-- Navigation -->

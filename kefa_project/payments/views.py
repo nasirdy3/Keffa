@@ -127,8 +127,9 @@ def initiate_paystack_payment(request, registration, tournament):
 
 def initiate_flutterwave_payment(request, registration, tournament):
     flutterwave_public = getattr(settings, 'FLUTTERWAVE_PUBLIC_KEY', None)
+    flutterwave_secret = getattr(settings, 'FLUTTERWAVE_SECRET_KEY', None)
     
-    if not flutterwave_public:
+    if not flutterwave_public or not flutterwave_secret:
         messages.error(request, 'Flutterwave is not configured. Please use offline payment.')
         return redirect('initiate_payment', tournament_id=tournament.id)
     
@@ -142,8 +143,137 @@ def initiate_flutterwave_payment(request, registration, tournament):
         status='pending'
     )
     
-    messages.info(request, 'Flutterwave payment will be implemented with frontend integration.')
+    headers = {
+        'Authorization': f'Bearer {flutterwave_secret}',
+        'Content-Type': 'application/json'
+    }
+    
+    data = {
+        'tx_ref': transaction_ref,
+        'amount': str(float(tournament.registration_fee)),
+        'currency': 'NGN',
+        'redirect_url': request.build_absolute_uri(f'/payments/flutterwave/callback/'),
+        'customer': {
+            'email': request.user.email,
+            'name': request.user.player_profile.full_name,
+        },
+        'customizations': {
+            'title': 'KEFA Tournament Registration',
+            'description': f'Registration fee for {tournament.name}',
+            'logo': request.build_absolute_uri('/static/images/logo.png'),
+        }
+    }
+    
+    try:
+        response = requests.post('https://api.flutterwave.com/v3/payments', json=data, headers=headers)
+        result = response.json()
+        
+        if result.get('status') == 'success':
+            payment_link = result['data']['link']
+            return redirect(payment_link)
+        else:
+            messages.error(request, 'Failed to initialize Flutterwave payment.')
+            payment.status = 'failed'
+            payment.save()
+    except Exception as e:
+        messages.error(request, f'Payment initialization error: {str(e)}')
+        payment.status = 'failed'
+        payment.save()
+    
     return redirect('initiate_payment', tournament_id=tournament.id)
+
+
+@login_required
+def flutterwave_callback(request):
+    transaction_id = request.GET.get('transaction_id')
+    tx_ref = request.GET.get('tx_ref')
+    status = request.GET.get('status')
+    
+    if status == 'successful' and transaction_id and tx_ref:
+        flutterwave_secret = getattr(settings, 'FLUTTERWAVE_SECRET_KEY', None)
+        
+        if not flutterwave_secret:
+            messages.error(request, 'Payment verification failed. Please contact support.')
+            return redirect('player_dashboard')
+        
+        headers = {
+            'Authorization': f'Bearer {flutterwave_secret}',
+            'Content-Type': 'application/json'
+        }
+        
+        try:
+            verify_url = f'https://api.flutterwave.com/v3/transactions/{transaction_id}/verify'
+            response = requests.get(verify_url, headers=headers)
+            result = response.json()
+            
+            if result.get('status') == 'success' and result['data']['status'] == 'successful':
+                try:
+                    payment = Payment.objects.get(transaction_reference=tx_ref)
+                    
+                    if payment.status != 'verified':
+                        payment.status = 'verified'
+                        payment.verified_at = timezone.now()
+                        payment.save()
+                        
+                        payment.registration.payment_verified = True
+                        payment.registration.save()
+                        
+                        messages.success(request, 'Payment successful! You are now registered for the tournament.')
+                    else:
+                        messages.info(request, 'Payment already verified.')
+                    
+                    return redirect('tournament_detail', tournament_id=payment.registration.tournament.id)
+                except Payment.DoesNotExist:
+                    messages.error(request, 'Payment record not found.')
+            else:
+                messages.error(request, 'Payment verification failed.')
+        except Exception as e:
+            messages.error(request, f'Verification error: {str(e)}')
+    else:
+        messages.error(request, 'Payment was not successful.')
+    
+    return redirect('player_dashboard')
+
+
+@csrf_exempt
+def flutterwave_webhook(request):
+    if request.method == 'POST':
+        flutterwave_secret_hash = getattr(settings, 'FLUTTERWAVE_SECRET_HASH', None)
+        
+        if not flutterwave_secret_hash:
+            return JsonResponse({'status': 'error', 'message': 'Not configured'}, status=400)
+        
+        signature = request.headers.get('verif-hash', '')
+        
+        if signature != flutterwave_secret_hash:
+            return JsonResponse({'status': 'error', 'message': 'Invalid signature'}, status=401)
+        
+        try:
+            data = json.loads(request.body)
+            
+            if data.get('event') == 'charge.completed' and data.get('data', {}).get('status') == 'successful':
+                tx_ref = data['data']['tx_ref']
+                
+                try:
+                    payment = Payment.objects.get(transaction_reference=tx_ref)
+                    
+                    if payment.status != 'verified':
+                        payment.status = 'verified'
+                        payment.verified_at = timezone.now()
+                        payment.save()
+                        
+                        payment.registration.payment_verified = True
+                        payment.registration.save()
+                    
+                    return JsonResponse({'status': 'success'})
+                except Payment.DoesNotExist:
+                    return JsonResponse({'status': 'error', 'message': 'Payment not found'}, status=404)
+            
+            return JsonResponse({'status': 'received'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
 @csrf_exempt

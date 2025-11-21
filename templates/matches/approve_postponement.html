@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Approve Postponement - Admin - KEFA{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="card-title" style="margin-bottom: 2rem;">⏰ Approve Postponement Request</h1>
+    
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Match Details</h3>
+        
+        <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
+            <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                <strong>Match:</strong> {{ postponement.match.home_team.team_name }} vs {{ postponement.match.away_team.team_name }}
+            </div>
+            <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                <strong>Tournament:</strong> {{ postponement.match.tournament.name }}
+            </div>
+            <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                <strong>Original Date:</strong> {{ postponement.match.match_date }} at {{ postponement.match.match_time }}
+            </div>
+            <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                <strong>Requested By:</strong> {{ postponement.requested_by.team_name }}
+            </div>
+            <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                <strong>Proposed Date:</strong> {{ postponement.proposed_date }} at {{ postponement.proposed_time }}
+            </div>
+            <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                <strong>Reason:</strong><br>{{ postponement.reason }}
+            </div>
+        </div>
+        
+        <form method="post" style="margin-top: 2rem;">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label for="new_date" style="display: block; margin-bottom: 0.5rem; color: var(--gold); font-weight: 600;">New Match Date:</label>
+                <input type="date" id="new_date" name="new_date" value="{{ postponement.proposed_date }}" class="form-control" required>
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label for="new_time" style="display: block; margin-bottom: 0.5rem; color: var(--gold); font-weight: 600;">New Match Time:</label>
+                <input type="time" id="new_time" name="new_time" value="{{ postponement.proposed_time }}" class="form-control" required>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button type="submit" name="action" value="approve" class="btn btn-success">
+                    ✓ Approve & Reschedule
+                </button>
+                <button type="submit" name="action" value="reject" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this postponement request?')">
+                    ✗ Reject Request
+                </button>
+                <a href="{% url 'matches:postponement_queue' %}" class="btn" style="background: rgba(255, 255, 255, 0.1);">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

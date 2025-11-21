@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.utils import timezone
 from .models import Match, MatchPostponement, FriendlyMatch
@@ -239,3 +240,56 @@ def accept_friendly_match(request, friendly_id):
         messages.error(request, 'This friendly match is no longer available.')
     
     return redirect('community_chat')
+
+
+@staff_member_required
+def postponement_approval_queue(request):
+    pending_postponements = MatchPostponement.objects.filter(
+        status='pending_admin'
+    ).select_related('match', 'requested_by', 'match__tournament').order_by('created_at')
+    
+    return render(request, 'matches/postponement_queue.html', {
+        'postponements': pending_postponements
+    })
+
+
+@staff_member_required
+def approve_postponement(request, postponement_id):
+    postponement = get_object_or_404(MatchPostponement, id=postponement_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'approve':
+            new_date = request.POST.get('new_date')
+            new_time = request.POST.get('new_time')
+            
+            if new_date and new_time:
+                postponement.status = 'approved'
+                postponement.approved_by = request.user
+                postponement.approved_at = timezone.now()
+                postponement.save()
+                
+                match = postponement.match
+                match.match_date = new_date
+                match.match_time = new_time
+                match.save()
+                
+                messages.success(request, 'Postponement approved and match rescheduled.')
+            else:
+                messages.error(request, 'Please provide new date and time.')
+        
+        elif action == 'reject':
+            postponement.status = 'rejected'
+            postponement.rejection_reason = request.POST.get('reason', 'Rejected by admin')
+            postponement.approved_by = request.user
+            postponement.approved_at = timezone.now()
+            postponement.save()
+            
+            messages.success(request, 'Postponement rejected.')
+        
+        return redirect('matches:postponement_queue')
+    
+    return render(request, 'matches/approve_postponement.html', {
+        'postponement': postponement
+    })

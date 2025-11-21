@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Postponement Queue - Admin - KEFA{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="card-title" style="margin-bottom: 2rem;">⏰ Postponement Approval Queue</h1>
+    
+    <div class="card">
+        {% if postponements %}
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Match</th>
+                            <th>Tournament</th>
+                            <th>Requested By</th>
+                            <th>Proposed Date</th>
+                            <th>Proposed Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for postponement in postponements %}
+                        <tr>
+                            <td style="font-weight: 600;">
+                                {{ postponement.match.home_team.team_name }} vs {{ postponement.match.away_team.team_name }}
+                            </td>
+                            <td>{{ postponement.match.tournament.name }}</td>
+                            <td>{{ postponement.requested_by.team_name }}</td>
+                            <td>{{ postponement.proposed_date }}</td>
+                            <td>{{ postponement.proposed_time }}</td>
+                            <td style="max-width: 200px;">{{ postponement.reason|truncatewords:15 }}</td>
+                            <td>
+                                <span class="badge badge-{% if postponement.status == 'pending_admin' %}gold{% else %}success{% endif %}">
+                                    {{ postponement.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'matches:approve_postponement' postponement.id %}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                    Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="text-align: center; padding: 3rem; opacity: 0.7;">
+                No pending postponement requests
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
