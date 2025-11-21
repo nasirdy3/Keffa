@@ -57,6 +57,46 @@ def lock_and_generate_fixtures(tournament):
         generate_group_stage_fixtures(tournament, teams)
 
 
+def regenerate_fixtures(tournament):
+    verified_registrations = tournament.registrations.filter(payment_verified=True).select_related('team')
+    teams = [reg.team for reg in verified_registrations]
+    
+    if len(teams) < 2:
+        return
+    
+    any_matches_started = Match.objects.filter(
+        tournament=tournament
+    ).exclude(status='scheduled').exists()
+    
+    if any_matches_started:
+        return
+    
+    Match.objects.filter(tournament=tournament, status='scheduled').delete()
+    
+    for team in teams:
+        Standing.objects.get_or_create(
+            tournament=tournament,
+            team=team,
+            defaults={
+                'played': 0,
+                'won': 0,
+                'drawn': 0,
+                'lost': 0,
+                'goals_for': 0,
+                'goals_against': 0,
+                'points': 0,
+                'form': '',
+            }
+        )
+    
+    if tournament.tournament_type in ['league', 'champions_league']:
+        generate_league_fixtures(tournament, teams)
+    elif tournament.tournament_type == 'knockout':
+        generate_knockout_fixtures(tournament, teams)
+    elif tournament.tournament_type == 'group_stage':
+        generate_group_stage_fixtures(tournament, teams)
+
+
 def generate_league_fixtures(tournament, teams):
     num_teams = len(teams)
     fixtures = []

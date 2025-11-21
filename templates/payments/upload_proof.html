@@ -4,60 +4,70 @@
 
 {% block content %}
 <div class="card">
-    <h1 class="card-title">Upload Payment Proof</h1>
-    <p style="opacity: 0.8;">{{ payment.registration.tournament.name }}</p>
+    <h1 class="card-title">Offline Payment</h1>
+    <p style="opacity: 0.8;">Tournament: {{ payment.registration.tournament.name }}</p>
 </div>
 
 <div style="display: grid; gap: 1.5rem;">
-    <div class="card">
-        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Payment Details</h3>
+    <div class="card" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05)); border: 2px solid var(--gold);">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.8rem;">🏦</span>
+            Bank Account Details
+        </h3>
         
-        <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
-                <strong>Tournament:</strong>
-                <span>{{ payment.registration.tournament.name }}</span>
+        <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="padding: 1.2rem; background: rgba(0, 0, 0, 0.3); border-radius: 12px; border-left: 4px solid var(--gold);">
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.3rem;">Account Number</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold); font-family: monospace;">8149197320</div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
-                <strong>Amount:</strong>
-                <span style="color: var(--gold); font-size: 1.25rem; font-weight: 700;">₦{{ payment.amount }}</span>
+            
+            <div style="padding: 1.2rem; background: rgba(0, 0, 0, 0.3); border-radius: 12px; border-left: 4px solid var(--gold);">
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.3rem;">Bank Name</div>
+                <div style="font-size: 1.3rem; font-weight: 600; color: var(--gold);">Opay</div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
-                <strong>Reference:</strong>
-                <span style="font-family: monospace; color: var(--gold);">{{ payment.transaction_reference }}</span>
+            
+            <div style="padding: 1.2rem; background: rgba(0, 0, 0, 0.3); border-radius: 12px; border-left: 4px solid var(--gold);">
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.3rem;">Account Name</div>
+                <div style="font-size: 1.3rem; font-weight: 600; color: var(--gold);">Nasiru Abubakar</div>
+            </div>
+            
+            <div style="padding: 1.2rem; background: rgba(0, 0, 0, 0.3); border-radius: 12px; border-left: 4px solid var(--gold);">
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.3rem;">Amount to Pay</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--gold);">₦{{ payment.amount }}</div>
+            </div>
+            
+            <div style="padding: 1.2rem; background: rgba(0, 0, 0, 0.3); border-radius: 12px; border-left: 4px solid var(--gold);">
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.3rem;">Reference</div>
+                <div style="font-size: 1rem; font-weight: 600; color: var(--gold); font-family: monospace;">{{ payment.transaction_reference }}</div>
             </div>
         </div>
         
-        <div style="padding: 1.5rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border-left: 4px solid #3b82f6; margin-bottom: 2rem;">
-            <h4 style="color: #3b82f6; margin-bottom: 0.75rem;">💡 Payment Instructions</h4>
-            <ol style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem;">
-                <li>Make a bank transfer or cash payment to the KEFA account</li>
-                <li>Take a clear screenshot or photo of the payment receipt</li>
-                <li>Upload the proof using the form below</li>
-                <li>Admin will verify your payment within 24 hours</li>
-                <li>You'll receive a notification once verified</li>
-            </ol>
+        <a href="https://wa.me/2348149197320?text=Hello,%20I%20just%20made%20a%20payment%20of%20₦{{ payment.amount }}%20for%20{{ payment.registration.tournament.name }}%20tournament.%20Transaction%20Reference:%20{{ payment.transaction_reference }}" 
+           target="_blank"
+           class="btn btn-primary" 
+           style="width: 100%; background: linear-gradient(135deg, #25D366, #128C7E); border: none; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 1.1rem; padding: 1rem;">
+            <svg style="width: 24px; height: 24px; fill: white;" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            Send Receipt via WhatsApp
+        </a>
+        
+        <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 8px; text-align: center;">
+            <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">
+                📱 Click the button above to message admin on WhatsApp with your payment receipt
+            </p>
         </div>
     </div>
-    
+
     <div class="card">
-        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Upload Proof</h3>
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Upload Payment Proof (Optional)</h3>
         
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <div class="form-group">
-                <label for="payment_proof">Payment Receipt/Screenshot <span style="color: var(--danger-red);">*</span></label>
-                <input 
-                    type="file" 
-                    name="payment_proof" 
-                    id="payment_proof" 
-                    accept="image/*" 
-                    required
-                    style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color); border-radius: 0.5rem; color: var(--text);"
-                >
-                <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
-                    Accepted formats: JPG, PNG. Maximum file size: 5MB
-                </small>
+            <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.05); border-radius: 12px; border: 2px dashed var(--gold); margin-bottom: 1.5rem; text-align: center;">
+                <input type="file" name="payment_proof" accept="image/*" required style="display: block; width: 100%; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border: 1px solid var(--border-color);">
+                <p style="margin-top: 1rem; opacity: 0.7; font-size: 0.9rem;">Upload a screenshot or photo of your payment receipt</p>
             </div>
             
             {% if payment.payment_proof %}
@@ -69,11 +79,29 @@
             </div>
             {% endif %}
             
+            <div style="padding: 1.5rem; background: rgba(30, 144, 255, 0.1); border-radius: 12px; border-left: 4px solid #1E90FF; margin-bottom: 2rem;">
+                <h4 style="color: #1E90FF; margin-bottom: 0.75rem;">📋 Next Steps</h4>
+                <ol style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem; margin: 0;">
+                    <li>Make payment to the account above</li>
+                    <li>Click the WhatsApp button to send receipt to admin (Recommended)</li>
+                    <li>Or upload payment proof here (optional)</li>
+                    <li>Wait for admin verification (usually within 24 hours)</li>
+                </ol>
+            </div>
+            
             <div style="display: flex; gap: 1rem;">
                 <button type="submit" class="btn btn-primary" style="flex: 1;">Upload Proof</button>
-                <a href="{% url 'players:player_dashboard' %}" class="btn btn-secondary">Go to Dashboard</a>
+                <a href="{% url 'players:player_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
             </div>
         </form>
+    </div>
+    
+    <div class="card" style="background: rgba(255, 165, 0, 0.05); border-left: 4px solid orange;">
+        <h4 style="color: orange; margin-bottom: 0.75rem;">⚠️ Important Reminder</h4>
+        <p style="line-height: 1.8; opacity: 0.9; margin: 0;">
+            Your tournament registration will only be confirmed after the admin verifies your payment. 
+            For faster verification, please send your payment receipt via WhatsApp to <strong style="color: var(--gold);">+234 814 919 7320</strong>.
+        </p>
     </div>
 </div>
 {% endblock %}

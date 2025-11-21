@@ -2,6 +2,81 @@
 
 {% block title %}{{ player.full_name }} - KEFA{% endblock %}
 
+{% block extra_css %}
+<style>
+    .squad-image-clickable {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .squad-image-clickable:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+    
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .image-modal-content {
+        position: relative;
+        margin: auto;
+        max-width: 95%;
+        max-height: 95vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .image-modal-content img {
+        max-width: 100%;
+        max-height: 95vh;
+        object-fit: contain;
+        border-radius: 12px;
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1001;
+        transition: color 0.3s;
+    }
+    
+    .close-modal:hover,
+    .close-modal:focus {
+        color: var(--gold);
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @media (max-width: 768px) {
+        .close-modal {
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="card" style="max-width: 900px; margin: 0 auto;">
     <div style="display: flex; gap: 2rem; align-items: start; flex-wrap: wrap;">
@@ -49,9 +124,50 @@
     
     {% if team.squad_image %}
         <div style="margin-top: 2rem;">
-            <h3 style="margin-bottom: 1rem; color: var(--primary-gold);">{{ team.team_name }} Squad</h3>
-            <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad" style="width: 100%; border-radius: 12px; border: 2px solid var(--primary-gold);">
+            <h3 style="margin-bottom: 1rem; color: var(--primary-gold);">🎮 {{ team.team_name }} Squad</h3>
+            <div style="position: relative;">
+                <img 
+                    src="{{ team.squad_image.url }}" 
+                    alt="{{ team.team_name }} Squad" 
+                    class="squad-image-clickable" 
+                    onclick="openImageModal()"
+                    style="width: 100%; border-radius: 12px; border: 2px solid var(--primary-gold);"
+                >
+                <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); padding: 0.5rem 1rem; border-radius: 8px; pointer-events: none;">
+                    <span style="color: var(--gold); font-size: 0.9rem;">🔍 Click to enlarge</span>
+                </div>
+            </div>
         </div>
     {% endif %}
 </div>
+
+<div id="squadImageModal" class="image-modal" onclick="closeImageModal()">
+    <span class="close-modal" onclick="closeImageModal()">&times;</span>
+    <div class="image-modal-content">
+        {% if team.squad_image %}
+        <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad">
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openImageModal() {
+        document.getElementById('squadImageModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeImageModal() {
+        document.getElementById('squadImageModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeImageModal();
+        }
+    });
+</script>
 {% endblock %}

@@ -5,11 +5,11 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero">
+<section class="hero" style="background: linear-gradient(180deg, rgba(255, 215, 0, 0.03) 0%, transparent 100%);">
     <div class="hero-content">
-        <h1 class="hero-title">KEFA</h1>
-        <p class="hero-subtitle">Kebbi eFootball Arena - Where Champions Are Made</p>
-        <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2rem;">
+        <h1 class="hero-title" style="text-shadow: 0 0 40px rgba(255, 215, 0, 0.3); letter-spacing: 0.05em;">KEFA</h1>
+        <p class="hero-subtitle" style="background: linear-gradient(135deg, var(--gold), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Kebbi eFootball Arena - Where Champions Are Made</p>
+        <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2rem; line-height: 1.8;">
             The ultimate digital platform for eFootball mobile gamers in Birnin Kebbi. Compete in tournaments, track your stats, earn achievements, and build your legacy.
         </p>
         
@@ -25,21 +25,21 @@
     </div>
     
     <!-- Platform Statistics -->
-    <div class="hero-stats">
-        <div class="hero-stat">
-            <span class="hero-stat-value">{{ total_players }}</span>
+    <div class="hero-stats" style="margin-top: 3rem;">
+        <div class="hero-stat" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05)); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 16px; padding: 2rem; transition: all 0.3s ease;">
+            <span class="hero-stat-value" style="color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">{{ total_players }}</span>
             <span class="hero-stat-label">Players</span>
         </div>
-        <div class="hero-stat">
-            <span class="hero-stat-value">{{ total_teams }}</span>
+        <div class="hero-stat" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05)); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 16px; padding: 2rem; transition: all 0.3s ease;">
+            <span class="hero-stat-value" style="color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">{{ total_teams }}</span>
             <span class="hero-stat-label">Teams</span>
         </div>
-        <div class="hero-stat">
-            <span class="hero-stat-value">{{ active_tournaments }}</span>
+        <div class="hero-stat" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05)); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 16px; padding: 2rem; transition: all 0.3s ease;">
+            <span class="hero-stat-value" style="color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">{{ active_tournaments }}</span>
             <span class="hero-stat-label">Active Tournaments</span>
         </div>
-        <div class="hero-stat">
-            <span class="hero-stat-value">{{ total_matches }}</span>
+        <div class="hero-stat" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05)); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 16px; padding: 2rem; transition: all 0.3s ease;">
+            <span class="hero-stat-value" style="color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">{{ total_matches }}</span>
             <span class="hero-stat-label">Matches Played</span>
         </div>
     </div>

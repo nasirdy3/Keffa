@@ -112,11 +112,7 @@
 
 <div class="card" style="padding: 0;">
     <div id="chat-container">
-        <div id="chat-messages">
-            <div id="connection-status" style="text-align: center; padding: 1rem; opacity: 0.7;">
-                Connecting to chat...
-            </div>
-        </div>
+        <div id="chat-messages"></div>
         
         <form id="chat-input-form">
             <input 
@@ -126,7 +122,7 @@
                 autocomplete="off"
                 style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 10px; padding: 0.875rem; color: var(--text-light);"
             >
-            <button type="submit" class="btn btn-primary">Send</button>
+            <button type="submit" class="btn btn-primary" id="send-btn">Send</button>
         </form>
     </div>
 </div>
@@ -152,6 +148,8 @@
     const wsUrl = `${protocol}//${window.location.host}/ws/chat/`;
     
     let chatSocket = null;
+    let messageQueue = [];
+    let isConnected = false;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
     
@@ -159,11 +157,13 @@
         chatSocket = new WebSocket(wsUrl);
         
         chatSocket.onopen = function(e) {
-            console.log('Chat connected!');
+            console.log('Chat ready');
+            isConnected = true;
             reconnectAttempts = 0;
-            const statusDiv = document.getElementById('connection-status');
-            if (statusDiv) {
-                statusDiv.remove();
+            
+            while (messageQueue.length > 0 && isConnected) {
+                const msg = messageQueue.shift();
+                chatSocket.send(JSON.stringify({ 'message': msg }));
             }
         };
         
@@ -188,22 +188,29 @@
             
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            if (messagesDiv.children.length > 100) {
+                messagesDiv.removeChild(messagesDiv.firstChild);
+            }
         };
         
         chatSocket.onclose = function(e) {
             console.log('Chat disconnected');
+            isConnected = false;
             
             if (reconnectAttempts < maxReconnectAttempts) {
                 reconnectAttempts++;
+                const delay = Math.min(1000 * reconnectAttempts, 5000);
                 setTimeout(() => {
                     console.log(`Reconnecting... attempt ${reconnectAttempts}`);
                     connectWebSocket();
-                }, 2000 * reconnectAttempts);
+                }, delay);
             }
         };
         
         chatSocket.onerror = function(e) {
             console.error('WebSocket error:', e);
+            isConnected = false;
         };
     }
     
@@ -216,11 +223,16 @@
         e.preventDefault();
         
         const message = input.value.trim();
-        if (message && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
+        if (!message) return;
+        
+        if (isConnected && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({ 'message': message }));
             input.value = '';
+        } else {
+            if (messageQueue.length < 10) {
+                messageQueue.push(message);
+                input.value = '';
+            }
         }
     });
     

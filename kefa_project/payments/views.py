@@ -327,6 +327,68 @@ def paystack_webhook(request):
 
 
 @login_required
+def paystack_callback(request):
+    reference = request.GET.get('reference')
+    
+    if not reference:
+        messages.error(request, 'Invalid payment reference.')
+        return redirect('players:player_dashboard')
+    
+    try:
+        payment = Payment.objects.get(transaction_reference=reference)
+    except Payment.DoesNotExist:
+        messages.error(request, 'Payment record not found.')
+        return redirect('players:player_dashboard')
+    
+    paystack_secret = getattr(settings, 'PAYSTACK_SECRET_KEY', None)
+    
+    if not paystack_secret:
+        messages.error(request, 'Payment verification failed. Please contact support.')
+        return redirect('tournaments:detail', tournament_id=payment.registration.tournament.id)
+    
+    headers = {
+        'Authorization': f'Bearer {paystack_secret}',
+        'Content-Type': 'application/json'
+    }
+    
+    try:
+        verify_url = f'https://api.paystack.co/transaction/verify/{reference}'
+        response = requests.get(verify_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+        
+        if result.get('status') and result['data']['status'] == 'success':
+            if payment.status != 'verified':
+                payment.status = 'verified'
+                payment.verified_at = timezone.now()
+                payment.save()
+                
+                payment.registration.payment_verified = True
+                payment.registration.save()
+                
+                messages.success(request, 'Payment successful! You are now registered for the tournament.')
+            else:
+                messages.info(request, 'Payment already verified.')
+        else:
+            payment.status = 'failed'
+            payment.notes = f"Verification failed: {result.get('message', 'Unknown error')}"
+            payment.save()
+            messages.error(request, 'Payment verification failed. Please contact support if payment was deducted.')
+    except requests.RequestException as e:
+        payment.status = 'failed'
+        payment.notes = f'Network error during verification: {str(e)}'
+        payment.save()
+        messages.error(request, 'Unable to verify payment at this time. Please contact support.')
+    except Exception as e:
+        payment.status = 'failed'
+        payment.notes = f'Verification error: {str(e)}'
+        payment.save()
+        messages.error(request, 'An error occurred during verification. Please contact support.')
+    
+    return redirect('tournaments:detail', tournament_id=payment.registration.tournament.id)
+
+
+@login_required
 def payment_proof_upload(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
     

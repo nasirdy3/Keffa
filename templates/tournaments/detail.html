@@ -45,10 +45,10 @@
     </div>
     {% endif %}
     
-    {% if tournament.status == 'registration' and not user_registered %}
-        <a href="{% url 'payments:initiate' tournament.id %}" class="btn btn-primary" style="display: inline-block;">Register for Tournament</a>
-    {% elif user_registered %}
+    {% if user_registered %}
         <div class="badge badge-success" style="padding: 1rem 1.5rem; display: inline-block;">✓ You are registered</div>
+    {% elif tournament.status == 'registration' and not tournament.is_full %}
+        <a href="{% url 'payments:initiate' tournament.id %}" class="btn btn-primary" style="display: inline-block;">Register for Tournament</a>
     {% endif %}
 </div>
 

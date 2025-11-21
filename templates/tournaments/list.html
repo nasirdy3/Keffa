@@ -3,23 +3,23 @@
 {% block title %}Tournaments - KEFA{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 class="card-title">🏆 Active Tournaments</h1>
+<div class="card" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.03)); border: 2px solid rgba(255, 215, 0, 0.3);">
+    <h1 class="card-title" style="font-size: 2.5rem; background: linear-gradient(135deg, var(--gold), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🏆 Active Tournaments</h1>
     
     {% if active_tournaments %}
         <div style="display: grid; gap: 1.5rem;">
             {% for tournament in active_tournaments %}
-            <div class="card" style="border-left: 4px solid var(--gold);">
+            <div class="card" style="border-left: 4px solid var(--gold); transition: all 0.3s ease; background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), transparent);">
                 <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
                     <div>
-                        <h2 style="color: var(--gold); font-size: 1.5rem; margin-bottom: 0.5rem;">
-                            <a href="{% url 'tournaments:detail' tournament.id %}" style="color: var(--gold); text-decoration: none;">
+                        <h2 style="color: var(--gold); font-size: 1.75rem; margin-bottom: 0.5rem; font-weight: 700;">
+                            <a href="{% url 'tournaments:detail' tournament.id %}" style="color: var(--gold); text-decoration: none; transition: all 0.2s ease;">
                                 {{ tournament.name }}
                             </a>
                         </h2>
-                        <p style="opacity: 0.8;">{{ tournament.get_tournament_type_display }}</p>
+                        <p style="opacity: 0.8; font-size: 1.05rem; color: var(--text-muted);">{{ tournament.get_tournament_type_display }}</p>
                     </div>
-                    <span class="badge badge-{% if tournament.status == 'registration' %}success{% elif tournament.status == 'ongoing' %}gold{% else %}danger{% endif %}">
+                    <span class="badge badge-{% if tournament.status == 'registration' %}success{% elif tournament.status == 'ongoing' %}gold{% else %}danger{% endif %}" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
                         {{ tournament.get_status_display }}
                     </span>
                 </div>

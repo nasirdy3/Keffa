@@ -3,9 +3,9 @@
 {% block title %}Leaderboards - KEFA{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 class="card-title">🏆 KEFA Leaderboards</h1>
-    <p style="opacity: 0.8;">Top performers in the Kebbi eFootball Arena</p>
+<div class="card" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.03)); border: 2px solid rgba(255, 215, 0, 0.3);">
+    <h1 class="card-title" style="font-size: 2.5rem; background: linear-gradient(135deg, var(--gold), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🏆 KEFA Leaderboards</h1>
+    <p style="opacity: 0.9; font-size: 1.1rem; color: var(--text-muted);">Top performers in the Kebbi eFootball Arena</p>
 </div>
 
 <div style="display: grid; gap: 2rem;">
@@ -29,20 +29,24 @@
                     </thead>
                     <tbody>
                         {% for standing in top_teams %}
-                        <tr>
-                            <td><strong style="color: var(--primary-gold);">{{ forloop.counter }}</strong></td>
+                        <tr style="transition: background 0.2s ease;">
                             <td>
-                                <a href="{% url 'teams:profile' standing.team.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600;">
+                                <div style="{% if forloop.counter == 1 %}background: linear-gradient(135deg, #FFD700, #FFA500); color: #000;{% elif forloop.counter == 2 %}background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: #000;{% elif forloop.counter == 3 %}background: linear-gradient(135deg, #CD7F32, #A0522D); color: #FFF;{% else %}background: rgba(255, 215, 0, 0.1); color: var(--gold);{% endif %} width: 35px; height: 35px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 900;">
+                                    {{ forloop.counter }}
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{% url 'teams:profile' standing.team.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600; font-size: 1.05rem;">
                                     {{ standing.team.team_name }}
                                 </a>
                             </td>
                             <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.tournament.name }}</td>
-                            <td>{{ standing.played }}</td>
-                            <td>{{ standing.won }}</td>
-                            <td>{{ standing.drawn }}</td>
-                            <td>{{ standing.lost }}</td>
-                            <td>{{ standing.goal_difference }}</td>
-                            <td><strong style="color: var(--primary-gold);">{{ standing.points }}</strong></td>
+                            <td style="font-weight: 500;">{{ standing.played }}</td>
+                            <td style="color: #22C55E; font-weight: 600;">{{ standing.won }}</td>
+                            <td style="color: var(--gold); font-weight: 600;">{{ standing.drawn }}</td>
+                            <td style="color: #EF4444; font-weight: 600;">{{ standing.lost }}</td>
+                            <td style="font-weight: 600;">{{ standing.goal_difference }}</td>
+                            <td><strong style="color: var(--primary-gold); font-size: 1.1rem;">{{ standing.points }}</strong></td>
                         </tr>
                         {% endfor %}
                     </tbody>
