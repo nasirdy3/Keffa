@@ -56,16 +56,16 @@
                 <li><a href="{% url 'highlights:gallery' %}" class="navbar-link">Highlights</a></li>
                 
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'player_dashboard' %}" class="navbar-link">Dashboard</a></li>
+                    <li><a href="{% url 'players:player_dashboard' %}" class="navbar-link">Dashboard</a></li>
                     <li><a href="{% url 'chat:community' %}" class="navbar-link">Chat</a></li>
                     
                     {% if user.is_staff %}
                         <li><a href="{% url 'admin:index' %}" class="navbar-link">Admin</a></li>
                     {% endif %}
                     
-                    <li><a href="{% url 'players:user_logout' %}" class="navbar-link">Logout</a></li>
+                    <li><a href="{% url 'players:logout' %}" class="navbar-link">Logout</a></li>
                 {% else %}
-                    <li><a href="{% url 'players:user_login' %}" class="navbar-link">Login</a></li>
+                    <li><a href="{% url 'players:login' %}" class="navbar-link">Login</a></li>
                     <li><a href="{% url 'players:register' %}" class="navbar-link">Join KEFA</a></li>
                 {% endif %}
             </ul>
