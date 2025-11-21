@@ -133,6 +133,6 @@ def public_highlights(request):
         status='verified'
     ).select_related('match', 'uploaded_by_team', 'match__tournament').order_by('-verified_at')[:50]
     
-    return render(request, 'highlights/public_gallery.html', {
+    return render(request, 'highlights/gallery.html', {
         'highlights': verified_highlights
     })
