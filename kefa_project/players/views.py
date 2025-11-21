@@ -132,17 +132,65 @@ def player_dashboard(request):
     })
 
 
-@login_required
 def player_profile(request, player_id):
+    from kefa_project.tournaments.models import Standing
+    from kefa_project.matches.models import Match
+    from kefa_project.highlights.models import Highlight
+    
     player = get_object_or_404(Player, id=player_id)
     try:
         team = player.team
     except:
         team = None
     
+    if team:
+        standings = Standing.objects.filter(team=team).order_by('-points')[:5]
+        all_matches = Match.objects.filter(
+            home_team=team
+        ) | Match.objects.filter(
+            away_team=team
+        )
+        recent_matches = all_matches.order_by('-match_date', '-match_time')[:10]
+        
+        highlights = Highlight.objects.filter(
+            uploaded_by_team=team,
+            status='verified'
+        ).order_by('-verified_at')[:10]
+        
+        badges = player.badges.all().select_related('badge', 'tournament')
+        trophies = team.trophies.all().select_related('tournament')
+        
+        total_matches = all_matches.filter(status='completed').count()
+        total_wins = sum(s.won for s in standings)
+        total_draws = sum(s.drawn for s in standings)
+        total_losses = sum(s.lost for s in standings)
+        
+        win_rate = round((total_wins / total_matches * 100) if total_matches > 0 else 0, 1)
+    else:
+        standings = []
+        recent_matches = []
+        highlights = []
+        badges = []
+        trophies = []
+        total_matches = 0
+        total_wins = 0
+        total_draws = 0
+        total_losses = 0
+        win_rate = 0
+    
     return render(request, 'players/profile.html', {
         'player': player,
         'team': team,
+        'standings': standings,
+        'recent_matches': recent_matches,
+        'highlights': highlights,
+        'badges': badges,
+        'trophies': trophies,
+        'total_matches': total_matches,
+        'total_wins': total_wins,
+        'total_draws': total_draws,
+        'total_losses': total_losses,
+        'win_rate': win_rate,
     })
 
 
