@@ -48,8 +48,8 @@
                     
                     <li><a href="{% url 'logout' %}" class="navbar-link">Logout</a></li>
                 {% else %}
-                    <li><a href="{% url 'login' %}" class="navbar-link">Login</a></li>
-                    <li><a href="{% url 'register' %}" class="navbar-link active">Join KEFA</a></li>
+                    <li><a href="{% url 'players:user_login' %}" class="navbar-link">Login</a></li>
+                    <li><a href="{% url 'players:register' %}" class="navbar-link">Join KEFA</a></li>
                 {% endif %}
             </ul>
         </div>
