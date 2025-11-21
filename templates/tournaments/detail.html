@@ -111,21 +111,15 @@
             <div style="display: grid; gap: 1rem;">
                 {% for match in upcoming_fixtures %}
                 <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <div style="flex: 1; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem;">
+                    <div style="flex: 1; text-align: right;">
                         <a href="{% url 'teams:profile' match.home_team.id %}" style="color: var(--text); text-decoration: none; font-weight: 600;">
                             {{ match.home_team.team_name }}
                         </a>
-                        {% if match.status in 'awaiting_highlight,pending_verification,completed' and match.highlights.filter(uploaded_by_team=match.home_team).exists %}
-                            <span style="color: var(--success); font-size: 0.8rem;" title="Highlight uploaded">📹</span>
-                        {% endif %}
                     </div>
                     <div style="padding: 0.5rem 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 6px; font-weight: 700;">
                         {% if match.status == 'completed' %}{{ match.home_score }} - {{ match.away_score }}{% else %}VS{% endif %}
                     </div>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 0.5rem;">
-                        {% if match.status in 'awaiting_highlight,pending_verification,completed' and match.highlights.filter(uploaded_by_team=match.away_team).exists %}
-                            <span style="color: var(--success); font-size: 0.8rem;" title="Highlight uploaded">📹</span>
-                        {% endif %}
+                    <div style="flex: 1;">
                         <a href="{% url 'teams:profile' match.away_team.id %}" style="color: var(--text); text-decoration: none; font-weight: 600;">
                             {{ match.away_team.team_name }}
                         </a>

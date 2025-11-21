@@ -18,6 +18,18 @@ author = "agent"
 task = "workflow.run"
 args = "KEFA Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Celery Worker"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Celery Beat"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Redis Server"
+
 [[workflows.workflow]]
 name = "KEFA Server"
 author = "agent"
@@ -30,6 +42,39 @@ waitForPort = 5000
 [workflows.workflow.metadata]
 outputType = "webview"
 
+[[workflows.workflow]]
+name = "Celery Worker"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "celery -A kefa_project worker --loglevel=info"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Celery Beat"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "celery -A kefa_project beat --loglevel=info"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Redis Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "redis-server --bind 127.0.0.1"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[ports]]
 localPort = 5000
 externalPort = 80
@@ -37,15 +82,16 @@ externalPort = 80
 [[ports]]
 localPort = 6379
 externalPort = 3002
+exposeLocalhost = true
 
 [[ports]]
 localPort = 34077
 externalPort = 3000
 
 [[ports]]
-localPort = 35493
-externalPort = 3003
-
-[[ports]]
 localPort = 40615
 externalPort = 3001
+
+[[ports]]
+localPort = 46013
+externalPort = 3003

@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import F
 from .models import Tournament, Standing, TournamentRegistration
 from kefa_project.matches.models import Match
 
@@ -20,7 +21,7 @@ def tournaments_list(request):
 def tournament_detail(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
     
-    standings = Standing.objects.filter(tournament=tournament).order_by('-points', '-goal_difference')
+    standings = Standing.objects.filter(tournament=tournament).order_by('-points', (F('goals_for') - F('goals_against')).desc(), '-goals_for')
     fixtures = Match.objects.filter(tournament=tournament).order_by('match_date', 'match_time')
     
     upcoming_fixtures = fixtures.filter(status__in=['scheduled', 'ready_pending'])
@@ -52,7 +53,7 @@ def tournament_detail(request, tournament_id):
 
 def tournament_standings(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
-    standings = Standing.objects.filter(tournament=tournament).order_by('-points', '-goal_difference')
+    standings = Standing.objects.filter(tournament=tournament).order_by('-points', (F('goals_for') - F('goals_against')).desc(), '-goals_for')
     
     return render(request, 'tournaments/standings.html', {
         'tournament': tournament,

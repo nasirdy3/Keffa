@@ -27,9 +27,15 @@
     }
     
     .message-author {
-        color: var(--gold);
+        color: var(--primary-gold);
         font-weight: 700;
         margin-bottom: 0.5rem;
+    }
+    
+    .message-team {
+        color: var(--accent-orange);
+        font-size: 0.85rem;
+        font-weight: 500;
     }
     
     .message-time {
@@ -54,6 +60,25 @@
         flex: 1;
     }
     
+    .friendly-card {
+        background: rgba(255, 215, 0, 0.1);
+        border: 2px solid var(--primary-gold);
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
     @media (max-width: 768px) {
         #chat-container {
             height: 500px;
@@ -68,11 +93,28 @@
     <p style="opacity: 0.8;">Connect with fellow KEFA gamers, discuss matches, and organize friendly games</p>
 </div>
 
+{% if open_friendlies %}
+<div class="card">
+    <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">🎮 Open Friendly Matches</h3>
+    {% for friendly in open_friendlies %}
+    <div class="friendly-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div>
+                <strong style="color: var(--primary-gold);">{{ friendly.created_by_team.team_name }}</strong>
+                <p style="opacity: 0.8; margin-top: 0.25rem;">Game Code: <strong>{{ friendly.game_code }}</strong></p>
+            </div>
+            <a href="{% url 'matches:accept_friendly' friendly.id %}" class="btn btn-primary">Accept Match</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="card" style="padding: 0;">
     <div id="chat-container">
         <div id="chat-messages">
-            <div style="text-align: center; padding: 2rem; opacity: 0.5;">
-                Chat is temporarily disabled. WebSocket connection coming soon!
+            <div id="connection-status" style="text-align: center; padding: 1rem; opacity: 0.7;">
+                Connecting to chat...
             </div>
         </div>
         
@@ -81,29 +123,111 @@
                 type="text" 
                 id="message-input" 
                 placeholder="Type your message..." 
-                disabled
-                style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 10px; padding: 0.875rem; color: var(--text);"
+                autocomplete="off"
+                style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 10px; padding: 0.875rem; color: var(--text-light);"
             >
-            <button type="submit" class="btn btn-primary" disabled>Send</button>
+            <button type="submit" class="btn btn-primary">Send</button>
         </form>
     </div>
 </div>
 
 <div class="card">
-    <h3 style="color: var(--gold); margin-bottom: 1rem;">Chat Guidelines</h3>
-    <ul style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <h3 style="color: var(--primary-gold); margin: 0;">Chat Guidelines</h3>
+        <a href="{% url 'matches:create_friendly' %}" class="btn btn-primary">Create Friendly Match</a>
+    </div>
+    <ul style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem; margin-top: 1rem;">
         <li>Be respectful to all community members</li>
         <li>No spam or promotional content</li>
         <li>Keep discussions relevant to eFootball and KEFA</li>
+        <li>Create friendly matches to challenge other teams</li>
         <li>Report inappropriate behavior to admins</li>
-        <li>Have fun and build friendships!</li>
     </ul>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// WebSocket chat functionality will be added here
-console.log('Chat page loaded - WebSocket integration pending');
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/chat/`;
+    
+    let chatSocket = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    
+    function connectWebSocket() {
+        chatSocket = new WebSocket(wsUrl);
+        
+        chatSocket.onopen = function(e) {
+            console.log('Chat connected!');
+            reconnectAttempts = 0;
+            const statusDiv = document.getElementById('connection-status');
+            if (statusDiv) {
+                statusDiv.remove();
+            }
+        };
+        
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const messagesDiv = document.getElementById('chat-messages');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-author">
+                    ${data.username}
+                    ${data.team_name ? `<span class="message-team">(${data.team_name})</span>` : ''}
+                    <span class="message-time">${timeStr}</span>
+                </div>
+                <div class="message-content">${escapeHtml(data.message)}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        };
+        
+        chatSocket.onclose = function(e) {
+            console.log('Chat disconnected');
+            
+            if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                setTimeout(() => {
+                    console.log(`Reconnecting... attempt ${reconnectAttempts}`);
+                    connectWebSocket();
+                }, 2000 * reconnectAttempts);
+            }
+        };
+        
+        chatSocket.onerror = function(e) {
+            console.error('WebSocket error:', e);
+        };
+    }
+    
+    connectWebSocket();
+    
+    const form = document.getElementById('chat-input-form');
+    const input = document.getElementById('message-input');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const message = input.value.trim();
+        if (message && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            input.value = '';
+        }
+    });
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 </script>
 {% endblock %}
