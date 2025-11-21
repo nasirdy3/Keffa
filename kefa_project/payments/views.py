@@ -50,6 +50,17 @@ def initiate_payment(request, tournament_id):
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
         
+        existing_payment = Payment.objects.filter(registration=registration).first()
+        if existing_payment:
+            if existing_payment.status == 'verified':
+                messages.info(request, 'You are already registered for this tournament.')
+                return redirect('tournaments:detail', tournament_id=tournament_id)
+            elif existing_payment.payment_method == 'offline' and payment_method == 'offline':
+                messages.info(request, 'You already have a pending offline payment. Please upload proof.')
+                return redirect('payments:upload_proof', payment_id=existing_payment.id)
+            elif existing_payment.status in ['pending', 'failed']:
+                existing_payment.delete()
+        
         if payment_method == 'offline':
             payment = Payment.objects.create(
                 registration=registration,
@@ -58,7 +69,7 @@ def initiate_payment(request, tournament_id):
                 transaction_reference=f'OFFLINE-{uuid.uuid4().hex[:12].upper()}',
                 status='pending'
             )
-            messages.success(request, 'Offline payment initiated. Please contact admin with proof of payment.')
+            messages.success(request, 'Offline payment initiated. Please upload your payment proof.')
             return redirect('payments:upload_proof', payment_id=payment.id)
         
         elif payment_method == 'paystack':
