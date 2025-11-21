@@ -19,15 +19,15 @@ def upload_highlight(request, match_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team to upload highlights.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.home_team != team and match.away_team != team:
         messages.error(request, 'This is not your match.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.status not in ['awaiting_highlight', 'pending_verification']:
         messages.error(request, 'Cannot upload highlight for this match at this time.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     uploaded_by_side = 'home' if match.home_team == team else 'away'
     
@@ -38,7 +38,7 @@ def upload_highlight(request, match_id):
     
     if existing_highlight:
         messages.warning(request, 'You have already uploaded a highlight for this match.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if request.method == 'POST':
         video_file = request.FILES.get('video_file')
@@ -56,7 +56,7 @@ def upload_highlight(request, match_id):
             match.save()
             
             messages.success(request, 'Highlight uploaded successfully! It will be verified by moderators soon.')
-            return redirect('player_dashboard')
+            return redirect('players:player_dashboard')
         else:
             messages.error(request, 'Please select a video file to upload.')
     
@@ -120,7 +120,7 @@ def verify_highlight(request, highlight_id):
             
             messages.success(request, 'Highlight rejected.')
         
-        return redirect('verification_queue')
+        return redirect('highlights:verification_queue')
     
     return render(request, 'highlights/verify.html', {
         'highlight': highlight,

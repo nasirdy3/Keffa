@@ -22,7 +22,7 @@ def initiate_payment(request, tournament_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team to register for tournaments.')
-        return redirect('tournaments_list')
+        return redirect('tournaments:list')
     
     if tournament.status != 'registration':
         messages.error(request, 'Registration is closed for this tournament.')
@@ -194,7 +194,7 @@ def flutterwave_callback(request):
         
         if not flutterwave_secret:
             messages.error(request, 'Payment verification failed. Please contact support.')
-            return redirect('player_dashboard')
+            return redirect('players:player_dashboard')
         
         headers = {
             'Authorization': f'Bearer {flutterwave_secret}',
@@ -232,7 +232,7 @@ def flutterwave_callback(request):
     else:
         messages.error(request, 'Payment was not successful.')
     
-    return redirect('player_dashboard')
+    return redirect('players:player_dashboard')
 
 
 @csrf_exempt
@@ -335,11 +335,11 @@ def payment_proof_upload(request, payment_id):
         team = player.team
     except:
         messages.error(request, 'Access denied.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if payment.registration.team != team:
         messages.error(request, 'Access denied.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if request.method == 'POST':
         payment_proof = request.FILES.get('payment_proof')
@@ -348,7 +348,7 @@ def payment_proof_upload(request, payment_id):
             payment.payment_proof = payment_proof
             payment.save()
             messages.success(request, 'Payment proof uploaded! Admin will verify it soon.')
-            return redirect('player_dashboard')
+            return redirect('players:player_dashboard')
         else:
             messages.error(request, 'Please select an image to upload.')
     
@@ -382,7 +382,7 @@ def verify_offline_payment(request, payment_id):
             
             messages.success(request, 'Payment rejected.')
         
-        return redirect('admin_payment_queue')
+        return redirect('payments:admin_verify')
     
     return render(request, 'payments/verify_offline.html', {'payment': payment})
 

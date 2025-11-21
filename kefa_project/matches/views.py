@@ -16,11 +16,11 @@ def match_ready(request, match_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team to mark ready.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.status != 'ready_pending':
         messages.error(request, 'This match is not in ready phase.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.home_team == team:
         match.home_ready = True
@@ -32,13 +32,13 @@ def match_ready(request, match_id):
         messages.success(request, 'You are marked as ready!')
     else:
         messages.error(request, 'This is not your match.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.home_ready and match.away_ready:
         match.status = 'creating_game'
         match.save()
     
-    return redirect('player_dashboard')
+    return redirect('players:player_dashboard')
 
 
 @login_required
@@ -50,15 +50,15 @@ def create_game_code(request, match_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.home_team != team:
         messages.error(request, 'Only the home team can create the game code.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.status != 'creating_game':
         messages.error(request, 'Cannot create game code at this time.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if request.method == 'POST':
         game_code = request.POST.get('game_code', '').strip()
@@ -69,7 +69,7 @@ def create_game_code(request, match_id):
             match.status = 'waiting_join'
             match.save()
             messages.success(request, f'Game code {game_code} created! Waiting for away team to join.')
-            return redirect('player_dashboard')
+            return redirect('players:player_dashboard')
         else:
             messages.error(request, 'Please enter a valid game code.')
     
@@ -85,21 +85,21 @@ def join_game(request, match_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.away_team != team:
         messages.error(request, 'Only the away team can join.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.status != 'waiting_join':
         messages.error(request, 'Cannot join game at this time.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     match.status = 'in_progress'
     match.save()
     messages.success(request, f'Joined game with code: {match.game_code}. Good luck!')
     
-    return redirect('player_dashboard')
+    return redirect('players:player_dashboard')
 
 
 @login_required
@@ -111,18 +111,18 @@ def match_finished(request, match_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.home_team != team and match.away_team != team:
         messages.error(request, 'This is not your match.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.status == 'in_progress':
         match.status = 'awaiting_highlight'
         match.save()
         messages.success(request, 'Match marked as finished. Please upload your highlight.')
     
-    return redirect('player_dashboard')
+    return redirect('players:player_dashboard')
 
 
 @login_required
@@ -134,11 +134,11 @@ def request_postponement(request, match_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if match.home_team != team and match.away_team != team:
         messages.error(request, 'This is not your match.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if request.method == 'POST':
         reason = request.POST.get('reason')
@@ -155,7 +155,7 @@ def request_postponement(request, match_id):
                 status='requested'
             )
             messages.success(request, 'Postponement request submitted. Waiting for opponent acceptance.')
-            return redirect('player_dashboard')
+            return redirect('players:player_dashboard')
         else:
             messages.error(request, 'Please fill in all fields.')
     
@@ -172,13 +172,13 @@ def accept_postponement(request, postponement_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     opponent_team = match.away_team if match.home_team == postponement.requested_by else match.home_team
     
     if team != opponent_team:
         messages.error(request, 'You cannot accept this postponement request.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if postponement.status == 'requested':
         postponement.opponent_accepted = True
@@ -186,7 +186,7 @@ def accept_postponement(request, postponement_id):
         postponement.save()
         messages.success(request, 'Postponement accepted. Request sent to admin for approval.')
     
-    return redirect('player_dashboard')
+    return redirect('players:player_dashboard')
 
 
 @login_required
@@ -196,7 +196,7 @@ def create_friendly_match(request):
         team = player.team
     except:
         messages.error(request, 'You must have a team to create a friendly match.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if request.method == 'POST':
         game_code = request.POST.get('game_code', '').strip()
@@ -208,7 +208,7 @@ def create_friendly_match(request):
                 status='open'
             )
             messages.success(request, f'Friendly match created with code: {game_code}. Share it in community chat!')
-            return redirect('community_chat')
+            return redirect('chat:community')
         else:
             messages.error(request, 'Please enter a valid game code.')
     
@@ -224,11 +224,11 @@ def accept_friendly_match(request, friendly_id):
         team = player.team
     except:
         messages.error(request, 'You must have a team.')
-        return redirect('player_dashboard')
+        return redirect('players:player_dashboard')
     
     if friendly.created_by_team == team:
         messages.error(request, 'You cannot accept your own friendly match.')
-        return redirect('community_chat')
+        return redirect('chat:community')
     
     if friendly.status == 'open':
         friendly.opponent_team = team
@@ -239,7 +239,7 @@ def accept_friendly_match(request, friendly_id):
     else:
         messages.error(request, 'This friendly match is no longer available.')
     
-    return redirect('community_chat')
+    return redirect('chat:community')
 
 
 @staff_member_required

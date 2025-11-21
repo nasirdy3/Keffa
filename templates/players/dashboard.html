@@ -109,7 +109,7 @@
             <div><strong style="color: var(--gold);">Device:</strong> {{ player.get_device_type_display }}</div>
             <div><strong style="color: var(--gold);">Phone:</strong> {{ player.phone_number }}</div>
         </div>
-        <a href="{% url 'edit_profile' %}" class="btn btn-secondary" style="margin-top: 1.5rem; width: 100%;">Edit Profile</a>
+        <a href="{% url 'players:edit_profile' %}" class="btn btn-secondary" style="margin-top: 1.5rem; width: 100%;">Edit Profile</a>
     </div>
     
     <div class="card">
