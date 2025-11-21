@@ -46,7 +46,7 @@
                         <li><a href="{% url 'admin:index' %}" class="navbar-link">Admin</a></li>
                     {% endif %}
                     
-                    <li><a href="{% url 'logout' %}" class="navbar-link">Logout</a></li>
+                    <li><a href="{% url 'players:user_logout' %}" class="navbar-link">Logout</a></li>
                 {% else %}
                     <li><a href="{% url 'players:user_login' %}" class="navbar-link">Login</a></li>
                     <li><a href="{% url 'players:register' %}" class="navbar-link">Join KEFA</a></li>
