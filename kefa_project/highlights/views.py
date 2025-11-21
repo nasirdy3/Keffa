@@ -41,14 +41,16 @@ def upload_highlight(request, match_id):
         return redirect('players:player_dashboard')
     
     if request.method == 'POST':
-        video_file = request.FILES.get('video_file')
+        video_url = request.POST.get('video_url')
+        description = request.POST.get('description', '')
         
-        if video_file:
+        if video_url:
             highlight = Highlight.objects.create(
                 match=match,
                 uploaded_by_team=team,
                 uploaded_by_side=uploaded_by_side,
-                video_file=video_file,
+                video_url=video_url,
+                description=description,
                 status='pending_verification'
             )
             
@@ -58,7 +60,7 @@ def upload_highlight(request, match_id):
             messages.success(request, 'Highlight uploaded successfully! It will be verified by moderators soon.')
             return redirect('players:player_dashboard')
         else:
-            messages.error(request, 'Please select a video file to upload.')
+            messages.error(request, 'Please provide a video URL.')
     
     return render(request, 'highlights/upload.html', {'match': match})
 
@@ -107,7 +109,7 @@ def verify_highlight(request, highlight_id):
                 messages.success(request, f'Highlight verified! Match score: {home_score}-{away_score}')
             else:
                 messages.error(request, 'Please enter both scores.')
-                return redirect('verify_highlight', highlight_id=highlight_id)
+                return redirect('highlights:verify_highlight', highlight_id=highlight_id)
         
         elif action == 'reject':
             rejection_reason = request.POST.get('rejection_reason', '')

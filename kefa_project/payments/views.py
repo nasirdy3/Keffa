@@ -26,11 +26,11 @@ def initiate_payment(request, tournament_id):
     
     if tournament.status != 'registration':
         messages.error(request, 'Registration is closed for this tournament.')
-        return redirect('tournament_detail', tournament_id=tournament_id)
+        return redirect('tournaments:detail', tournament_id=tournament_id)
     
     if tournament.is_full:
         messages.error(request, 'This tournament is full.')
-        return redirect('tournament_detail', tournament_id=tournament_id)
+        return redirect('tournaments:detail', tournament_id=tournament_id)
     
     registration, created = TournamentRegistration.objects.get_or_create(
         tournament=tournament,
@@ -39,13 +39,13 @@ def initiate_payment(request, tournament_id):
     
     if registration.payment_verified:
         messages.info(request, 'You are already registered for this tournament.')
-        return redirect('tournament_detail', tournament_id=tournament_id)
+        return redirect('tournaments:detail', tournament_id=tournament_id)
     
     if tournament.registration_fee == 0:
         registration.payment_verified = True
         registration.save()
         messages.success(request, 'Registration successful! Tournament is free.')
-        return redirect('tournament_detail', tournament_id=tournament_id)
+        return redirect('tournaments:detail', tournament_id=tournament_id)
     
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
@@ -59,7 +59,7 @@ def initiate_payment(request, tournament_id):
                 status='pending'
             )
             messages.success(request, 'Offline payment initiated. Please contact admin with proof of payment.')
-            return redirect('payment_proof_upload', payment_id=payment.id)
+            return redirect('payments:upload_proof', payment_id=payment.id)
         
         elif payment_method == 'paystack':
             return initiate_paystack_payment(request, registration, tournament)
@@ -82,7 +82,7 @@ def initiate_paystack_payment(request, registration, tournament):
     
     if not paystack_secret:
         messages.error(request, 'Paystack is not configured. Please use offline payment.')
-        return redirect('initiate_payment', tournament_id=tournament.id)
+        return redirect('payments:initiate', tournament_id=tournament.id)
     
     transaction_ref = f'PAYSTACK-{uuid.uuid4().hex[:12].upper()}'
     
@@ -122,7 +122,7 @@ def initiate_paystack_payment(request, registration, tournament):
         payment.status = 'failed'
         payment.save()
     
-    return redirect('initiate_payment', tournament_id=tournament.id)
+    return redirect('payments:initiate', tournament_id=tournament.id)
 
 
 def initiate_flutterwave_payment(request, registration, tournament):
@@ -131,7 +131,7 @@ def initiate_flutterwave_payment(request, registration, tournament):
     
     if not flutterwave_public or not flutterwave_secret:
         messages.error(request, 'Flutterwave is not configured. Please use offline payment.')
-        return redirect('initiate_payment', tournament_id=tournament.id)
+        return redirect('payments:initiate', tournament_id=tournament.id)
     
     transaction_ref = f'FLW-{uuid.uuid4().hex[:12].upper()}'
     
@@ -180,7 +180,7 @@ def initiate_flutterwave_payment(request, registration, tournament):
         payment.status = 'failed'
         payment.save()
     
-    return redirect('initiate_payment', tournament_id=tournament.id)
+    return redirect('payments:initiate', tournament_id=tournament.id)
 
 
 @login_required
@@ -222,7 +222,7 @@ def flutterwave_callback(request):
                     else:
                         messages.info(request, 'Payment already verified.')
                     
-                    return redirect('tournament_detail', tournament_id=payment.registration.tournament.id)
+                    return redirect('tournaments:detail', tournament_id=payment.registration.tournament.id)
                 except Payment.DoesNotExist:
                     messages.error(request, 'Payment record not found.')
             else:
