@@ -2,70 +2,286 @@
 
 {% block title %}Register - KEFA{% endblock %}
 
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    
+    .auth-card {
+        background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
+        border-radius: 16px;
+        padding: 3rem;
+        max-width: 900px;
+        width: 100%;
+        border: 1px solid rgba(230, 0, 18, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(230, 0, 18, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #E60012, #FF4444, #E60012);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .auth-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #FFFFFF;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .auth-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+    }
+    
+    .form-section {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .section-title {
+        color: var(--primary-red);
+        font-size: 1.3rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba(230, 0, 18, 0.3);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 0;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #FFFFFF;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-red);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.1);
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 0.5rem;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0 0;
+    }
+    
+    .errorlist li {
+        color: #FF4444;
+        font-size: 0.85rem;
+        padding: 0.25rem 0;
+    }
+    
+    .btn-register {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #E60012, #C50010);
+        color: #FFFFFF;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(230, 0, 18, 0.4);
+        background: linear-gradient(135deg, #FF0015, #E60012);
+    }
+    
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .auth-footer a {
+        color: var(--primary-red);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .auth-footer a:hover {
+        color: #FF4444;
+        text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+        }
+        
+        .form-section {
+            padding: 1.5rem;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="card" style="max-width: 800px; margin: 0 auto;">
-    <h1 class="card-title" style="text-align: center;">Join KEFA ⚽</h1>
-    <p style="margin-bottom: 2rem; text-align: center; opacity: 0.8;">Create your account and become part of the eFootball community in Birnin Kebbi</p>
-    
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Join KEFA</h1>
+            <p class="auth-subtitle">Become part of the eFootball community in Birnin Kebbi</p>
+        </div>
         
-        <h3 style="margin-bottom: 1rem; color: var(--gold);">Account Information</h3>
-        {% for field in user_form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <ul class="errorlist">
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if field.help_text %}
-                    <small style="color: #666;">{{ field.help_text }}</small>
-                {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Account Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">Account Information</h3>
+                <div class="form-grid">
+                    {% for field in user_form %}
+                        <div class="form-group">
+                            <label>{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <ul class="errorlist">
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <small>{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        {% endfor %}
-        
-        <h3 style="margin: 2rem 0 1rem; color: var(--gold);">Player Profile</h3>
-        {% for field in player_form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <ul class="errorlist">
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+            
+            <!-- Player Profile Section -->
+            <div class="form-section">
+                <h3 class="section-title">Player Profile</h3>
+                <div class="form-grid">
+                    {% for field in player_form %}
+                        <div class="form-group">
+                            <label>{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <ul class="errorlist">
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <small>{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        {% endfor %}
-        
-        <h3 style="margin: 2rem 0 1rem; color: var(--gold);">Team Information</h3>
-        {% for field in team_form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <ul class="errorlist">
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if field.help_text %}
-                    <small style="color: #666;">{{ field.help_text }}</small>
-                {% endif %}
+            
+            <!-- Team Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">Team Information</h3>
+                <div class="form-grid">
+                    {% for field in team_form %}
+                        <div class="form-group">
+                            <label>{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <ul class="errorlist">
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <small>{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        {% endfor %}
+            
+            <button type="submit" class="btn-register">Create Account</button>
+        </form>
         
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
-    </form>
-    
-    <p style="margin-top: 1.5rem; text-align: center;">
-        Already have an account? <a href="{% url 'players:login' %}" style="color: var(--gold); font-weight: 600; text-decoration: underline;">Login here</a>
-    </p>
+        <div class="auth-footer">
+            <p style="color: rgba(255, 255, 255, 0.7);">
+                Already have an account? <a href="{% url 'players:login' %}">Login here</a>
+            </p>
+        </div>
+    </div>
 </div>
 {% endblock %}

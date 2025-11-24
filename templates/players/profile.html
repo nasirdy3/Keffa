@@ -4,14 +4,169 @@
 
 {% block extra_css %}
 <style>
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
+        border-radius: 16px;
+        padding: 3rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(230, 0, 18, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #E60012, #FF4444, #E60012);
+    }
+    
+    .profile-content {
+        display: flex;
+        gap: 2rem;
+        align-items: start;
+        flex-wrap: wrap;
+    }
+    
+    .profile-avatar-container {
+        flex-shrink: 0;
+        position: relative;
+    }
+    
+    .profile-avatar {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--primary-red);
+        box-shadow: 0 8px 24px rgba(230, 0, 18, 0.4);
+    }
+    
+    .profile-avatar-placeholder {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #E60012, #C50010);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+        font-size: 5rem;
+        font-weight: 900;
+        box-shadow: 0 8px 24px rgba(230, 0, 18, 0.4);
+        text-transform: uppercase;
+    }
+    
+    .profile-info {
+        flex-grow: 1;
+    }
+    
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #FFFFFF;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .profile-username {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-item {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.25rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--primary-red);
+    }
+    
+    .stat-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+        color: var(--primary-red);
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+    
+    .bio-section {
+        background: rgba(230, 0, 18, 0.05);
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid var(--primary-red);
+    }
+    
+    .bio-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.75rem;
+    }
+    
+    .bio-text {
+        color: #FFFFFF;
+        line-height: 1.6;
+    }
+    
+    .squad-section {
+        background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
+        border-radius: 16px;
+        padding: 2.5rem;
+        border: 1px solid rgba(230, 0, 18, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    
+    .squad-title {
+        color: var(--primary-red);
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 1.5rem;
+    }
+    
     .squad-image-clickable {
         cursor: pointer;
         transition: all 0.3s ease;
+        border-radius: 12px;
+        border: 2px solid var(--primary-red);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
     
     .squad-image-clickable:hover {
         transform: scale(1.02);
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        box-shadow: 0 0 30px rgba(230, 0, 18, 0.5);
     }
     
     .image-modal {
@@ -42,7 +197,7 @@
         max-height: 95vh;
         object-fit: contain;
         border-radius: 12px;
-        box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        box-shadow: 0 0 50px rgba(230, 0, 18, 0.4);
     }
     
     .close-modal {
@@ -59,7 +214,24 @@
     
     .close-modal:hover,
     .close-modal:focus {
-        color: var(--gold);
+        color: var(--primary-red);
+    }
+    
+    .zoom-hint {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        pointer-events: none;
+        border: 1px solid var(--primary-red);
+    }
+    
+    .zoom-hint span {
+        color: var(--primary-red);
+        font-size: 0.9rem;
+        font-weight: 600;
     }
     
     @keyframes fadeIn {
@@ -68,6 +240,25 @@
     }
     
     @media (max-width: 768px) {
+        .profile-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .profile-name {
+            font-size: 2rem;
+        }
+        
+        .profile-avatar,
+        .profile-avatar-placeholder {
+            width: 150px;
+            height: 150px;
+            font-size: 4rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
         .close-modal {
             top: 10px;
             right: 15px;
@@ -78,66 +269,68 @@
 {% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 900px; margin: 0 auto;">
-    <div style="display: flex; gap: 2rem; align-items: start; flex-wrap: wrap;">
-        <div style="flex-shrink: 0;">
-            {% if player.profile_picture %}
-                <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-gold); box-shadow: var(--shadow-glow);">
-            {% else %}
-                <div style="width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-gold), var(--gold-dark)); display: flex; align-items: center; justify-content: center; color: var(--dark-bg); font-size: 5rem; font-weight: 900; box-shadow: var(--shadow-glow);">
-                    {{ player.full_name.0 }}
-                </div>
-            {% endif %}
-        </div>
-        
-        <div style="flex-grow: 1;">
-            <h1 class="card-title" style="margin-bottom: 0.5rem;">{{ player.full_name }}</h1>
-            <p style="color: var(--text-muted); margin-bottom: 2rem;">@{{ player.user.username }}</p>
-            
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
-                <div>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Team</p>
-                    <p style="font-weight: 600; color: var(--primary-gold);">{{ team.team_name }}</p>
-                </div>
-                <div>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">eFootball ID</p>
-                    <p style="font-weight: 600;">{{ player.efootball_id }}</p>
-                </div>
-                <div>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Device</p>
-                    <p style="font-weight: 600;">{{ player.get_device_type_display }}</p>
-                </div>
-                <div>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Joined</p>
-                    <p style="font-weight: 600;">{{ player.created_at|date:"M d, Y" }}</p>
-                </div>
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-content">
+            <div class="profile-avatar-container">
+                {% if player.profile_picture %}
+                    <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ player.full_name.0 }}
+                    </div>
+                {% endif %}
             </div>
             
-            {% if player.bio %}
-                <div style="background: rgba(255, 215, 0, 0.05); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary-gold);">
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Bio</p>
-                    <p>{{ player.bio }}</p>
+            <div class="profile-info">
+                <h1 class="profile-name">{{ player.full_name }}</h1>
+                <p class="profile-username">@{{ player.user.username }}</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Team</div>
+                        <div class="stat-value">{{ team.team_name }}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">eFootball ID</div>
+                        <div class="stat-value">{{ player.efootball_id }}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Device</div>
+                        <div class="stat-value">{{ player.get_device_type_display }}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Joined</div>
+                        <div class="stat-value">{{ player.created_at|date:"M d, Y" }}</div>
+                    </div>
                 </div>
-            {% endif %}
+                
+                {% if player.bio %}
+                    <div class="bio-section">
+                        <div class="bio-label">About</div>
+                        <p class="bio-text">{{ player.bio }}</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
     
     {% if team.squad_image %}
-        <div style="margin-top: 2rem;">
-            <h3 style="margin-bottom: 1rem; color: var(--primary-gold);">🎮 {{ team.team_name }} Squad</h3>
-            <div style="position: relative;">
-                <img 
-                    src="{{ team.squad_image.url }}" 
-                    alt="{{ team.team_name }} Squad" 
-                    class="squad-image-clickable" 
-                    onclick="openImageModal()"
-                    style="width: 100%; border-radius: 12px; border: 2px solid var(--primary-gold);"
-                >
-                <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); padding: 0.5rem 1rem; border-radius: 8px; pointer-events: none;">
-                    <span style="color: var(--gold); font-size: 0.9rem;">🔍 Click to enlarge</span>
-                </div>
+    <div class="squad-section">
+        <h3 class="squad-title">🎮 {{ team.team_name }} Squad</h3>
+        <div style="position: relative;">
+            <img 
+                src="{{ team.squad_image.url }}" 
+                alt="{{ team.team_name }} Squad" 
+                class="squad-image-clickable" 
+                onclick="openImageModal()"
+                style="width: 100%;"
+            >
+            <div class="zoom-hint">
+                <span>🔍 Click to enlarge</span>
             </div>
         </div>
+    </div>
     {% endif %}
 </div>
 
