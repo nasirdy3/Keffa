@@ -1,20 +1,26 @@
 :root {
-  --primary-gold: #FFD700;
-  --gold-light: #FFF4CC;
-  --gold-dark: #DAA520;
-  --accent-orange: #FF8C00;
-  --dark-bg: #1a1a2e;
-  --card-bg: #16213e;
+  --primary-red: #E60012;
+  --red-light: #FF1F2F;
+  --red-dark: #C40010;
+  --accent-blue: #0A78BE;
+  --dark-bg: #0A1F44;
+  --card-bg: #102A4C;
   --text-light: #ffffff;
   --text-muted: #94a3b8;
   --success-green: #10b981;
   --danger-red: #ef4444;
-  --border-color: #2d3748;
+  --border-color: #1E3A5F;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 20px rgba(255, 215, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(230, 0, 18, 0.4);
+  
+  --primary-gold: #E60012;
+  --gold-light: #FF1F2F;
+  --gold-dark: #C40010;
+  --accent-orange: #0A78BE;
+  --gold: #E60012;
 }
 
 * {
@@ -24,8 +30,8 @@
 }
 
 body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #0A1F44 0%, #102A4C 100%);
   color: var(--text-light);
   line-height: 1.6;
   min-height: 100vh;
@@ -45,9 +51,9 @@ body {
 
 /* Navigation */
 .navbar {
-  background: rgba(22, 33, 62, 0.95);
+  background: rgba(10, 31, 68, 0.98);
   backdrop-filter: blur(10px);
-  border-bottom: 2px solid var(--primary-gold);
+  border-bottom: 3px solid var(--primary-red);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -68,14 +74,15 @@ body {
   align-items: center;
   gap: 0.75rem;
   text-decoration: none;
-  color: var(--primary-gold);
-  font-size: 1.5rem;
-  font-weight: bold;
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   transition: all 0.3s ease;
 }
 
 .navbar-brand:hover {
-  color: var(--gold-light);
+  color: var(--primary-red);
   text-shadow: var(--shadow-glow);
 }
 
@@ -100,14 +107,14 @@ body {
 }
 
 .navbar-link:hover {
-  background: rgba(255, 215, 0, 0.1);
-  color: var(--primary-gold);
+  background: rgba(230, 0, 18, 0.15);
+  color: var(--primary-red);
   transform: translateY(-2px);
 }
 
 .navbar-link.active {
-  background: var(--primary-gold);
-  color: var(--dark-bg);
+  background: var(--primary-red);
+  color: #ffffff;
 }
 
 .navbar-toggle {
@@ -121,10 +128,10 @@ body {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%);
-  padding: 4rem 1rem;
+  background: linear-gradient(135deg, rgba(230, 0, 18, 0.08) 0%, rgba(10, 120, 190, 0.08) 100%);
+  padding: 5rem 1rem;
   text-align: center;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
   position: relative;
   overflow: hidden;
 }
@@ -136,7 +143,7 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(230, 0, 18, 0.05) 0%, transparent 70%);
   animation: pulse 15s ease-in-out infinite;
 }
 
@@ -151,13 +158,13 @@ body {
 }
 
 .hero-title {
-  font-size: 3rem;
+  font-size: 4rem;
   margin-bottom: 1rem;
-  background: linear-gradient(45deg, var(--primary-gold), var(--accent-orange));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 3s ease-in-out infinite;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 0 30px rgba(230, 0, 18, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes shimmer {
@@ -186,7 +193,7 @@ body {
 .hero-stat-value {
   font-size: 2.5rem;
   font-weight: bold;
-  color: var(--primary-gold);
+  color: var(--primary-red);
   display: block;
 }
 
@@ -209,25 +216,33 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-gold), var(--gold-dark));
-  color: var(--dark-bg);
+  background: linear-gradient(135deg, var(--primary-red), var(--red-dark));
+  color: #ffffff;
   box-shadow: var(--shadow-glow);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 30px rgba(230, 0, 18, 0.6);
+  background: linear-gradient(135deg, var(--red-light), var(--primary-red));
 }
 
 .btn-secondary {
-  background: var(--card-bg);
+  background: transparent;
   color: var(--text-light);
-  border: 2px solid var(--primary-gold);
+  border: 2px solid var(--primary-red);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 215, 0, 0.1);
+  background: rgba(230, 0, 18, 0.15);
   transform: translateY(-2px);
+  border-color: var(--red-light);
 }
 
 .btn-success {
@@ -259,7 +274,7 @@ body {
 .card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-xl);
-  border-color: var(--primary-gold);
+  border-color: var(--primary-red);
 }
 
 .card-header {
@@ -274,7 +289,7 @@ body {
 .card-title {
   font-size: 1.25rem;
   font-weight: bold;
-  color: var(--primary-gold);
+  color: #ffffff;
 }
 
 .card-body {
@@ -310,22 +325,24 @@ body {
 }
 
 .tournament-card:hover {
-  border-color: var(--primary-gold);
+  border-color: var(--primary-red);
   transform: translateY(-8px);
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 30px rgba(230, 0, 18, 0.4);
 }
 
 .tournament-card-header {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2));
-  padding: 1.5rem;
-  border-bottom: 2px solid var(--primary-gold);
+  background: linear-gradient(135deg, rgba(230, 0, 18, 0.15), rgba(10, 120, 190, 0.15));
+  padding: 2rem;
+  border-bottom: 3px solid var(--primary-red);
 }
 
 .tournament-name {
   font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-gold);
+  font-weight: 700;
+  color: #ffffff;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .tournament-type {
@@ -358,7 +375,7 @@ body {
 }
 
 .status-ongoing {
-  background: var(--accent-orange);
+  background: var(--accent-blue);
   color: white;
 }
 
@@ -376,7 +393,7 @@ body {
 }
 
 .standings-table thead {
-  background: rgba(255, 215, 0, 0.1);
+  background: rgba(230, 0, 18, 0.1);
   position: sticky;
   top: 0;
 }
@@ -384,9 +401,9 @@ body {
 .standings-table th {
   padding: 1rem;
   text-align: left;
-  color: var(--primary-gold);
+  color: #ffffff;
   font-weight: 600;
-  border-bottom: 2px solid var(--primary-gold);
+  border-bottom: 2px solid var(--primary-red);
 }
 
 .standings-table td {
@@ -400,7 +417,7 @@ body {
 }
 
 .standings-table tbody tr:hover {
-  background: rgba(255, 215, 0, 0.05);
+  background: rgba(230, 0, 18, 0.05);
   transform: scale(1.01);
 }
 
@@ -416,9 +433,9 @@ body {
   border: 2px solid var(--border-color);
 }
 
-.position-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+.position-1 { background: linear-gradient(135deg, #E60012, #C40010); color: #fff; }
 .position-2 { background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: #000; }
-.position-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); color: #fff; }
+.position-3 { background: linear-gradient(135deg, #0A78BE, #085A8F); color: #fff; }
 
 .team-name-cell {
   display: flex;
@@ -431,7 +448,7 @@ body {
   height: 2.5rem;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--primary-gold);
+  border: 2px solid var(--primary-red);
 }
 
 .team-name-link {
@@ -442,7 +459,7 @@ body {
 }
 
 .team-name-link:hover {
-  color: var(--primary-gold);
+  color: var(--primary-red);
   text-decoration: underline;
 }
 
@@ -476,7 +493,7 @@ body {
 }
 
 .match-card:hover {
-  border-color: var(--primary-gold);
+  border-color: var(--primary-red);
   box-shadow: var(--shadow-glow);
 }
 
@@ -510,7 +527,7 @@ body {
 .match-score {
   font-size: 2rem;
   font-weight: bold;
-  color: var(--primary-gold);
+  color: var(--primary-red);
 }
 
 .match-info {
@@ -549,8 +566,8 @@ body {
 
 .form-control:focus {
   outline: none;
-  border-color: var(--primary-gold);
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.1);
 }
 
 textarea.form-control {
@@ -582,8 +599,8 @@ textarea.form-control {
 }
 
 .badge-gold {
-  background: linear-gradient(135deg, var(--primary-gold), var(--gold-dark));
-  color: var(--dark-bg);
+  background: linear-gradient(135deg, var(--primary-red), var(--red-dark));
+  color: #ffffff;
 }
 
 .badge-silver {
@@ -592,7 +609,7 @@ textarea.form-control {
 }
 
 .badge-bronze {
-  background: linear-gradient(135deg, #CD7F32, #A0522D);
+  background: linear-gradient(135deg, #0A78BE, #085A8F);
   color: white;
 }
 
@@ -600,7 +617,8 @@ textarea.form-control {
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .text-muted { color: var(--text-muted); }
-.text-gold { color: var(--primary-gold); }
+.text-gold { color: var(--primary-red); }
+.text-red { color: var(--primary-red); }
 .text-success { color: var(--success-green); }
 .text-danger { color: var(--danger-red); }
 
@@ -633,7 +651,7 @@ textarea.form-control {
     right: 0;
     background: var(--card-bg);
     padding: 1rem;
-    border-bottom: 2px solid var(--primary-gold);
+    border-bottom: 2px solid var(--primary-red);
     box-shadow: var(--shadow-xl);
     z-index: 999;
   }
@@ -646,7 +664,7 @@ textarea.form-control {
     display: block !important;
     background: none;
     border: none;
-    color: var(--primary-gold);
+    color: var(--primary-red);
     font-size: 1.75rem;
     cursor: pointer;
     padding: 0.5rem;
@@ -681,8 +699,8 @@ textarea.form-control {
   display: inline-block;
   width: 2rem;
   height: 2rem;
-  border: 3px solid rgba(255, 215, 0, 0.2);
-  border-top-color: var(--primary-gold);
+  border: 3px solid rgba(230, 0, 18, 0.2);
+  border-top-color: var(--primary-red);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -712,7 +730,7 @@ textarea.form-control {
 }
 
 .alert-info {
-  background: rgba(255, 215, 0, 0.1);
-  border-color: var(--primary-gold);
-  color: var(--primary-gold);
+  background: rgba(230, 0, 18, 0.1);
+  border-color: var(--primary-red);
+  color: var(--primary-red);
 }
