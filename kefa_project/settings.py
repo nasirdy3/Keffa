@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-g9$u-py2k%6q=62qsvdh+m=mhogsvi=+!+f759(9r!5-33vax2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Memory optimization for Render Free Tier
 CELERY_WORKER_MAX_MEMORY_PER_CHILD = 200000  # 200MB
