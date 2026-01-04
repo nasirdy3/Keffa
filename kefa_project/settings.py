@@ -25,18 +25,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-g9$u-py2k%6q=62qsvdh+m=mhogsvi=+!+f759(9r!5-33vax2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Memory optimization for Render Free Tier
 CELERY_WORKER_MAX_MEMORY_PER_CHILD = 200000  # 200MB
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='https://kefa-platform.onrender.com', cast=Csv())
 
 # CSRF Trusted Origins for Deployment and Replit
 CSRF_TRUSTED_ORIGINS = [
     'https://*.render.com',
-    'https://*.onrender.com',
+    'https://kefa-platform.onrender.com',
 ]
 
 # Add default localhost/127.0.0.1 for development
