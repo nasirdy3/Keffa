@@ -18,6 +18,8 @@ services:
           property: connectionString
       - key: DEBUG
         value: "False"
+      - key: WEB_CONCURRENCY
+        value: "1"
       - key: PYTHON_VERSION
         value: 3.11.0
 

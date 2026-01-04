@@ -25,27 +25,57 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-g9$u-py2k%6q=62qsvdh+m=mhogsvi=+!+f759(9r!5-33vax2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = False
+
+# Memory optimization for Render Free Tier
+CELERY_WORKER_MAX_MEMORY_PER_CHILD = 200000  # 200MB
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
-# CSRF Trusted Origins for Replit
-CSRF_TRUSTED_ORIGINS = []
+# CSRF Trusted Origins for Deployment and Replit
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.render.com',
+    'https://*.onrender.com',
+]
+
+# Add default localhost/127.0.0.1 for development
+CSRF_TRUSTED_ORIGINS.extend(['http://localhost:5000', 'http://127.0.0.1:5000'])
+
+# Handle Replit domains
 replit_domains = os.getenv('REPLIT_DOMAINS', '').split(',')
 for domain in replit_domains:
     if domain.strip():
         CSRF_TRUSTED_ORIGINS.append(f'https://{domain.strip()}')
 
-# Also add the dev domain if available
+# Handle development domain
 dev_domain = os.getenv('REPLIT_DEV_DOMAIN', '')
-if dev_domain and f'https://{dev_domain}' not in CSRF_TRUSTED_ORIGINS:
+if dev_domain:
     CSRF_TRUSTED_ORIGINS.append(f'https://{dev_domain}')
 
-# CSRF and Session Cookie Settings for Replit iframe
-CSRF_COOKIE_SAMESITE = 'None'
+# Handle the common Replit pattern if REPLIT_DEV_DOMAIN is missing but domain is known
+current_host = os.getenv('REPL_ID', '')
+if current_host:
+    # Most Replit apps follow this pattern
+    CSRF_TRUSTED_ORIGINS.append(f'https://{current_host}.id.repl.co')
+    CSRF_TRUSTED_ORIGINS.append(f'https://{current_host}.replit.app')
+
+# CSRF and Session Cookie Settings
+CSRF_COOKIE_SAMESITE = 'Lax'  # Standard for production
 CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = True
+
+# When running in Replit preview iframe, we need None for SameSite
+if os.environ.get('REPL_ID'):
+    CSRF_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SAMESITE = 'None'
+
+# Security settings for iframes
+X_FRAME_OPTIONS = 'ALLOWALL'
+SILENCED_SYSTEM_CHECKS = ['security.W019'] # Silence X-Frame-Options warning if necessary
 
 # Application definition
 
