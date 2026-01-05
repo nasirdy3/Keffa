@@ -25,13 +25,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-g9$u-py2k%6q=62qsvdh+m=mhogsvi=+!+f759(9r!5-33vax2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Memory optimization for Render Free Tier
 CELERY_WORKER_MAX_MEMORY_PER_CHILD = 200000  # 200MB
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 10
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='https://kefa-platform.onrender.com', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+# Auto-add Render's URL to prevent 500 errors
+if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
+    ALLOWED_HOSTS.append(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
 
 # CSRF Trusted Origins for Deployment and Replit
 CSRF_TRUSTED_ORIGINS = [
@@ -173,14 +176,21 @@ DATABASES = {
     )
 }
 
+# --- Replacement Redis & Celery Config ---
+REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/0')
+
+# Channels must use RedisChannelLayer to work on Render
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [REDIS_URL],
+        },
     },
 }
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -218,15 +228,20 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static and Media Storage
+# --- Static and Media Storage ---
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage" if USE_CLOUDINARY else "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # Changed to a more stable backend for Render/WhiteNoise
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
+
+# WhiteNoise Safety Switches
+WHITENOISE_MANIFEST_STRICT = False  # Prevents 500 error if a file is missing
+WHITENOISE_USE_FINDERS = True       # Helps WhiteNoise find your files in Replit
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -234,6 +249,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # REST Framework Configuration
 REST_FRAMEWORK = {
