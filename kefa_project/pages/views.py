@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.db.utils import OperationalError, ProgrammingError
 from .models import FAQ
 from .forms import ContactForm
 
@@ -8,8 +9,18 @@ def about(request):
     return render(request, 'pages/about.html')
 
 def faq(request):
-    """Dynamic FAQ Page fetching visible questions"""
-    faqs = FAQ.objects.filter(is_visible=True)
+    """
+    Dynamic FAQ Page fetching visible questions.
+    Includes defensive coding to handle cases where the DB table 
+    might be missing during migrations.
+    """
+    try:
+        faqs = FAQ.objects.filter(is_visible=True)
+    except (OperationalError, ProgrammingError):
+        # ARCHITECT NOTE: This handles the "relation does not exist" error gracefully
+        # by returning an empty list instead of crashing the server.
+        faqs = []
+        
     return render(request, 'pages/faq.html', {'faqs': faqs})
 
 def contact(request):
@@ -29,3 +40,4 @@ def contact(request):
         form = ContactForm()
     
     return render(request, 'pages/contact.html', {'form': form})
+

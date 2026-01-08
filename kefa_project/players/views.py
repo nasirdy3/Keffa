@@ -79,8 +79,16 @@ def player_dashboard(request):
         player = request.user.player_profile
         team = player.team
     except Player.DoesNotExist:
+        # ARCHITECT FIX: Handle Superusers/Admins who don't have a Player profile
+        if request.user.is_superuser or request.user.is_staff:
+            return redirect('players:governance_dashboard')
+            
         messages.error(request, 'Player profile not found. Please contact support.')
         return redirect('home')
+    except Exception:
+        # Fallback for other relationship errors (e.g., Player exists but Team missing)
+        messages.error(request, 'Team data missing. Please update your profile.')
+        return redirect('players:edit_profile')
 
     # Get tournament registrations
     tournaments_count = TournamentRegistration.objects.filter(
@@ -218,7 +226,7 @@ def edit_profile(request):
         'team_form': team_form,
     })
 
-# --- ARCHITECT NOTE: New Governance Logic Implementation ---
+# --- ARCHITECT NOTE: Governance Logic Implementation ---
 
 @login_required
 def governance_dashboard(request):
@@ -228,18 +236,26 @@ def governance_dashboard(request):
     - Moderators: See verification queues (Payments, Matches, Highlights).
     - Users: Redirected to player dashboard.
     """
+    
+    # ARCHITECT FIX: Safely determine Role and Profile existence
     try:
         profile = request.user.player_profile
+        role = profile.role
     except Player.DoesNotExist:
-        messages.error(request, "Profile access error.")
-        return redirect('home')
+        # If user is Superuser/Staff but has no profile, treat as Admin
+        if request.user.is_superuser or request.user.is_staff:
+            profile = None # Explicitly None for template handling
+            role = 'admin'
+        else:
+            messages.error(request, "Profile access error.")
+            return redirect('home')
 
     # Access Control: Only Admins and Moderators allowed
-    if profile.role not in ['admin', 'moderator'] and not request.user.is_staff:
+    if role not in ['admin', 'moderator'] and not request.user.is_superuser:
         messages.warning(request, "Access restricted to KEFA officials.")
         return redirect('players:player_dashboard')
 
-    is_admin = profile.role == 'admin' or request.user.is_superuser
+    is_admin = (role == 'admin') or request.user.is_superuser
 
     # Imports for data aggregation
     from kefa_project.payments.models import Payment
@@ -254,34 +270,39 @@ def governance_dashboard(request):
         
         try:
             target_user = User.objects.get(username=target_username)
-            target_profile = target_user.player_profile
-            old_role = target_profile.role
-            
-            if old_role != new_role:
-                target_profile.role = new_role
-                target_profile.save()
+            # Check if target has profile
+            if hasattr(target_user, 'player_profile'):
+                target_profile = target_user.player_profile
+                old_role = target_profile.role
                 
-                # Update Django permissions for compatibility
-                if new_role in ['admin', 'moderator']:
-                    target_user.is_staff = True
-                else:
-                    target_user.is_staff = False
-                target_user.save()
-                
-                # Log the action
-                GovernanceLog.objects.create(
-                    admin=request.user,
-                    action='role_change',
-                    target_object=f"User: {target_username}",
-                    details=f"Changed role from {old_role} to {new_role}"
-                )
-                messages.success(request, f"Role for {target_username} updated to {new_role}.")
+                if old_role != new_role:
+                    target_profile.role = new_role
+                    target_profile.save()
+                    
+                    # Update Django permissions for compatibility
+                    if new_role in ['admin', 'moderator']:
+                        target_user.is_staff = True
+                    else:
+                        target_user.is_staff = False
+                    target_user.save()
+                    
+                    # Log the action
+                    GovernanceLog.objects.create(
+                        admin=request.user,
+                        action='role_change',
+                        target_object=f"User: {target_username}",
+                        details=f"Changed role from {old_role} to {new_role}"
+                    )
+                    messages.success(request, f"Role for {target_username} updated to {new_role}.")
+            else:
+                messages.error(request, f"User {target_username} has no Player Profile to update.")
+
         except User.DoesNotExist:
             messages.error(request, "User not found.")
         except Exception as e:
             messages.error(request, f"Error updating role: {str(e)}")
         
-        return redirect('admin_dashboard')
+        return redirect('admin_dashboard') # Ensure this URL name matches your urls.py
 
     # --- DATA GATHERING ---
     
