@@ -105,7 +105,6 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Register from the root to ensure scope covers the whole app
                 navigator.serviceWorker.register('/service-worker.js')
                     .then(reg => console.log('KEFA Service Worker registered with scope:', reg.scope))
                     .catch(err => console.log('KEFA Service Worker registration failed:', err));
