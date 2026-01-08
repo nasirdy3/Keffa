@@ -10,8 +10,6 @@ from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET
 from django.contrib.staticfiles.finders import find
 from . import views
-# ARCHITECT NOTE: Importing player views to route governance dashboard correctly
-from kefa_project.players import views as player_views
 
 # --- PWA Helper Views ---
 # These serve the static files from the root URL so the Service Worker has the correct scope
@@ -43,12 +41,10 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('leaderboards/', views.leaderboards, name='leaderboards'),
     
-    # ARCHITECT NOTE: Re-routed to the new robust Governance Dashboard in players app
-    path('admin-dashboard/', player_views.governance_dashboard, name='admin_dashboard'),
-    
     # New Information Suite
     path('', include('kefa_project.pages.urls')),
     
+    # App URLs
     path('players/', include('kefa_project.players.urls')),
     path('tournaments/', include('kefa_project.tournaments.urls')),
     path('matches/', include('kefa_project.matches.urls')),

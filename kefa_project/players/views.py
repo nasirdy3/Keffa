@@ -81,6 +81,7 @@ def player_dashboard(request):
     except Player.DoesNotExist:
         # ARCHITECT FIX: Handle Superusers/Admins who don't have a Player profile
         if request.user.is_superuser or request.user.is_staff:
+            # This redirect now maps correctly to 'players:governance_dashboard' in urls.py
             return redirect('players:governance_dashboard')
             
         messages.error(request, 'Player profile not found. Please contact support.')
@@ -302,7 +303,8 @@ def governance_dashboard(request):
         except Exception as e:
             messages.error(request, f"Error updating role: {str(e)}")
         
-        return redirect('admin_dashboard') # Ensure this URL name matches your urls.py
+        # ARCHITECT FIX: Correct redirect to self (namespaced)
+        return redirect('players:governance_dashboard')
 
     # --- DATA GATHERING ---
     
