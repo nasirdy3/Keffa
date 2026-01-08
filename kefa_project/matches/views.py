@@ -34,70 +34,12 @@ def match_ready(request, match_id):
         messages.error(request, 'This is not your match.')
         return redirect('players:player_dashboard')
     
+    # ARCHITECT NOTE: If both teams are ready, move directly to in_progress.
+    # Players are expected to coordinate via WhatsApp now.
     if match.home_ready and match.away_ready:
-        match.status = 'creating_game'
+        match.status = 'in_progress'
         match.save()
-    
-    return redirect('players:player_dashboard')
-
-
-@login_required
-def create_game_code(request, match_id):
-    match = get_object_or_404(Match, id=match_id)
-    
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team.')
-        return redirect('players:player_dashboard')
-    
-    if match.home_team != team:
-        messages.error(request, 'Only the home team can create the game code.')
-        return redirect('players:player_dashboard')
-    
-    if match.status != 'creating_game':
-        messages.error(request, 'Cannot create game code at this time.')
-        return redirect('players:player_dashboard')
-    
-    if request.method == 'POST':
-        game_code = request.POST.get('game_code', '').strip()
-        
-        if game_code:
-            match.game_code = game_code
-            match.game_code_created_at = timezone.now()
-            match.status = 'waiting_join'
-            match.save()
-            messages.success(request, f'Game code {game_code} created! Waiting for away team to join.')
-            return redirect('players:player_dashboard')
-        else:
-            messages.error(request, 'Please enter a valid game code.')
-    
-    return render(request, 'matches/create_game_code.html', {'match': match})
-
-
-@login_required
-def join_game(request, match_id):
-    match = get_object_or_404(Match, id=match_id)
-    
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team.')
-        return redirect('players:player_dashboard')
-    
-    if match.away_team != team:
-        messages.error(request, 'Only the away team can join.')
-        return redirect('players:player_dashboard')
-    
-    if match.status != 'waiting_join':
-        messages.error(request, 'Cannot join game at this time.')
-        return redirect('players:player_dashboard')
-    
-    match.status = 'in_progress'
-    match.save()
-    messages.success(request, f'Joined game with code: {match.game_code}. Good luck!')
+        messages.success(request, 'Both teams ready! Connect on WhatsApp to play.')
     
     return redirect('players:player_dashboard')
 
@@ -293,3 +235,4 @@ def approve_postponement(request, postponement_id):
     return render(request, 'matches/approve_postponement.html', {
         'postponement': postponement
     })
+

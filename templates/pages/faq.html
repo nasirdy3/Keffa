@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQ | KEFA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .faq-item {
+        margin-bottom: 1rem;
+        background: var(--dark-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+    }
+    
+    .faq-item[open] {
+        border-color: var(--primary-gold);
+    }
+    
+    .faq-summary {
+        padding: 1rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: #fff;
+        list-style: none;
+        position: relative;
+    }
+    
+    .faq-summary::after {
+        content: '+';
+        position: absolute;
+        right: 1rem;
+        color: var(--primary-gold);
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+    
+    .faq-item[open] .faq-summary::after {
+        content: '-';
+    }
+    
+    .faq-content {
+        padding: 1rem;
+        padding-top: 0;
+        color: var(--text-muted);
+        border-top: 1px solid var(--border-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-4">
+    <div class="text-center mb-4">
+        <h1 class="text-gold">Frequently Asked Questions</h1>
+        <p class="text-muted">Everything you need to know about playing in KEFA.</p>
+    </div>
+
+    <div class="container" style="max-width: 800px;">
+        {% if faqs %}
+            {% for faq in faqs %}
+                <details class="faq-item">
+                    <summary class="faq-summary">{{ faq.question }}</summary>
+                    <div class="faq-content">
+                        {{ faq.answer|linebreaks }}
+                    </div>
+                </details>
+            {% endfor %}
+        {% else %}
+            <div class="card text-center p-4">
+                <p>No FAQs available at the moment. Please check back later.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

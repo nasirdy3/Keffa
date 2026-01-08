@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class Tournament(models.Model):
     TOURNAMENT_TYPES = [
@@ -67,6 +68,34 @@ class TournamentRegistration(models.Model):
     def __str__(self):
         return f"{self.team.team_name} - {self.tournament.name}"
 
+    def clean(self):
+        """
+        Enforce 'One League Only' Policy.
+        A team cannot join a new 'league' if they are already in an active 'league'.
+        """
+        # Only enforce this restriction for League formats
+        if self.tournament.tournament_type == 'league':
+            # Check for other active league registrations for this team
+            active_league_registrations = TournamentRegistration.objects.filter(
+                team=self.team,
+                tournament__tournament_type='league'
+            ).exclude(
+                tournament__status__in=['completed', 'cancelled']
+            ).exclude(
+                pk=self.pk # Exclude self if updating an existing registration
+            )
+            
+            if active_league_registrations.exists():
+                active_names = ", ".join([reg.tournament.name for reg in active_league_registrations])
+                raise ValidationError(
+                    f"Action Forbidden: {self.team.team_name} is already registered in an active league ({active_names}). "
+                    "Teams can only participate in one League at a time."
+                )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
 
 class Standing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='standings')
@@ -92,3 +121,4 @@ class Standing(models.Model):
     @property
     def goal_difference(self):
         return self.goals_for - self.goals_against
+

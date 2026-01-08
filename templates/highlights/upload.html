@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="card">
-    <h1 class="card-title">🎬 Upload Match Highlight</h1>
+    <h1 class="card-title">🎬 Upload Match Evidence</h1>
     
     <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 12px; margin-bottom: 2rem;">
         <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--gold);">
@@ -14,42 +14,69 @@
     </div>
     
     <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); border-radius: 8px; margin-bottom: 2rem;">
-        <h3 style="color: var(--warning); margin-bottom: 1rem;">⚠️ Important Guidelines</h3>
+        <h3 style="color: var(--warning); margin-bottom: 1rem;">⚠️ Evidence Guidelines</h3>
         <ul style="margin: 0 0 0 1.5rem; line-height: 1.8;">
-            <li>Upload to a platform (YouTube, Google Drive, etc.) and paste the link below</li>
-            <li>Highlight must clearly show the final score of the match</li>
-            <li>Video will be verified by admins before the match is finalized</li>
-            <li>False or misleading highlights will result in penalties</li>
+            <li>You must upload <strong>ONE</strong> of the following: A Screenshot, a Video File, or a Video Link.</li>
+            <li>Evidence must clearly show the <strong>final score</strong>.</li>
+            <li>False or misleading evidence will result in immediate disqualification.</li>
         </ul>
     </div>
     
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="id_video_url">Video URL *</label>
-            <input 
-                type="url" 
-                name="video_url" 
-                id="id_video_url" 
-                placeholder="https://youtube.com/..." 
-                required
-            >
+        
+        <div style="display: grid; gap: 2rem; margin-bottom: 2rem;">
+            
+            <div style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                <h4 style="color: var(--gold); margin-bottom: 1rem;">📸 Option 1: Upload Screenshot (Recommended)</h4>
+                <input 
+                    type="file" 
+                    name="evidence_screenshot" 
+                    id="id_evidence_screenshot" 
+                    accept="image/*"
+                    style="width: 100%; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 4px;"
+                >
+            </div>
+
+            <div style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                <h4 style="color: var(--gold); margin-bottom: 1rem;">🎥 Option 2: Upload Video Clip</h4>
+                <input 
+                    type="file" 
+                    name="video_file" 
+                    id="id_video_file" 
+                    accept="video/*"
+                    style="width: 100%; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 4px;"
+                >
+            </div>
+
+            <div style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                <h4 style="color: var(--gold); margin-bottom: 1rem;">🔗 Option 3: External Video Link</h4>
+                <input 
+                    type="url" 
+                    name="video_url" 
+                    id="id_video_url" 
+                    placeholder="https://youtube.com/..." 
+                    style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text);"
+                >
+            </div>
         </div>
         
         <div class="form-group">
-            <label for="id_description">Description (optional)</label>
+            <label for="id_description">Notes (optional)</label>
             <textarea 
                 name="description" 
                 id="id_description" 
                 rows="3"
-                placeholder="Add any notes about this highlight..."
+                placeholder="Add any notes about this match..."
+                style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text);"
             ></textarea>
         </div>
         
         <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">Upload Highlight</button>
+            <button type="submit" class="btn btn-primary" style="padding: 1rem 2rem;">Submit Evidence</button>
             <a href="{% url 'players:player_dashboard' %}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>
 {% endblock %}
+

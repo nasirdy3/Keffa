@@ -106,7 +106,11 @@
     </div>
     
     <div class="card">
-        <h2 class="card-title">📅 Upcoming Fixtures</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 class="card-title" style="margin-bottom: 0;">📅 Upcoming Fixtures</h2>
+            <a href="{% url 'tournaments:fixtures' tournament.id %}" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.5rem 1rem;">View Full Calendar</a>
+        </div>
+        
         {% if upcoming_fixtures %}
             <div style="display: grid; gap: 1rem;">
                 {% for match in upcoming_fixtures %}

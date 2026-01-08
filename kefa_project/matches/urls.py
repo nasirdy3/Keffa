@@ -5,8 +5,6 @@ app_name = 'matches'
 
 urlpatterns = [
     path('<int:match_id>/ready/', views.match_ready, name='ready'),
-    path('<int:match_id>/create-code/', views.create_game_code, name='create_code'),
-    path('<int:match_id>/join/', views.join_game, name='join'),
     path('<int:match_id>/finished/', views.match_finished, name='finished'),
     path('<int:match_id>/postpone/', views.request_postponement, name='postpone'),
     path('postponement/<int:postponement_id>/accept/', views.accept_postponement, name='accept_postponement'),
@@ -15,3 +13,4 @@ urlpatterns = [
     path('friendly/create/', views.create_friendly_match, name='create_friendly'),
     path('friendly/<int:friendly_id>/accept/', views.accept_friendly_match, name='accept_friendly'),
 ]
+

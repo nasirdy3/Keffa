@@ -21,11 +21,18 @@ def tournaments_list(request):
 def tournament_detail(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
     
-    standings = Standing.objects.filter(tournament=tournament).order_by('-points', (F('goals_for') - F('goals_against')).desc(), '-goals_for')
-    fixtures = Match.objects.filter(tournament=tournament).order_by('match_date', 'match_time')
+    # Optimized: select_related to prevent N+1 queries on team names
+    standings = Standing.objects.filter(tournament=tournament).select_related('team').order_by(
+        '-points', 
+        (F('goals_for') - F('goals_against')).desc(), 
+        '-goals_for'
+    )
     
-    upcoming_fixtures = fixtures.filter(status__in=['scheduled', 'ready_pending'])
-    completed_fixtures = fixtures.filter(status='completed')
+    # Optimized: fetch specific matches with team data
+    fixtures = Match.objects.filter(tournament=tournament).select_related('home_team', 'away_team').order_by('match_date', 'match_time')
+    
+    upcoming_fixtures = fixtures.filter(status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress'])
+    completed_fixtures = fixtures.filter(status__in=['completed', 'home_forfeit', 'away_forfeit', 'both_forfeit'])
     
     user_team = None
     user_registered = False
@@ -44,7 +51,7 @@ def tournament_detail(request, tournament_id):
     return render(request, 'tournaments/detail.html', {
         'tournament': tournament,
         'standings': standings,
-        'upcoming_fixtures': upcoming_fixtures[:10],
+        'upcoming_fixtures': upcoming_fixtures[:10], # Keep limit for dashboard view
         'completed_fixtures': completed_fixtures[:10],
         'user_team': user_team,
         'user_registered': user_registered
@@ -53,7 +60,11 @@ def tournament_detail(request, tournament_id):
 
 def tournament_standings(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
-    standings = Standing.objects.filter(tournament=tournament).order_by('-points', (F('goals_for') - F('goals_against')).desc(), '-goals_for')
+    standings = Standing.objects.filter(tournament=tournament).select_related('team').order_by(
+        '-points', 
+        (F('goals_for') - F('goals_against')).desc(), 
+        '-goals_for'
+    )
     
     return render(request, 'tournaments/standings.html', {
         'tournament': tournament,
@@ -62,22 +73,24 @@ def tournament_standings(request, tournament_id):
 
 
 def tournament_fixtures(request, tournament_id):
+    """
+    Displays the full calendar of matches for the tournament.
+    """
     tournament = get_object_or_404(Tournament, id=tournament_id)
-    fixtures = Match.objects.filter(tournament=tournament).order_by('match_date', 'match_time')
     
-    upcoming = fixtures.filter(status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress'])
-    completed = fixtures.filter(status__in=['completed', 'home_forfeit', 'away_forfeit', 'both_forfeit'])
+    # Fetch ALL matches ordered by date/time for the timeline view
+    # select_related is crucial here for performance
+    fixtures = Match.objects.filter(tournament=tournament).select_related('home_team', 'away_team').order_by('match_date', 'match_time')
     
     return render(request, 'tournaments/fixtures.html', {
         'tournament': tournament,
-        'upcoming_fixtures': upcoming,
-        'completed_fixtures': completed
+        'fixtures': fixtures, 
     })
 
 
 def tournament_top_scorers(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
-    standings = Standing.objects.filter(tournament=tournament).order_by('-goals_for')[:20]
+    standings = Standing.objects.filter(tournament=tournament).select_related('team').order_by('-goals_for')[:20]
     
     return render(request, 'tournaments/top_scorers.html', {
         'tournament': tournament,

@@ -8,6 +8,7 @@
         height: 600px;
         display: flex;
         flex-direction: column;
+        position: relative;
     }
     
     #chat-messages {
@@ -17,6 +18,16 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        scroll-behavior: smooth;
+    }
+    
+    /* Scrollbar styling */
+    #chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    #chat-messages::-webkit-scrollbar-thumb {
+        background-color: var(--primary-gold);
+        border-radius: 3px;
     }
     
     .message {
@@ -24,24 +35,41 @@
         background: rgba(255, 255, 255, 0.05);
         border-radius: 10px;
         animation: slideIn 0.3s ease-out;
+        max-width: 85%;
+        word-wrap: break-word;
+    }
+    
+    .message.mine {
+        align-self: flex-end;
+        background: rgba(255, 215, 0, 0.15);
+        border-right: 3px solid var(--primary-gold);
+    }
+
+    .message.system {
+        align-self: center;
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid red;
+        font-style: italic;
+        font-size: 0.9em;
     }
     
     .message-author {
         color: var(--primary-gold);
         font-weight: 700;
         margin-bottom: 0.5rem;
+        font-size: 0.9rem;
     }
     
     .message-team {
         color: var(--accent-orange);
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 500;
     }
     
     .message-time {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         opacity: 0.6;
-        margin-left: 0.5rem;
+        float: right;
     }
     
     .message-content {
@@ -59,86 +87,138 @@
     #message-input {
         flex: 1;
     }
-    
+
+    /* Friendly Match Cards */
+    #challenges-container {
+        max-height: 250px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+    }
+
     .friendly-card {
-        background: rgba(255, 215, 0, 0.1);
-        border: 2px solid var(--primary-gold);
+        background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.2));
+        border: 1px solid var(--primary-gold);
         padding: 1rem;
         border-radius: 10px;
         margin-bottom: 1rem;
+        transition: all 0.3s;
+        position: relative;
+    }
+    
+    .friendly-card.claimed {
+        opacity: 0.6;
+        border-color: #444;
+        background: rgba(0,0,0,0.3);
+    }
+
+    .game-code-blur {
+        background: #333;
+        color: transparent;
+        text-shadow: 0 0 8px rgba(255,255,255,0.5);
+        padding: 2px 8px;
+        border-radius: 4px;
+        user-select: none;
+    }
+
+    .game-code-reveal {
+        background: var(--primary-gold);
+        color: #000;
+        text-shadow: none;
+        font-weight: bold;
+        animation: pulse 1s infinite;
     }
     
     @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-    
-    @media (max-width: 768px) {
-        #chat-container {
-            height: 500px;
-        }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 class="card-title">💬 Community Chat</h1>
-    <p style="opacity: 0.8;">Connect with fellow KEFA gamers, discuss matches, and organize friendly games</p>
-</div>
-
-{% if open_friendlies %}
-<div class="card">
-    <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">🎮 Open Friendly Matches</h3>
-    {% for friendly in open_friendlies %}
-    <div class="friendly-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-            <div>
-                <strong style="color: var(--primary-gold);">{{ friendly.created_by_team.team_name }}</strong>
-                <p style="opacity: 0.8; margin-top: 0.25rem;">Game Code: <strong>{{ friendly.game_code }}</strong></p>
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card" style="padding: 0;">
+            <div class="card-header" style="background: rgba(0,0,0,0.2); padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h4 style="margin:0; color: var(--primary-gold);">💬 Community Hub</h4>
             </div>
-            <a href="{% url 'matches:accept_friendly' friendly.id %}" class="btn btn-primary">Accept Match</a>
+            
+            <div id="chat-container">
+                <div id="chat-messages">
+                    <div style="text-align: center; opacity: 0.5; font-size: 0.9rem; margin-top: 1rem;">
+                        Welcome to the live chat. Messages are not saved permanently.
+                    </div>
+                </div>
+                
+                <form id="chat-input-form">
+                    <input 
+                        type="text" 
+                        id="message-input" 
+                        placeholder="Type your message..." 
+                        autocomplete="off"
+                        style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 10px; padding: 0.875rem; color: var(--text-light);"
+                    >
+                    <button type="submit" class="btn btn-primary" id="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
-    {% endfor %}
-</div>
-{% endif %}
 
-<div class="card" style="padding: 0;">
-    <div id="chat-container">
-        <div id="chat-messages"></div>
-        
-        <form id="chat-input-form">
-            <input 
-                type="text" 
-                id="message-input" 
-                placeholder="Type your message..." 
-                autocomplete="off"
-                style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 10px; padding: 0.875rem; color: var(--text-light);"
-            >
-            <button type="submit" class="btn btn-primary" id="send-btn">Send</button>
-        </form>
-    </div>
-</div>
+    <div class="col-lg-4">
+        <div class="card">
+            <h3 style="color: var(--primary-gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                🎮 Active Challenges
+            </h3>
+            
+            <div id="challenges-container">
+                {% if open_friendlies %}
+                    {% for friendly in open_friendlies %}
+                    <div class="friendly-card" id="match-card-{{ friendly.id }}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                            <div>
+                                <strong style="color: var(--primary-gold);">{{ friendly.created_by_team.team_name }}</strong>
+                                <p style="font-size: 0.8rem; margin: 5px 0 0 0;">
+                                    Code: <span class="game-code-blur">HIDDEN</span>
+                                </p>
+                            </div>
+                            {% if request.user.player_profile.team != friendly.created_by_team %}
+                            <button onclick="claimMatch({{ friendly.id }})" class="btn btn-sm btn-primary claim-btn" id="btn-{{ friendly.id }}">
+                                Accept
+                            </button>
+                            {% else %}
+                            <span class="badge bg-secondary">Your Match</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p id="no-challenges" style="opacity: 0.6; font-style: italic;">No active challenges right now.</p>
+                {% endif %}
+            </div>
 
-<div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <h3 style="color: var(--primary-gold); margin: 0;">Chat Guidelines</h3>
-        <a href="{% url 'matches:create_friendly' %}" class="btn btn-primary">Create Friendly Match</a>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 1rem;">
+                <a href="{% url 'matches:create_friendly' %}" class="btn btn-outline-light w-100">
+                    <i class="fas fa-plus-circle"></i> Create Friendly
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <h5 style="color: var(--accent-orange);">⚠️ Guidelines</h5>
+            <ul style="font-size: 0.85rem; padding-left: 1.2rem; opacity: 0.8;">
+                <li>No hate speech or profanity.</li>
+                <li>Respect all players.</li>
+                <li>"Accept" only if you are ready to play.</li>
+            </ul>
+        </div>
     </div>
-    <ul style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem; margin-top: 1rem;">
-        <li>Be respectful to all community members</li>
-        <li>No spam or promotional content</li>
-        <li>Keep discussions relevant to eFootball and KEFA</li>
-        <li>Create friendly matches to challenge other teams</li>
-        <li>Report inappropriate behavior to admins</li>
-    </ul>
 </div>
 {% endblock %}
 
@@ -148,92 +228,179 @@
     const wsUrl = `${protocol}//${window.location.host}/ws/chat/`;
     
     let chatSocket = null;
-    let messageQueue = [];
     let isConnected = false;
-    let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
+    let currentUserTeam = "{{ request.user.player_profile.team.team_name|default:'' }}";
     
     function connectWebSocket() {
         chatSocket = new WebSocket(wsUrl);
         
         chatSocket.onopen = function(e) {
-            console.log('Chat ready');
+            console.log('KEFA Chat Connected');
             isConnected = true;
-            reconnectAttempts = 0;
-            
-            while (messageQueue.length > 0 && isConnected) {
-                const msg = messageQueue.shift();
-                chatSocket.send(JSON.stringify({ 'message': msg }));
-            }
         };
         
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            const messagesDiv = document.getElementById('chat-messages');
             
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            
-            messageDiv.innerHTML = `
-                <div class="message-author">
-                    ${data.username}
-                    ${data.team_name ? `<span class="message-team">(${data.team_name})</span>` : ''}
-                    <span class="message-time">${timeStr}</span>
-                </div>
-                <div class="message-content">${escapeHtml(data.message)}</div>
-            `;
-            
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            
-            if (messagesDiv.children.length > 100) {
-                messagesDiv.removeChild(messagesDiv.firstChild);
+            switch(data.type) {
+                case 'chat_message':
+                    renderMessage(data);
+                    break;
+                case 'system_warning':
+                    renderSystemMessage(data.message, true);
+                    break;
+                case 'system_error':
+                    alert(data.message);
+                    break;
+                case 'challenge_announcement':
+                    addChallengeCard(data);
+                    break;
+                case 'challenge_taken':
+                    markChallengeTaken(data);
+                    break;
+                case 'match_details':
+                    showMatchCode(data);
+                    break;
             }
         };
         
         chatSocket.onclose = function(e) {
-            console.log('Chat disconnected');
+            console.log('Chat disconnected. Reconnecting...');
             isConnected = false;
-            
-            if (reconnectAttempts < maxReconnectAttempts) {
-                reconnectAttempts++;
-                const delay = Math.min(1000 * reconnectAttempts, 5000);
-                setTimeout(() => {
-                    console.log(`Reconnecting... attempt ${reconnectAttempts}`);
-                    connectWebSocket();
-                }, delay);
-            }
-        };
-        
-        chatSocket.onerror = function(e) {
-            console.error('WebSocket error:', e);
-            isConnected = false;
+            setTimeout(connectWebSocket, 3000);
         };
     }
     
-    connectWebSocket();
-    
+    // --- UI Render Functions ---
+
+    function renderMessage(data) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        
+        const isMine = data.is_me;
+        messageDiv.className = `message ${isMine ? 'mine' : ''}`;
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="message-author">
+                ${data.username}
+                ${data.team_name ? `<span class="message-team">(${data.team_name})</span>` : ''}
+                <span class="message-time">${timeStr}</span>
+            </div>
+            <div class="message-content">${escapeHtml(data.message)}</div>
+        `;
+        
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function renderSystemMessage(msg, isError) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message system';
+        messageDiv.innerHTML = `<strong>System:</strong> ${msg}`;
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function addChallengeCard(data) {
+        const container = document.getElementById('challenges-container');
+        const noChallenges = document.getElementById('no-challenges');
+        if (noChallenges) noChallenges.style.display = 'none';
+
+        const div = document.createElement('div');
+        div.className = 'friendly-card';
+        div.id = `match-card-${data.match_id}`;
+        
+        const btnHtml = data.is_creator 
+            ? '<span class="badge bg-secondary">Your Match</span>' 
+            : `<button onclick="claimMatch(${data.match_id})" class="btn btn-sm btn-primary claim-btn" id="btn-${data.match_id}">Accept</button>`;
+
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <strong style="color: var(--primary-gold);">${data.creator_team}</strong>
+                    <p style="font-size: 0.8rem; margin: 5px 0 0 0;">
+                        Code: <span class="game-code-blur">HIDDEN</span>
+                    </p>
+                </div>
+                ${btnHtml}
+            </div>
+        `;
+        
+        container.insertBefore(div, container.firstChild);
+    }
+
+    function markChallengeTaken(data) {
+        const card = document.getElementById(`match-card-${data.match_id}`);
+        if (card) {
+            card.classList.add('claimed');
+            const btn = card.querySelector('.claim-btn');
+            if (btn) {
+                btn.remove();
+            }
+            // Append info
+            const info = document.createElement('div');
+            info.style.width = '100%';
+            info.style.marginTop = '0.5rem';
+            info.style.fontSize = '0.8rem';
+            info.style.color = '#fff';
+            info.innerHTML = `Match accepted by <strong>${data.opponent_team}</strong>`;
+            card.querySelector('div').appendChild(info);
+        }
+    }
+
+    function showMatchCode(data) {
+        // Show generic alert or modal
+        alert(`MATCH SECURED!\n\nGame Code: ${data.game_code}\n\nGo to eFootball app and enter this code immediately.`);
+        
+        // Also reveal in UI if the card exists
+        const card = document.getElementById(`match-card-${data.match_id}`);
+        if (card) {
+            const codeSpan = card.querySelector('.game-code-blur');
+            if (codeSpan) {
+                codeSpan.className = 'game-code-reveal';
+                codeSpan.textContent = data.game_code;
+            }
+        }
+    }
+
+    // --- Actions ---
+
+    window.claimMatch = function(matchId) {
+        if (!isConnected) {
+            alert("Connection lost. Reconnecting...");
+            return;
+        }
+        
+        // Optimistic UI update (disable button immediately)
+        const btn = document.getElementById(`btn-${matchId}`);
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Claiming...";
+        }
+
+        chatSocket.send(JSON.stringify({
+            'type': 'claim_match',
+            'match_id': matchId
+        }));
+    };
+
     const form = document.getElementById('chat-input-form');
     const input = document.getElementById('message-input');
     
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const message = input.value.trim();
         if (!message) return;
         
-        if (isConnected && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({ 'message': message }));
-            input.value = '';
-        } else {
-            if (messageQueue.length < 10) {
-                messageQueue.push(message);
-                input.value = '';
-            }
-        }
+        chatSocket.send(JSON.stringify({ 
+            'type': 'chat_message', 
+            'message': message 
+        }));
+        input.value = '';
     });
     
     function escapeHtml(text) {
@@ -241,5 +408,8 @@
         div.textContent = text;
         return div.innerHTML;
     }
+    
+    connectWebSocket();
 </script>
 {% endblock %}
+

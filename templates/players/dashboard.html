@@ -131,6 +131,25 @@
         text-transform: uppercase;
         letter-spacing: 1.5px;
     }
+
+    /* ARCHITECT UPDATE: Added Date Header Styling */
+    .date-group-header {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0 1rem 0;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 0.5rem;
+    }
+
+    .date-group-header i {
+        color: var(--primary-red);
+        margin-right: 0.75rem;
+    }
     
     .match-item {
         padding: 1.5rem;
@@ -377,50 +396,58 @@
     
     {% if upcoming_matches %}
     <div class="section-card">
-        <h2 class="section-title">📅 Your Upcoming Matches</h2>
+        <h2 class="section-title">📅 Your Scheduled Matches</h2>
         <div>
-            {% for match in upcoming_matches %}
-            <div class="match-item">
-                <div class="match-teams">
-                    <div>
-                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
-                    </div>
-                    <span class="status-pill status-pill-{% if match.status == 'scheduled' %}primary{% elif match.status == 'ready_pending' %}success{% else %}warning{% endif %}">
-                        {{ match.get_status_display }}
-                    </span>
+            {% regroup upcoming_matches by match_date as match_list %}
+            
+            {% for date_group in match_list %}
+                <div class="date-group-header">
+                    <i class="fas fa-calendar-day"></i> {{ date_group.grouper|date:"l, F j, Y" }}
                 </div>
-                
-                <div class="match-details">
-                    📅 {{ match.match_date }} • ⏰ {{ match.match_time }} • 🏆 {{ match.tournament.name }}
-                </div>
-                
-                <div class="match-actions">
-                    {% if match.status == 'ready_pending' %}
-                        <a href="{% url 'matches:ready' match.id %}" class="btn btn-primary">Mark Ready ✓</a>
-                    {% elif match.status == 'creating_game' %}
-                        {% if match.home_team == team %}
-                            <a href="{% url 'matches:create_code' match.id %}" class="btn btn-primary">Create Game Code</a>
-                        {% else %}
-                            <div class="waiting-status">Waiting for home team to create game...</div>
-                        {% endif %}
-                    {% elif match.status == 'waiting_join' %}
-                        <div style="width: 100%;">
-                            <div style="margin-bottom: 1rem;">Game Code: <span class="game-code">{{ match.game_code }}</span></div>
-                            {% if match.away_team == team %}
-                                <a href="{% url 'matches:join' match.id %}" class="btn btn-primary">Join Game Now</a>
-                            {% else %}
-                                <div class="waiting-status">Waiting for away team to join...</div>
-                            {% endif %}
+
+                {% for match in date_group.list %}
+                <div class="match-item">
+                    <div class="match-teams">
+                        <div>
+                            <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
                         </div>
-                    {% elif match.status == 'in_progress' %}
-                        <a href="{% url 'matches:finished' match.id %}" class="btn btn-secondary">Mark as Finished</a>
-                    {% elif match.status == 'awaiting_highlight' %}
-                        <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
-                    {% elif match.status == 'scheduled' %}
-                        <a href="{% url 'matches:postpone' match.id %}" class="btn btn-secondary" style="font-size: 0.9rem;">Request Postponement</a>
-                    {% endif %}
+                        <span class="status-pill status-pill-{% if match.status == 'scheduled' %}primary{% elif match.status == 'ready_pending' %}success{% else %}warning{% endif %}">
+                            {{ match.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="match-details">
+                        ⏰ {{ match.match_time }} • 🏆 {{ match.tournament.name }}
+                    </div>
+                    
+                    <div class="match-actions">
+                        {% if match.status == 'ready_pending' %}
+                            <a href="{% url 'matches:ready' match.id %}" class="btn btn-primary">Mark Ready ✓</a>
+                        {% elif match.status == 'creating_game' %}
+                            {% if match.home_team == team %}
+                                <a href="{% url 'matches:create_code' match.id %}" class="btn btn-primary">Create Game Code</a>
+                            {% else %}
+                                <div class="waiting-status">Waiting for home team to create game...</div>
+                            {% endif %}
+                        {% elif match.status == 'waiting_join' %}
+                            <div style="width: 100%;">
+                                <div style="margin-bottom: 1rem;">Game Code: <span class="game-code">{{ match.game_code }}</span></div>
+                                {% if match.away_team == team %}
+                                    <a href="{% url 'matches:join' match.id %}" class="btn btn-primary">Join Game Now</a>
+                                {% else %}
+                                    <div class="waiting-status">Waiting for away team to join...</div>
+                                {% endif %}
+                            </div>
+                        {% elif match.status == 'in_progress' %}
+                            <a href="{% url 'matches:finished' match.id %}" class="btn btn-secondary">Mark as Finished</a>
+                        {% elif match.status == 'awaiting_highlight' %}
+                            <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
+                        {% elif match.status == 'scheduled' %}
+                            <a href="{% url 'matches:postpone' match.id %}" class="btn btn-secondary" style="font-size: 0.9rem;">Request Postponement</a>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+                {% endfor %}
             {% endfor %}
         </div>
     </div>
@@ -485,3 +512,4 @@
     </div>
 </div>
 {% endblock %}
+

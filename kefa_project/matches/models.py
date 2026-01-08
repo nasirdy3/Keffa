@@ -6,8 +6,6 @@ class Match(models.Model):
     STATUS_CHOICES = [
         ('scheduled', 'Scheduled'),
         ('ready_pending', 'Waiting for Ready Confirmation'),
-        ('creating_game', 'Home Team Creating Game'),
-        ('waiting_join', 'Waiting for Away Team to Join'),
         ('in_progress', 'In Progress'),
         ('awaiting_highlight', 'Awaiting Highlights'),
         ('pending_verification', 'Pending Verification'),
@@ -31,6 +29,7 @@ class Match(models.Model):
     away_ready = models.BooleanField(default=False)
     ready_time_start = models.DateTimeField(null=True, blank=True)
     
+    # Legacy fields kept for FriendlyMatch compatibility and DB stability
     game_code = models.CharField(max_length=50, blank=True)
     game_code_created_at = models.DateTimeField(null=True, blank=True)
     
@@ -99,3 +98,4 @@ class FriendlyMatch(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+

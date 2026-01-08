@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     'kefa_project.achievements',
     'kefa_project.chat',
     'kefa_project.payments',
+    'kefa_project.pages',
 ]
 
 MIDDLEWARE = [
@@ -176,19 +177,18 @@ DATABASES = {
     )
 }
 
-# --- Replacement Redis & Celery Config ---
-REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/0')
-
-# Channels must use RedisChannelLayer to work on Render
+# --- Channels Configuration (In-Memory for Render Free Tier) ---
+# We use InMemoryChannelLayer as requested to avoid Redis dependency for Chat
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [REDIS_URL],
-        },
-    },
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }
 
+# Celery Configuration (Still needs a Broker if used, but minimized)
+# If no Redis is available, Celery won't work efficiently. 
+# However, for the scope of this Chat fix, we are decoupling Chat from Redis.
+REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/0')
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
@@ -288,3 +288,4 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@kefa.com')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

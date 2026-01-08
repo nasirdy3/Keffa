@@ -82,7 +82,27 @@
     .profile-username {
         color: rgba(255, 255, 255, 0.6);
         font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .whatsapp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #25D366;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
         margin-bottom: 2rem;
+        transition: background-color 0.3s ease;
+    }
+    
+    .whatsapp-btn:hover {
+        background-color: #128C7E;
+        color: #fff;
+        text-decoration: none;
     }
     
     .stats-grid {
@@ -285,6 +305,12 @@
             <div class="profile-info">
                 <h1 class="profile-name">{{ player.full_name }}</h1>
                 <p class="profile-username">@{{ player.user.username }}</p>
+
+                {% if player.get_whatsapp_link %}
+                    <a href="{{ player.get_whatsapp_link }}" target="_blank" class="whatsapp-btn">
+                        <i class="fab fa-whatsapp"></i> Message on WhatsApp
+                    </a>
+                {% endif %}
                 
                 <div class="stats-grid">
                     <div class="stat-item">
@@ -364,3 +390,4 @@
     });
 </script>
 {% endblock %}
+

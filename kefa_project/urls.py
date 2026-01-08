@@ -1,30 +1,54 @@
 """
 URL configuration for kefa_project project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
+from django.views.decorators.cache import cache_control
+from django.views.decorators.http import require_GET
+from django.contrib.staticfiles.finders import find
 from . import views
+# ARCHITECT NOTE: Importing player views to route governance dashboard correctly
+from kefa_project.players import views as player_views
+
+# --- PWA Helper Views ---
+# These serve the static files from the root URL so the Service Worker has the correct scope
+
+@require_GET
+@cache_control(max_age=60 * 60, immutable=True, public=True) # Cache for 1 hour
+def serve_service_worker(request):
+    absolute_path = find('service-worker.js')
+    if not absolute_path:
+        return HttpResponse("Service Worker not found", status=404)
+    with open(absolute_path, 'rb') as f:
+        return HttpResponse(f.read(), content_type="application/javascript")
+
+@require_GET
+@cache_control(max_age=60 * 60 * 24, immutable=True, public=True) # Cache for 24 hours
+def serve_manifest(request):
+    absolute_path = find('manifest.json')
+    if not absolute_path:
+        return HttpResponse("Manifest not found", status=404)
+    with open(absolute_path, 'rb') as f:
+        return HttpResponse(f.read(), content_type="application/manifest+json")
 
 urlpatterns = [
+    # PWA Root Urls (Must be before admin to avoid conflict)
+    path('service-worker.js', serve_service_worker, name='service_worker'),
+    path('manifest.json', serve_manifest, name='manifest'),
+
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('leaderboards/', views.leaderboards, name='leaderboards'),
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    
+    # ARCHITECT NOTE: Re-routed to the new robust Governance Dashboard in players app
+    path('admin-dashboard/', player_views.governance_dashboard, name='admin_dashboard'),
+    
+    # New Information Suite
+    path('', include('kefa_project.pages.urls')),
+    
     path('players/', include('kefa_project.players.urls')),
     path('tournaments/', include('kefa_project.tournaments.urls')),
     path('matches/', include('kefa_project.matches.urls')),
@@ -37,3 +61,4 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
