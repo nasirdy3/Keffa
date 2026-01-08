@@ -58,9 +58,9 @@
                         <li><a href="{% url 'admin_dashboard' %}" class="navbar-link" style="color: var(--primary-gold);">Governance</a></li>
                     {% endif %}
                     
-                    <li><a href="{% url 'players:user_logout' %}" class="navbar-link">Logout</a></li>
+                    <li><a href="{% url 'players:logout' %}" class="navbar-link">Logout</a></li>
                 {% else %}
-                    <li><a href="{% url 'players:user_login' %}" class="navbar-link">Login</a></li>
+                    <li><a href="{% url 'players:login' %}" class="navbar-link">Login</a></li>
                     <li><a href="{% url 'players:register' %}" class="navbar-link">Join KEFA</a></li>
                 {% endif %}
             </ul>
@@ -105,6 +105,7 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
+                // Register from the root to ensure scope covers the whole app
                 navigator.serviceWorker.register('/service-worker.js')
                     .then(reg => console.log('KEFA Service Worker registered with scope:', reg.scope))
                     .catch(err => console.log('KEFA Service Worker registration failed:', err));
