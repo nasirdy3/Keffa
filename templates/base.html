@@ -55,7 +55,7 @@
                     <li><a href="{% url 'chat:community' %}" class="navbar-link">Chat</a></li>
                     
                     {% if user.is_staff or user.player_profile.role == 'admin' or user.player_profile.role == 'moderator' %}
-                        <li><a href="{% url 'admin_dashboard' %}" class="navbar-link" style="color: var(--primary-gold);">Governance</a></li>
+                        <li><a href="{% url 'governance_dashboard' %}" class="navbar-link" style="color: var(--primary-gold);">Governance</a></li>
                     {% endif %}
                     
                     <li><a href="{% url 'players:logout' %}" class="navbar-link">Logout</a></li>
