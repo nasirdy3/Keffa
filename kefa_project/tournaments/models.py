@@ -19,6 +19,13 @@ class Tournament(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
+    MATCH_FREQUENCY_CHOICES = [
+        ('daily', 'Daily'),
+        ('every_2_days', 'Every 2 Days'),
+        ('every_3_days', 'Every 3 Days'),
+        ('weekly', 'Weekly'),
+    ]
+    
     name = models.CharField(max_length=200)
     tournament_type = models.CharField(max_length=20, choices=TOURNAMENT_TYPES)
     team_limit = models.IntegerField()
@@ -29,6 +36,11 @@ class Tournament(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     default_match_time = models.TimeField(default='17:00:00')
+    
+    # Automated Scheduling Fields
+    match_frequency = models.CharField(max_length=20, choices=MATCH_FREQUENCY_CHOICES, default='every_2_days')
+    matches_per_day = models.IntegerField(default=1, help_text='Maximum matches per day (for tournaments with multiple simultaneous matches)')
+    auto_schedule_enabled = models.BooleanField(default=True, help_text='Enable automatic fixture scheduling')
     
     junior_league = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='senior_league')
     promotion_relegation_enabled = models.BooleanField(default=False)
@@ -50,6 +62,49 @@ class Tournament(models.Model):
     @property
     def is_full(self):
         return self.current_teams_count >= self.team_limit
+    
+    def get_frequency_days(self):
+        """Returns the number of days between matches based on frequency setting"""
+        frequency_map = {
+            'daily': 1,
+            'every_2_days': 2,
+            'every_3_days': 3,
+            'weekly': 7,
+        }
+        return frequency_map.get(self.match_frequency, 2)
+    
+    def calculate_total_matches(self):
+        """Calculate total matches needed for round-robin (league) format"""
+        if self.tournament_type in ['league', 'champions_league']:
+            n = self.current_teams_count
+            # Double round-robin: n * (n-1) matches
+            return n * (n - 1) if n > 1 else 0
+        return 0
+    
+    def validate_scheduling_feasibility(self):
+        """Check if the tournament date range can accommodate all matches"""
+        if not self.end_date or not self.start_date:
+            return True, "No end date specified"
+        
+        total_matches = self.calculate_total_matches()
+        if total_matches == 0:
+            return True, "No matches to schedule"
+        
+        from datetime import timedelta
+        date_range = (self.end_date - self.start_date).days + 1
+        frequency_days = self.get_frequency_days()
+        
+        # Calculate how many match days are available
+        available_match_days = (date_range + frequency_days - 1) // frequency_days
+        matches_per_round = self.current_teams_count // 2 if self.current_teams_count % 2 == 0 else (self.current_teams_count - 1) // 2
+        
+        # Total capacity considering matches_per_day
+        total_capacity = available_match_days * self.matches_per_day * matches_per_round
+        
+        if total_capacity < total_matches:
+            return False, f"Date range too short: need {total_matches} matches but can only fit {total_capacity}"
+        
+        return True, "Scheduling is feasible"
     
     class Meta:
         ordering = ['-created_at']

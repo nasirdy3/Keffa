@@ -7,18 +7,31 @@ from kefa_project.teams.models import Team
 from kefa_project.matches.models import Match
 from kefa_project.highlights.models import Highlight
 from kefa_project.payments.models import Payment
+from datetime import date
 
 
 def home(request):
-    """Homepage view with featured tournaments"""
-    
-    # Get featured tournaments (active ones)
+    # Get active tournaments (registration open or ongoing)
     featured_tournaments = Tournament.objects.filter(
-        status__in=['registration', 'ongoing']
-    ).order_by('-created_at')[:3]
+        status__in=['registration', 'locked', 'ongoing']
+    ).order_by('-created_at')[:6]
+    
+    # Get live matches (in progress)
+    live_matches = Match.objects.filter(
+        status='in_progress'
+    ).select_related('tournament', 'home_team', 'away_team').order_by('match_date', 'match_time')[:10]
+    
+    # Get upcoming matches today
+    today = date.today()
+    upcoming_today = Match.objects.filter(
+        match_date=today,
+        status='scheduled'
+    ).select_related('tournament', 'home_team', 'away_team').order_by('match_time')[:10]
     
     context = {
         'featured_tournaments': featured_tournaments,
+        'live_matches': live_matches,
+        'upcoming_today': upcoming_today,
     }
     
     return render(request, 'home.html', context)

@@ -8,55 +8,133 @@
     <div class="container">
         <div class="hero-content">
             <h1 class="hero-title">KEFA</h1>
-            <p class="hero-subtitle" style="font-size: 1.5rem; color: #ffffff; margin-bottom: 1.5rem; font-weight: 600;">
+            <p class="hero-subtitle"
+                style="font-size: 1.5rem; color: #ffffff; margin-bottom: 1.5rem; font-weight: 600;">
                 Kebbi eFootball Arena
             </p>
-            <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 800px; margin: 0 auto 3rem; line-height: 1.8;">
-                The premier digital platform for eFootball mobile gaming in Birnin Kebbi. Experience competitive tournaments, real-time statistics, and a thriving gaming community.
+            <p
+                style="font-size: 1.125rem; color: var(--text-muted); max-width: 800px; margin: 0 auto 3rem; line-height: 1.8;">
+                The premier digital platform for eFootball mobile gaming in Birnin Kebbi. Experience competitive
+                tournaments, real-time statistics, and a thriving gaming community.
             </p>
-            
+
             <div class="btn-group" style="justify-content: center; gap: 1.5rem;">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'players:player_dashboard' %}" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.125rem;">My Dashboard</a>
-                    <a href="{% url 'tournaments:list' %}" class="btn btn-secondary" style="padding: 1rem 2.5rem; font-size: 1.125rem;">Browse Tournaments</a>
+                <a href="{% url 'players:player_dashboard' %}" class="btn btn-primary"
+                    style="padding: 1rem 2.5rem; font-size: 1.125rem;">My Dashboard</a>
+                <a href="{% url 'tournaments:list' %}" class="btn btn-secondary"
+                    style="padding: 1rem 2.5rem; font-size: 1.125rem;">Browse Tournaments</a>
                 {% else %}
-                    <a href="{% url 'players:register' %}" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.125rem;">Join Now</a>
-                    <a href="{% url 'players:login' %}" class="btn btn-secondary" style="padding: 1rem 2.5rem; font-size: 1.125rem;">Login</a>
+                <a href="{% url 'players:register' %}" class="btn btn-primary"
+                    style="padding: 1rem 2.5rem; font-size: 1.125rem;">Join Now</a>
+                <a href="{% url 'players:login' %}" class="btn btn-secondary"
+                    style="padding: 1rem 2.5rem; font-size: 1.125rem;">Login</a>
                 {% endif %}
             </div>
         </div>
     </div>
 </section>
 
+{% if live_matches %}
+<section class="container" style="margin-top: 3rem; margin-bottom: 3rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2
+            style="font-size: 2rem; color: #ffffff; margin-bottom: 0.5rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span class="fs-live-dot"></span> Live Matches
+        </h2>
+        <div style="width: 80px; height: 4px; background: var(--fs-live); margin: 1rem auto;"></div>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        {% for match in live_matches %}
+        <div class="fs-match-card"
+            onclick="window.location.href='{% url 'tournaments:detail' match.tournament.id %}#fixtures'">
+            <div class="fs-match-teams">
+                <div class="fs-match-team home">{{ match.home_team.team_name }}</div>
+                <div>
+                    <span class="fs-badge fs-badge-live">
+                        <span class="fs-live-dot"></span> LIVE
+                    </span>
+                </div>
+                <div class="fs-match-team away">{{ match.away_team.team_name }}</div>
+            </div>
+            <div style="color: var(--fs-text-secondary); font-size: var(--fs-font-size-xs);">
+                {{ match.tournament.name }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if upcoming_today %}
+<section class="container" style="margin-top: 3rem; margin-bottom: 3rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; color: #ffffff; margin-bottom: 0.5rem; font-weight: 700;">
+            Today's Matches
+        </h2>
+        <div
+            style="width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-red), var(--accent-blue)); margin: 1rem auto;">
+        </div>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        {% for match in upcoming_today %}
+        <div class="fs-match-card"
+            onclick="window.location.href='{% url 'tournaments:detail' match.tournament.id %}#fixtures'">
+            <div class="fs-match-teams">
+                <div class="fs-match-team home">{{ match.home_team.team_name }}</div>
+                <div class="fs-match-vs">VS</div>
+                <div class="fs-match-team away">{{ match.away_team.team_name }}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="color: var(--fs-text-secondary); font-size: var(--fs-font-size-xs);">
+                    {{ match.tournament.name }}
+                </div>
+                <div class="fs-match-time">{{ match.match_time|time:"H:i" }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
 {% if featured_tournaments %}
 <section class="container" style="margin-top: 4rem; margin-bottom: 4rem;">
     <div style="text-align: center; margin-bottom: 3rem;">
-        <h2 style="font-size: 2.5rem; color: #ffffff; margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+        <h2
+            style="font-size: 2.5rem; color: #ffffff; margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
             Active Tournaments
         </h2>
-        <div style="width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-red), var(--accent-blue)); margin: 1rem auto;"></div>
+        <div
+            style="width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-red), var(--accent-blue)); margin: 1rem auto;">
+        </div>
     </div>
-    
+
     <div class="grid grid-3">
         {% for tournament in featured_tournaments %}
         <div class="tournament-card" onclick="window.location.href='{% url 'tournaments:detail' tournament.id %}'">
             <div class="tournament-card-header">
                 <h3 class="tournament-name">{{ tournament.name }}</h3>
-                <p class="tournament-type" style="text-transform: uppercase; font-size: 0.8rem; font-weight: 600; opacity: 0.9;">
+                <p class="tournament-type"
+                    style="text-transform: uppercase; font-size: 0.8rem; font-weight: 600; opacity: 0.9;">
                     {{ tournament.get_tournament_type_display }}
                 </p>
             </div>
             <div class="tournament-card-body" style="padding: 1.5rem;">
-                <div class="tournament-info" style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
-                    <span class="tournament-status status-{{ tournament.status }}" style="text-transform: uppercase; font-size: 0.7rem; padding: 0.4rem 0.9rem; border-radius: 20px; font-weight: 700;">
+                <div class="tournament-info"
+                    style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span class="tournament-status status-{{ tournament.status }}"
+                        style="text-transform: uppercase; font-size: 0.7rem; padding: 0.4rem 0.9rem; border-radius: 20px; font-weight: 700;">
                         {{ tournament.get_status_display }}
                     </span>
                     <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">
                         {{ tournament.current_teams_count }}/{{ tournament.team_limit }} Teams
                     </span>
                 </div>
-                
-                <div style="margin-bottom: 1.25rem; padding: 1rem; background: rgba(10, 120, 190, 0.08); border-radius: 8px; border-left: 3px solid var(--accent-blue);">
+
+                <div
+                    style="margin-bottom: 1.25rem; padding: 1rem; background: rgba(10, 120, 190, 0.08); border-radius: 8px; border-left: 3px solid var(--accent-blue);">
                     {% if tournament.registration_fee > 0 %}
                     <p style="color: #ffffff; font-weight: 700; font-size: 1.1rem; margin: 0;">
                         Entry: ₦{{ tournament.registration_fee }}
@@ -67,60 +145,70 @@
                     </p>
                     {% endif %}
                 </div>
-                
+
                 {% if tournament.prize %}
                 <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; min-height: 2.5rem;">
                     Prize: {{ tournament.prize|truncatewords:10 }}
                 </p>
                 {% endif %}
-                
-                <a href="{% url 'tournaments:detail' tournament.id %}" class="btn btn-primary" style="margin-top: auto; width: 100%; padding: 0.875rem;">
+
+                <a href="{% url 'tournaments:detail' tournament.id %}" class="btn btn-primary"
+                    style="margin-top: auto; width: 100%; padding: 0.875rem;">
                     View Details
                 </a>
             </div>
         </div>
         {% endfor %}
     </div>
-    
+
     <div class="text-center" style="margin-top: 3rem;">
-        <a href="{% url 'tournaments:list' %}" class="btn btn-secondary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">View All Tournaments</a>
+        <a href="{% url 'tournaments:list' %}" class="btn btn-secondary"
+            style="padding: 1rem 2.5rem; font-size: 1.1rem;">View All Tournaments</a>
     </div>
 </section>
 {% endif %}
 
 <section class="container" style="margin-top: 5rem; margin-bottom: 5rem;">
     <div style="text-align: center; margin-bottom: 3rem;">
-        <h2 style="font-size: 2.5rem; color: #ffffff; margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+        <h2
+            style="font-size: 2.5rem; color: #ffffff; margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
             Why Choose KEFA?
         </h2>
-        <div style="width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-red), var(--accent-blue)); margin: 1rem auto;"></div>
+        <div
+            style="width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-red), var(--accent-blue)); margin: 1rem auto;">
+        </div>
     </div>
-    
+
     <div class="grid grid-3">
         <div class="card text-center" style="padding: 2rem; border: 2px solid transparent; transition: all 0.3s ease;">
             <div style="font-size: 3.5rem; margin-bottom: 1.25rem; filter: grayscale(0.2);">🏆</div>
-            <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Professional Tournaments</h3>
+            <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Professional
+                Tournaments</h3>
             <p style="color: var(--text-muted); line-height: 1.7;">
-                Compete in leagues, knockouts, and Champions League formats with automatic fixture generation and live standings.
+                Compete in leagues, knockouts, and Champions League formats with automatic fixture generation and live
+                standings.
             </p>
         </div>
-        
+
         <div class="card text-center" style="padding: 2rem; border: 2px solid transparent; transition: all 0.3s ease;">
             <div style="font-size: 3.5rem; margin-bottom: 1.25rem; filter: grayscale(0.2);">📊</div>
-            <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Real-Time Statistics</h3>
+            <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Real-Time Statistics
+            </h3>
             <p style="color: var(--text-muted); line-height: 1.7;">
-                Track your performance with detailed stats, form indicators, and historical records. See how you compare.
+                Track your performance with detailed stats, form indicators, and historical records. See how you
+                compare.
             </p>
         </div>
-        
+
         <div class="card text-center" style="padding: 2rem; border: 2px solid transparent; transition: all 0.3s ease;">
             <div style="font-size: 3.5rem; margin-bottom: 1.25rem; filter: grayscale(0.2);">🏅</div>
-            <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Achievements & Badges</h3>
+            <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Achievements & Badges
+            </h3>
             <p style="color: var(--text-muted); line-height: 1.7;">
                 Earn automatic badges and trophies for tournament wins, top scorer awards, and other achievements.
             </p>
         </div>
-        
+
         <div class="card text-center" style="padding: 2rem; border: 2px solid transparent; transition: all 0.3s ease;">
             <div style="font-size: 3.5rem; margin-bottom: 1.25rem; filter: grayscale(0.2);">🎬</div>
             <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Match Highlights</h3>
@@ -128,7 +216,7 @@
                 Upload and share your best match moments. Every match features verified highlights for authenticity.
             </p>
         </div>
-        
+
         <div class="card text-center" style="padding: 2rem; border: 2px solid transparent; transition: all 0.3s ease;">
             <div style="font-size: 3.5rem; margin-bottom: 1.25rem; filter: grayscale(0.2);">💬</div>
             <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Community Chat</h3>
@@ -136,7 +224,7 @@
                 Connect with fellow gamers in real-time. Organize friendly matches and challenge other teams.
             </p>
         </div>
-        
+
         <div class="card text-center" style="padding: 2rem; border: 2px solid transparent; transition: all 0.3s ease;">
             <div style="font-size: 3.5rem; margin-bottom: 1.25rem; filter: grayscale(0.2);">💰</div>
             <h3 style="color: #ffffff; margin-bottom: 1rem; font-weight: 700; font-size: 1.3rem;">Prize Tournaments</h3>
@@ -149,17 +237,23 @@
 
 {% if not user.is_authenticated %}
 <section class="container" style="margin-top: 5rem; margin-bottom: 5rem;">
-    <div class="card text-center" style="background: linear-gradient(135deg, rgba(230, 0, 18, 0.12), rgba(10, 120, 190, 0.12)); border: 2px solid var(--primary-red); padding: 4rem 2rem; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(230, 0, 18, 0.1) 0%, transparent 70%); opacity: 0.5;"></div>
+    <div class="card text-center"
+        style="background: linear-gradient(135deg, rgba(230, 0, 18, 0.12), rgba(10, 120, 190, 0.12)); border: 2px solid var(--primary-red); padding: 4rem 2rem; position: relative; overflow: hidden;">
+        <div
+            style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(230, 0, 18, 0.1) 0%, transparent 70%); opacity: 0.5;">
+        </div>
         <div style="position: relative; z-index: 1;">
-            <h2 style="font-size: 3rem; color: #ffffff; margin-bottom: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em;">
+            <h2
+                style="font-size: 3rem; color: #ffffff; margin-bottom: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em;">
                 Ready to Compete?
             </h2>
-            <p style="font-size: 1.3rem; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+            <p
+                style="font-size: 1.3rem; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 700px; margin-left: auto; margin-right: auto;">
                 Join KEFA today and start building your eFootball legacy in Birnin Kebbi!
             </p>
             <div class="btn-group" style="justify-content: center;">
-                <a href="{% url 'players:register' %}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.25rem 3rem;">
+                <a href="{% url 'players:register' %}" class="btn btn-primary"
+                    style="font-size: 1.2rem; padding: 1.25rem 3rem;">
                     Create Your Account
                 </a>
             </div>
@@ -168,4 +262,3 @@
 </section>
 {% endif %}
 {% endblock %}
-

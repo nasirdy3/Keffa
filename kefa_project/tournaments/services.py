@@ -99,11 +99,14 @@ def regenerate_fixtures(tournament):
 
 def generate_league_fixtures(tournament, teams):
     """
-    Implements a Double Round-Robin Algorithm (Circle Method).
-    Ensures:
-    1. Every team plays every other team twice (Home & Away).
-    2. Matches are grouped by 'Round' with correct dates.
-    3. Handles odd number of teams by adding a dummy 'None' team.
+    Implements a Double Round-Robin Algorithm with Intelligent Date Distribution.
+    
+    Key Features:
+    1. Distributes matches evenly across the entire tournament date range
+    2. Respects match_frequency setting (daily, every 2 days, etc.)
+    3. Ensures no matches are scheduled beyond end_date
+    4. Handles odd number of teams with bye weeks
+    5. Maintains proper home/away balance
     """
     
     # 1. Handle Odd Number of Teams (Add a dummy for bye weeks)
@@ -115,11 +118,28 @@ def generate_league_fixtures(tournament, teams):
     total_rounds = num_teams - 1
     matches_per_round = num_teams // 2
     
+    # 2. Calculate Date Distribution
+    frequency_days = tournament.get_frequency_days()
+    
+    # If end_date is specified, calculate available match days
+    if tournament.end_date:
+        total_days = (tournament.end_date - tournament.start_date).days + 1
+        # Calculate how many match days we can have
+        max_match_days = (total_days + frequency_days - 1) // frequency_days
+        
+        # We need total_rounds * 2 match days (first leg + second leg)
+        required_match_days = total_rounds * 2
+        
+        # Adjust frequency if needed to fit all matches
+        if max_match_days < required_match_days:
+            # Calculate minimum frequency needed
+            frequency_days = max(1, total_days // required_match_days)
+    
     fixtures = []
     current_match_date = tournament.start_date
     
     # --- PHASE 1: FIRST LEG ---
-    first_leg_pairings = [] # Store pairings to mirror them in Phase 2
+    first_leg_pairings = []  # Store pairings to mirror them in Phase 2
     
     for round_num in range(total_rounds):
         round_pairings = []
@@ -131,14 +151,14 @@ def generate_league_fixtures(tournament, teams):
             if home is not None and away is not None:
                 match_time = get_randomized_match_time(tournament.default_match_time)
                 
-                # Logic to alternate home/away for the fixed team (index 0) to avoid streaks
-                # For dynamic teams, the rotation naturally mixes it, but we can enforce alternating checks if needed.
-                # For simplicity in this implementation, we trust the rotation.
-                
-                # Swap home/away based on round number for better balance? 
-                # A simple flip on even rounds helps distribution.
+                # Alternate home/away on even rounds for better balance
                 if round_num % 2 == 1:
                     home, away = away, home
+                
+                # Check if we're within the tournament date range
+                if tournament.end_date and current_match_date > tournament.end_date:
+                    # Skip this match if beyond end date
+                    continue
                 
                 fixtures.append(
                     Match(
@@ -150,23 +170,35 @@ def generate_league_fixtures(tournament, teams):
                         status='scheduled'
                     )
                 )
-                round_pairings.append((home, away)) # Store original pairing
+                round_pairings.append((home, away))
         
         first_leg_pairings.append(round_pairings)
         
         # Rotate teams: Keep index 0 fixed, rotate the rest clockwise
-        # [0, 1, 2, 3] -> [0, 3, 1, 2]
         rotation_teams.insert(1, rotation_teams.pop())
         
-        # Increment date for the next round
-        current_match_date += timedelta(days=2)
+        # Increment date based on frequency setting
+        current_match_date += timedelta(days=frequency_days)
 
     # --- PHASE 2: SECOND LEG ---
-    # We add a small break between legs (e.g., 5 days instead of 2)
-    current_match_date += timedelta(days=3) 
+    # Add a small break between legs (optional, can be adjusted)
+    if tournament.end_date:
+        # Calculate remaining days for second leg
+        remaining_days = (tournament.end_date - current_match_date).days
+        if remaining_days > 0:
+            # Add a proportional break (e.g., 10% of remaining time)
+            break_days = max(1, min(5, remaining_days // 10))
+            current_match_date += timedelta(days=break_days)
+    else:
+        current_match_date += timedelta(days=3)
     
     for round_pairings in first_leg_pairings:
         for home_orig, away_orig in round_pairings:
+            # Check if we're within the tournament date range
+            if tournament.end_date and current_match_date > tournament.end_date:
+                # Stop scheduling if we've exceeded the end date
+                break
+            
             match_time = get_randomized_match_time(tournament.default_match_time)
             
             # Swap Home and Away from the first leg
@@ -181,10 +213,15 @@ def generate_league_fixtures(tournament, teams):
                 )
             )
         
-        # Increment date for the next round of the second leg
-        current_match_date += timedelta(days=2)
+        # Increment date based on frequency setting
+        current_match_date += timedelta(days=frequency_days)
+        
+        # Break if we've exceeded the end date
+        if tournament.end_date and current_match_date > tournament.end_date:
+            break
     
     Match.objects.bulk_create(fixtures)
+
 
 
 def generate_knockout_fixtures(tournament, teams):

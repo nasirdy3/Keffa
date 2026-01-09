@@ -32,7 +32,7 @@ def tournament_detail(request, tournament_id):
     fixtures = Match.objects.filter(tournament=tournament).select_related('home_team', 'away_team').order_by('match_date', 'match_time')
     
     upcoming_fixtures = fixtures.filter(status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress'])
-    completed_fixtures = fixtures.filter(status__in=['completed', 'home_forfeit', 'away_forfeit', 'both_forfeit'])
+    completed_fixtures = fixtures.filter(status__in=['completed', 'home_forfeit', 'away_forfeit', 'both_forfeit']).order_by('-match_date', '-match_time')
     
     user_team = None
     user_registered = False
@@ -48,14 +48,21 @@ def tournament_detail(request, tournament_id):
         except:
             pass
     
+    # Get today's date for template
+    from datetime import date
+    today = date.today()
+    
     return render(request, 'tournaments/detail.html', {
         'tournament': tournament,
         'standings': standings,
-        'upcoming_fixtures': upcoming_fixtures[:10], # Keep limit for dashboard view
-        'completed_fixtures': completed_fixtures[:10],
+        'upcoming_fixtures': upcoming_fixtures,
+        'completed_fixtures': completed_fixtures,
         'user_team': user_team,
-        'user_registered': user_registered
+        'user_registered': user_registered,
+        'total_matches': fixtures.count(),
+        'today': today,
     })
+
 
 
 def tournament_standings(request, tournament_id):
