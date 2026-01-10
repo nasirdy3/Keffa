@@ -1,62 +1,49 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Create Friendly Match - KEFA{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 class="card-title">🎮 Create Friendly Match</h1>
-    <p style="opacity: 0.8;">Challenge other KEFA teams to a friendly eFootball match</p>
-</div>
+<div class="container" style="max-width: 600px; margin-top: 4rem;">
+    <div class="card">
+        <div class="card-header text-center">
+            <h2 style="color: var(--primary-gold); margin-bottom: 0.5rem;">⚔️ Create Friendly Challenge</h2>
+            <p style="opacity: 0.7;">Create a match and share the code in the community chat.</p>
+        </div>
 
-<div class="card">
-    <h3 style="color: var(--primary-gold); margin-bottom: 1.5rem;">Match Setup</h3>
-    
-    <div style="background: rgba(255, 215, 0, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
-        <h4 style="color: var(--primary-gold); margin-bottom: 1rem;">📋 Instructions</h4>
-        <ol style="line-height: 1.8; padding-left: 1.5rem;">
-            <li>Open eFootball on your device</li>
-            <li>Go to "Friendly Match" mode</li>
-            <li>Select "Create Room" or "Host Game"</li>
-            <li>Copy the game code that eFootball generates</li>
-            <li>Paste the code below and submit</li>
-            <li>Your match will appear in the community chat for others to join</li>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="game_code"
+                        style="display: block; margin-bottom: 0.5rem; color: var(--text-light);">eFootball Game
+                        Code</label>
+                    <input type="text" id="game_code" name="game_code" class="form-control"
+                        placeholder="e.g. 123-456-789" required
+                        style="width: 100%; padding: 1rem; background: rgba(0,0,0,0.3); border: 2px solid var(--primary-gold); border-radius: 8px; color: #fff; font-size: 1.2rem; text-align: center; letter-spacing: 2px;">
+                    <small style="display: block; margin-top: 0.5rem; opacity: 0.6;">
+                        Create a match room in eFootball first, then copy the code here.
+                    </small>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'chat:community' %}" class="btn btn-outline"
+                        style="flex: 1; text-align: center;">Cancel</a>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Create Challenge</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-3 text-center" style="background: rgba(255,255,255,0.05);">
+        <h5>How it works</h5>
+        <ol style="text-align: left; padding-left: 1.5rem; margin-top: 1rem; opacity: 0.8;">
+            <li style="margin-bottom: 0.5rem;">Go to eFootball Mobile > Match > Friend Match > Create Match Room.</li>
+            <li style="margin-bottom: 0.5rem;">Copy the Room Number (Game Code).</li>
+            <li style="margin-bottom: 0.5rem;">Paste it above and click "Create Challenge".</li>
+            <li>Wait in the chat for someone to accept!</li>
         </ol>
     </div>
-    
-    <form method="post" class="form">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="game_code" class="form-label">eFootball Game Code *</label>
-            <input 
-                type="text" 
-                id="game_code" 
-                name="game_code" 
-                class="form-input" 
-                placeholder="Enter the room/game code from eFootball"
-                required
-                maxlength="50"
-            >
-            <small style="opacity: 0.7; display: block; margin-top: 0.5rem;">
-                The code should be exactly as shown in eFootball (usually numbers and letters)
-            </small>
-        </div>
-        
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">Create Friendly Match</button>
-            <a href="{% url 'chat:community' %}" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
-</div>
-
-<div class="card">
-    <h3 style="color: var(--primary-gold); margin-bottom: 1rem;">⚠️ Important Notes</h3>
-    <ul style="line-height: 1.8; opacity: 0.9; padding-left: 1.5rem;">
-        <li>Make sure you're ready to play before creating the match</li>
-        <li>Only one opponent can accept your friendly match</li>
-        <li>Keep eFootball open with the room ready for your opponent</li>
-        <li>Friendly matches are casual and won't affect tournament standings</li>
-        <li>Be sportsman-like and respectful to your opponent</li>
-    </ul>
 </div>
 {% endblock %}

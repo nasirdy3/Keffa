@@ -1,74 +1,89 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}FAQ | KEFA{% endblock %}
-
-{% block extra_css %}
-<style>
-    .faq-item {
-        margin-bottom: 1rem;
-        background: var(--dark-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-    }
-    
-    .faq-item[open] {
-        border-color: var(--primary-gold);
-    }
-    
-    .faq-summary {
-        padding: 1rem;
-        cursor: pointer;
-        font-weight: 600;
-        color: #fff;
-        list-style: none;
-        position: relative;
-    }
-    
-    .faq-summary::after {
-        content: '+';
-        position: absolute;
-        right: 1rem;
-        color: var(--primary-gold);
-        font-size: 1.5rem;
-        line-height: 1;
-    }
-    
-    .faq-item[open] .faq-summary::after {
-        content: '-';
-    }
-    
-    .faq-content {
-        padding: 1rem;
-        padding-top: 0;
-        color: var(--text-muted);
-        border-top: 1px solid var(--border-color);
-    }
-</style>
-{% endblock %}
+{% block title %}Frequently Asked Questions - KEFA{% endblock %}
 
 {% block content %}
-<div class="container mt-4 mb-4">
+<section class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
     <div class="text-center mb-4">
-        <h1 class="text-gold">Frequently Asked Questions</h1>
-        <p class="text-muted">Everything you need to know about playing in KEFA.</p>
+        <h1 class="text-gradient-red" style="font-size: 3rem; font-weight: 900; text-transform: uppercase;">
+            Help Center
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto;">
+            Answers to common questions about tournaments, payments, and platform rules.
+        </p>
     </div>
 
-    <div class="container" style="max-width: 800px;">
-        {% if faqs %}
-            {% for faq in faqs %}
-                <details class="faq-item">
-                    <summary class="faq-summary">{{ faq.question }}</summary>
-                    <div class="faq-content">
-                        {{ faq.answer|linebreaks }}
-                    </div>
-                </details>
-            {% endfor %}
-        {% else %}
-            <div class="card text-center p-4">
-                <p>No FAQs available at the moment. Please check back later.</p>
-            </div>
-        {% endif %}
+    <!-- FAQ Grid -->
+    <div style="max-width: 800px; margin: 0 auto; display: grid; gap: 1.5rem;">
+
+        <!-- Db FAQs (Dynamic) -->
+        {% for faq in faqs %}
+        <div class="card" style="border-left: 4px solid var(--primary-gold);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">{{ faq.question }}</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">{{ faq.answer|linebreaksbr }}</p>
+        </div>
+        {% empty %}
+
+        <!-- Fallback Static FAQs (If DB is empty) -->
+        <div class="card" style="border-left: 4px solid var(--primary-gold);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">What is KEFA?</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                KEFA (Kebbi eFootball Arena) is the premier digital platform for competitive eFootball mobile gaming in
+                Birnin Kebbi. We organize professional leagues, tournaments, and community events.
+            </p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary-red);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">How do I join a tournament?</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                Register an account and create your Team Profile. Then navigate to the <strong>Tournaments</strong>
+                page, select an active tournament, and click 'Join Now'.
+            </p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary-gold);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">How are payments handled?</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                We support Paystack for instant verification and bank transfers for offline payments. Offline payments
+                require manual Admin verification.
+            </p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary-red);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">How is 'Player of the Week' chosen?</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                It's automated! The Captain of the team with the most wins and best goal difference over the last 7 days
+                wins the badge.
+            </p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary-gold);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">What happens if my opponent doesn't show
+                up?</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                Our Auto-Loss system forfeits the match in your favor if your opponent fails to mark themselves as
+                'Ready' within the scheduled window.
+            </p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary-red);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">Can I reschedule a match?</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                Yes, use the 'Request Postponement' feature in your dashboard. Your opponent must accept, and an Admin
+                must approve the new time.
+            </p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary-gold);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">How do I play Friendly Matches?</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                Go to the Community Chat and click "Create Challenge". Share your game code, and once accepted, it
+                tracks in your history.
+            </p>
+        </div>
+        {% endfor %}
+
     </div>
-</div>
+</section>
 {% endblock %}

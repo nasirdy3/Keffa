@@ -19,7 +19,8 @@
 
         <div class="fs-competition-list">
             {% for tournament in active_tournaments %}
-            <div class="fs-competition-item"
+            <div class="fs-competition-item animate-slide-up"
+                style="animation-delay: {{ forloop.counter0|add:'1' }}00ms;"
                 onclick="window.location.href='{% url 'tournaments:detail' tournament.id %}'">
                 <div class="fs-competition-info">
                     <div class="fs-competition-name">{{ tournament.name }}</div>

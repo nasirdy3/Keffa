@@ -57,8 +57,16 @@ def user_login(request):
         if user is not None:
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
-            next_url = request.GET.get('next') or reverse('players:player_dashboard')
-            return redirect(next_url)
+            
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+                
+            # Direct admins/staff to governance dashboard
+            if user.is_staff or user.is_superuser:
+                return redirect('players:governance_dashboard')
+                
+            return redirect('players:player_dashboard')
         else:
             messages.error(request, 'Invalid username or password.')
     return render(request, 'players/login.html')
@@ -140,6 +148,7 @@ def player_dashboard(request):
         'recent_achievements': recent_achievements,
     })
 
+@login_required
 def player_profile(request, player_id):
     from kefa_project.tournaments.models import Standing
     from kefa_project.matches.models import Match
@@ -339,5 +348,5 @@ def governance_dashboard(request):
         users_list = User.objects.select_related('player_profile').all().order_by('-date_joined')[:50]
         context['users_list'] = users_list
 
-    return render(request, 'admin/dashboard.html', context)
+    return render(request, 'admin/governance_dashboard.html', context)
 

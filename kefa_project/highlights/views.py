@@ -20,20 +20,25 @@ def upload_highlight(request, match_id):
     except:
         messages.error(request, 'You must have a team to upload highlights.')
         return redirect('players:player_dashboard')
+
+    # Chapter 7 Regulation: Only Home Team can upload
+    if match.home_team != team:
+        messages.error(request, 'Regulation: Only the Home Team is permitted to upload match evidence.')
+        return redirect('players:player_dashboard')
+
+    # Chapter 7 Time Regulation: "Upload window opens 15 minutes after match start"
+    match_start_dt = timezone.make_aware(
+        timezone.datetime.combine(match.match_date, match.match_time),
+        timezone.get_current_timezone()
+    )
+    time_since_start = (timezone.now() - match_start_dt).total_seconds()
     
-    if match.home_team != team and match.away_team != team:
-        messages.error(request, 'This is not your match.')
+    if time_since_start < 900: # 15 minutes * 60 seconds = 900
+        wait_min = int((900 - time_since_start) / 60)
+        messages.error(request, f'Regulation: Upload window opens 15 minutes after match start. Please wait {wait_min} more minutes.')
         return redirect('players:player_dashboard')
     
-    # Allow uploads if awaiting highlight OR if previous one was rejected (needs logic for rejection retry, but keeping simple for now)
-    if match.status not in ['awaiting_highlight', 'pending_verification', 'completed']:
-        # Architect Note: 'completed' included strictly for correcting evidence, usually we lock this.
-        # Stick to strict status for now.
-        if match.status != 'awaiting_highlight' and match.status != 'pending_verification':
-             messages.error(request, 'Cannot upload highlight for this match at this time.')
-             return redirect('players:player_dashboard')
-    
-    uploaded_by_side = 'home' if match.home_team == team else 'away'
+    uploaded_by_side = 'home'
     
     # Check if a pending highlight already exists to prevent duplicates
     existing_highlight = Highlight.objects.filter(

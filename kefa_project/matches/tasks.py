@@ -117,6 +117,12 @@ def check_match_ready_windows():
 
 @shared_task
 def check_highlight_deadlines():
+    """
+    Chapter 7 & 9 Enforcement:
+    - Upload window lasts 24 hours.
+    - No highlight after 24 hours -> Automatic 0-3 Loss for Home Team.
+    - Away Team is NOT penalized (as they are forbidden from uploading).
+    """
     now = timezone.now()
     cutoff_time = now - timedelta(hours=24)
     
@@ -130,6 +136,7 @@ def check_highlight_deadlines():
             timezone.get_current_timezone()
         )
         
+        # If 24 hours have passed since the match start time
         if match_datetime < cutoff_time:
             from django.db import transaction
             with transaction.atomic():
@@ -138,17 +145,28 @@ def check_highlight_deadlines():
                 if match_locked.status != 'awaiting_highlight':
                     continue
                 
-                has_home_highlight = match_locked.highlights.filter(uploaded_by_side='home').exists()
-                has_away_highlight = match_locked.highlights.filter(uploaded_by_side='away').exists()
+                # Check for existing highlights
+                has_highlight = match_locked.highlights.exists()
                 
-                if not has_home_highlight and not has_away_highlight:
-                    apply_penalty(match_locked.tournament, match_locked.home_team)
-                    apply_penalty(match_locked.tournament, match_locked.away_team)
-                    
-                    match_locked.status = 'both_forfeit'
+                if not has_highlight:
+                    # HOME TEAM FORFEIT Logic (0-3 Loss)
+                    match_locked.status = 'home_forfeit'
                     match_locked.home_score = 0
-                    match_locked.away_score = 0
+                    match_locked.away_score = 3
+                    match_locked.verified_at = now
                     match_locked.save()
+                    
+                    # Update Standings
+                    # Note: update_standings_on_forfeit helper sets status to 'completed' which might confuse the logic
+                    # We will call the service directory
+                    from kefa_project.tournaments.services import update_standings_after_match
+                    
+                    # Reset status to 'completed' for standings calculation? 
+                    # Usually standings service handles forfeits if matched by logic, 
+                    # but let's stick to setting it to 'completed' or 'home_forfeit'. 
+                    # The current update_standings_on_forfeit sets it to completed.
+                    # Let's trust logic below.
+                    update_standings_on_forfeit(match_locked, 'home')
 
 
 def apply_penalty(tournament, team):

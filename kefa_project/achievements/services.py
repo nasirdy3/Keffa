@@ -1,126 +1,136 @@
-from django.db.models import Sum, Q
+from django.db import models
+from django.db.models import Sum, Count, Q
 from django.utils import timezone
-from .models import Badge, PlayerBadge, Trophy
-from kefa_project.tournaments.models import Tournament, Standing
+from datetime import timedelta
 from kefa_project.matches.models import Match
+from kefa_project.teams.models import Team
+from .models import Badge, PlayerBadge
 
-
-def award_automatic_achievements(tournament):
-    if tournament.status != 'completed':
-        return
+def calculate_player_of_the_week():
+    """
+    Identifies the Captain of the best performing team of the last 7 days.
+    Criteria: Most Wins -> Most Goals Scored -> Least Goals Conceded.
+    Awards the 'Player of the Week' badge.
+    """
+    now = timezone.now()
+    seven_days_ago = now - timedelta(days=7)
     
-    standings = Standing.objects.filter(tournament=tournament).order_by('-points', '-goal_difference')
+    # Get completed matches in last 7 days
+    recent_matches = Match.objects.filter(
+        status='completed',
+        match_date__gte=seven_days_ago.date(),
+        match_date__lte=now.date()
+    )
     
-    if standings.count() == 0:
-        return
+    if not recent_matches.exists():
+        return None
+        
+    # We need to manually aggregate because Match data is normalized
+    team_stats = {}
     
-    winner_standing = standings.first()
-    winner_team = winner_standing.team
-    winner_player = winner_team.player
+    for match in recent_matches:
+        # Home Team Stats
+        h_id = match.home_team.id
+        if h_id not in team_stats: team_stats[h_id] = {'wins': 0, 'goals': 0, 'conceded': 0}
+        
+        team_stats[h_id]['goals'] += match.home_score if match.home_score else 0
+        team_stats[h_id]['conceded'] += match.away_score if match.away_score else 0
+        if match.home_score > match.away_score:
+            team_stats[h_id]['wins'] += 1
+            
+        # Away Team Stats
+        a_id = match.away_team.id
+        if a_id not in team_stats: team_stats[a_id] = {'wins': 0, 'goals': 0, 'conceded': 0}
+        
+        team_stats[a_id]['goals'] += match.away_score if match.away_score else 0
+        team_stats[a_id]['conceded'] += match.home_score if match.home_score else 0
+        if match.away_score > match.home_score:
+            team_stats[a_id]['wins'] += 1
+            
+    if not team_stats:
+        return None
+        
+    # Sort teams: Wins desc, Goals desc, Conceded asc
+    sorted_teams = sorted(
+        team_stats.items(), 
+        key=lambda item: (-item[1]['wins'], -item[1]['goals'], item[1]['conceded'])
+    )
     
-    winner_badge, _ = Badge.objects.get_or_create(
-        badge_type='tournament_winner',
+    best_team_id = sorted_teams[0][0]
+    best_team = Team.objects.get(id=best_team_id)
+    player = best_team.player # Access the PlayerProfile
+    
+    # Award Badge
+    badge, _ = Badge.objects.get_or_create(
+        name='Player of the Week',
         defaults={
-            'name': 'Tournament Winner',
-            'description': 'Won a tournament',
+            'badge_type': 'player_of_week',
+            'description': f"Captain of the best performing team ({best_team.team_name}) for the week.",
             'is_automatic': True
         }
     )
     
-    PlayerBadge.objects.get_or_create(
-        player=winner_player,
-        badge=winner_badge,
-        tournament=tournament,
-        defaults={'notes': f'Won {tournament.name}'}
-    )
+    # Check if already awarded this week to avoid duplicates
+    if not PlayerBadge.objects.filter(player=player, badge=badge, awarded_at__gte=seven_days_ago).exists():
+        PlayerBadge.objects.create(
+            player=player,
+            badge=badge,
+            notes=f"Led {best_team.team_name} to {team_stats[best_team_id]['wins']} wins and {team_stats[best_team_id]['goals']} goals."
+        )
+        return player
+        
+    return None
+
+def check_match_milestones(team):
+    """
+    Checks and awards milestone badges (First Win, 10 Matches, etc.)
+    Should be called after a match is completed.
+    """
+    player = team.player
     
-    Trophy.objects.get_or_create(
-        team=winner_team,
-        tournament=tournament,
+    # 1. Total Matches Milestones
+    total_matches = Match.objects.filter(
+        (Q(home_team=team) | Q(away_team=team)),
+        status='completed'
+    ).count()
+    
+    if total_matches == 1:
+        _award_milestone(player, 'first_match', 'First Match Played', 'Awarded for completing your first match.')
+    elif total_matches == 10:
+        _award_milestone(player, '10_matches', 'Veteran (10 Matches)', 'Awarded for completing 10 matches.')
+    elif total_matches == 50:
+        _award_milestone(player, '50_matches', 'Club Legend (50 Matches)', 'Awarded for completing 50 matches.')
+
+    # 2. Total Wins Milestones
+    # We can query Standings or aggregate Matches. Standings is per tournament, so aggregate matches for career stats.
+    home_wins = Match.objects.filter(home_team=team, status='completed', home_score__gt=models.F('away_score')).count()
+    away_wins = Match.objects.filter(away_team=team, status='completed', away_score__gt=models.F('home_score')).count()
+    total_wins = home_wins + away_wins
+    
+    if total_wins == 1:
+        _award_milestone(player, 'first_win', 'First Victory', 'Awarded for winning your first match.')
+    elif total_wins == 10:
+        _award_milestone(player, '10_wins', 'Winner (10 Wins)', 'Awarded for winning 10 matches.')
+
+def _award_milestone(player, unique_id, name, description):
+    badge, _ = Badge.objects.get_or_create(
+        name=name,
         defaults={
-            'trophy_type': 'gold',
-            'position': 1
+            'badge_type': 'custom', # Storing milestones as custom or we can add new types to choices
+            'description': description,
+            'is_automatic': True
         }
     )
     
-    if standings.count() >= 2:
-        runner_up_standing = standings[1]
-        runner_up_team = runner_up_standing.team
-        runner_up_player = runner_up_team.player
-        
-        runner_up_badge, _ = Badge.objects.get_or_create(
-            badge_type='runner_up',
-            defaults={
-                'name': 'Runner-Up',
-                'description': 'Finished second in a tournament',
-                'is_automatic': True
-            }
-        )
-        
-        PlayerBadge.objects.get_or_create(
-            player=runner_up_player,
-            badge=runner_up_badge,
-            tournament=tournament,
-            defaults={'notes': f'Runner-up in {tournament.name}'}
-        )
-        
-        Trophy.objects.get_or_create(
-            team=runner_up_team,
-            tournament=tournament,
-            defaults={
-                'trophy_type': 'silver',
-                'position': 2
-            }
-        )
-    
-    if standings.count() >= 3:
-        third_place_standing = standings[2]
-        third_place_team = third_place_standing.team
-        
-        Trophy.objects.get_or_create(
-            team=third_place_team,
-            tournament=tournament,
-            defaults={
-                'trophy_type': 'bronze',
-                'position': 3
-            }
-        )
-    
-    top_scorer_team = standings.order_by('-goals_for').first()
-    if top_scorer_team:
-        top_scorer_player = top_scorer_team.team.player
-        
-        top_scorer_badge, _ = Badge.objects.get_or_create(
-            badge_type='top_scorer',
-            defaults={
-                'name': 'Top Scorer',
-                'description': 'Highest goals in a tournament',
-                'is_automatic': True
-            }
-        )
-        
-        PlayerBadge.objects.get_or_create(
-            player=top_scorer_player,
-            badge=top_scorer_badge,
-            tournament=tournament,
-            defaults={'notes': f'Top scorer in {tournament.name} with {top_scorer_team.goals_for} goals'}
-        )
+    if not PlayerBadge.objects.filter(player=player, badge=badge).exists():
+        PlayerBadge.objects.create(player=player, badge=badge, notes="Milestone Achievement")
 
 
-def award_manual_badge(player, badge_type, tournament=None, awarded_by=None, notes=''):
-    badge = Badge.objects.filter(badge_type=badge_type).first()
-    
-    if not badge:
-        return None
-    
-    player_badge, created = PlayerBadge.objects.get_or_create(
-        player=player,
-        badge=badge,
-        tournament=tournament,
-        defaults={
-            'awarded_by': awarded_by,
-            'notes': notes
-        }
-    )
-    
-    return player_badge if created else None
+def award_automatic_achievements(tournament):
+    """
+    Checks for any tournament-wide achievements that should be awarded.
+    Triggered after match verification.
+    """
+    # Placeholder for logic that checks for specific tournament-wide badges
+    # unrelated to specific match milestones (which are handled in check_match_milestones)
+    pass

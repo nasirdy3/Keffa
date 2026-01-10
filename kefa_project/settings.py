@@ -107,6 +107,7 @@ INSTALLED_APPS = [
     'kefa_project.chat',
     'kefa_project.payments',
     'kefa_project.pages',
+    'kefa_project.notifications',
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'kefa_project.notifications.context_processors.notifications_processor',
             ],
         },
     },

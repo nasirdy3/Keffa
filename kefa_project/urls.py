@@ -52,6 +52,8 @@ urlpatterns = [
     path('payments/', include('kefa_project.payments.urls')),
     path('teams/', include('kefa_project.teams.urls')),
     path('chat/', include('kefa_project.chat.urls')),
+    path('notifications/', include('kefa_project.notifications.urls')),
+    path('achievements/', include('kefa_project.achievements.urls')),
 ]
 
 if settings.DEBUG:

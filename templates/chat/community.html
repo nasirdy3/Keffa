@@ -10,7 +10,7 @@
         flex-direction: column;
         position: relative;
     }
-    
+
     #chat-messages {
         flex: 1;
         overflow-y: auto;
@@ -20,16 +20,17 @@
         gap: 1rem;
         scroll-behavior: smooth;
     }
-    
+
     /* Scrollbar styling */
     #chat-messages::-webkit-scrollbar {
         width: 6px;
     }
+
     #chat-messages::-webkit-scrollbar-thumb {
         background-color: var(--primary-gold);
         border-radius: 3px;
     }
-    
+
     .message {
         padding: 1rem;
         background: rgba(255, 255, 255, 0.05);
@@ -38,7 +39,7 @@
         max-width: 85%;
         word-wrap: break-word;
     }
-    
+
     .message.mine {
         align-self: flex-end;
         background: rgba(255, 215, 0, 0.15);
@@ -52,30 +53,30 @@
         font-style: italic;
         font-size: 0.9em;
     }
-    
+
     .message-author {
         color: var(--primary-gold);
         font-weight: 700;
         margin-bottom: 0.5rem;
         font-size: 0.9rem;
     }
-    
+
     .message-team {
         color: var(--accent-orange);
         font-size: 0.8rem;
         font-weight: 500;
     }
-    
+
     .message-time {
         font-size: 0.75rem;
         opacity: 0.6;
         float: right;
     }
-    
+
     .message-content {
         line-height: 1.5;
     }
-    
+
     #chat-input-form {
         padding: 1rem;
         background: rgba(255, 255, 255, 0.03);
@@ -83,7 +84,7 @@
         display: flex;
         gap: 1rem;
     }
-    
+
     #message-input {
         flex: 1;
     }
@@ -104,17 +105,17 @@
         transition: all 0.3s;
         position: relative;
     }
-    
+
     .friendly-card.claimed {
         opacity: 0.6;
         border-color: #444;
-        background: rgba(0,0,0,0.3);
+        background: rgba(0, 0, 0, 0.3);
     }
 
     .game-code-blur {
         background: #333;
         color: transparent;
-        text-shadow: 0 0 8px rgba(255,255,255,0.5);
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
         padding: 2px 8px;
         border-radius: 4px;
         user-select: none;
@@ -127,15 +128,31 @@
         font-weight: bold;
         animation: pulse 1s infinite;
     }
-    
+
     @keyframes slideIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
+
     @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
     }
 </style>
 {% endblock %}
@@ -144,25 +161,21 @@
 <div class="row">
     <div class="col-lg-8 mb-4">
         <div class="card" style="padding: 0;">
-            <div class="card-header" style="background: rgba(0,0,0,0.2); padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div class="card-header"
+                style="background: rgba(0,0,0,0.2); padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <h4 style="margin:0; color: var(--primary-gold);">💬 Community Hub</h4>
             </div>
-            
+
             <div id="chat-container">
                 <div id="chat-messages">
                     <div style="text-align: center; opacity: 0.5; font-size: 0.9rem; margin-top: 1rem;">
                         Welcome to the live chat. Messages are not saved permanently.
                     </div>
                 </div>
-                
+
                 <form id="chat-input-form">
-                    <input 
-                        type="text" 
-                        id="message-input" 
-                        placeholder="Type your message..." 
-                        autocomplete="off"
-                        style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 10px; padding: 0.875rem; color: var(--text-light);"
-                    >
+                    <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off"
+                        style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 10px; padding: 0.875rem; color: var(--text-light);">
                     <button type="submit" class="btn btn-primary" id="send-btn">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -176,30 +189,32 @@
             <h3 style="color: var(--primary-gold); margin-bottom: 1rem; font-size: 1.2rem;">
                 🎮 Active Challenges
             </h3>
-            
+
             <div id="challenges-container">
                 {% if open_friendlies %}
-                    {% for friendly in open_friendlies %}
-                    <div class="friendly-card" id="match-card-{{ friendly.id }}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                            <div>
-                                <strong style="color: var(--primary-gold);">{{ friendly.created_by_team.team_name }}</strong>
-                                <p style="font-size: 0.8rem; margin: 5px 0 0 0;">
-                                    Code: <span class="game-code-blur">HIDDEN</span>
-                                </p>
-                            </div>
-                            {% if request.user.player_profile.team != friendly.created_by_team %}
-                            <button onclick="claimMatch({{ friendly.id }})" class="btn btn-sm btn-primary claim-btn" id="btn-{{ friendly.id }}">
-                                Accept
-                            </button>
-                            {% else %}
-                            <span class="badge bg-secondary">Your Match</span>
-                            {% endif %}
+                {% for friendly in open_friendlies %}
+                <div class="friendly-card" id="match-card-{{ friendly.id }}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <strong style="color: var(--primary-gold);">{{ friendly.created_by_team.team_name
+                                }}</strong>
+                            <p style="font-size: 0.8rem; margin: 5px 0 0 0;">
+                                Code: <span class="game-code-blur">HIDDEN</span>
+                            </p>
                         </div>
+                        {% if request.user.player_profile.team != friendly.created_by_team %}
+                        <button onclick="claimMatch({{ friendly.id }})" class="btn btn-sm btn-primary claim-btn"
+                            id="btn-{{ friendly.id }}">
+                            Accept
+                        </button>
+                        {% else %}
+                        <span class="badge bg-secondary">Your Match</span>
+                        {% endif %}
                     </div>
-                    {% endfor %}
+                </div>
+                {% endfor %}
                 {% else %}
-                    <p id="no-challenges" style="opacity: 0.6; font-style: italic;">No active challenges right now.</p>
+                <p id="no-challenges" style="opacity: 0.6; font-style: italic;">No active challenges right now.</p>
                 {% endif %}
             </div>
 
@@ -226,23 +241,23 @@
 <script>
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws/chat/`;
-    
+
     let chatSocket = null;
     let isConnected = false;
     let currentUserTeam = "{{ request.user.player_profile.team.team_name|default:'' }}";
-    
+
     function connectWebSocket() {
         chatSocket = new WebSocket(wsUrl);
-        
-        chatSocket.onopen = function(e) {
+
+        chatSocket.onopen = function (e) {
             console.log('KEFA Chat Connected');
             isConnected = true;
         };
-        
-        chatSocket.onmessage = function(e) {
+
+        chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
-            
-            switch(data.type) {
+
+            switch (data.type) {
                 case 'chat_message':
                     renderMessage(data);
                     break;
@@ -263,26 +278,26 @@
                     break;
             }
         };
-        
-        chatSocket.onclose = function(e) {
+
+        chatSocket.onclose = function (e) {
             console.log('Chat disconnected. Reconnecting...');
             isConnected = false;
             setTimeout(connectWebSocket, 3000);
         };
     }
-    
+
     // --- UI Render Functions ---
 
     function renderMessage(data) {
         const messagesDiv = document.getElementById('chat-messages');
         const messageDiv = document.createElement('div');
-        
+
         const isMine = data.is_me;
         messageDiv.className = `message ${isMine ? 'mine' : ''}`;
-        
+
         const now = new Date();
         const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        
+
         messageDiv.innerHTML = `
             <div class="message-author">
                 ${data.username}
@@ -291,7 +306,7 @@
             </div>
             <div class="message-content">${escapeHtml(data.message)}</div>
         `;
-        
+
         messagesDiv.appendChild(messageDiv);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
@@ -313,9 +328,9 @@
         const div = document.createElement('div');
         div.className = 'friendly-card';
         div.id = `match-card-${data.match_id}`;
-        
-        const btnHtml = data.is_creator 
-            ? '<span class="badge bg-secondary">Your Match</span>' 
+
+        const btnHtml = data.is_creator
+            ? '<span class="badge bg-secondary">Your Match</span>'
             : `<button onclick="claimMatch(${data.match_id})" class="btn btn-sm btn-primary claim-btn" id="btn-${data.match_id}">Accept</button>`;
 
         div.innerHTML = `
@@ -329,7 +344,7 @@
                 ${btnHtml}
             </div>
         `;
-        
+
         container.insertBefore(div, container.firstChild);
     }
 
@@ -355,7 +370,7 @@
     function showMatchCode(data) {
         // Show generic alert or modal
         alert(`MATCH SECURED!\n\nGame Code: ${data.game_code}\n\nGo to eFootball app and enter this code immediately.`);
-        
+
         // Also reveal in UI if the card exists
         const card = document.getElementById(`match-card-${data.match_id}`);
         if (card) {
@@ -369,12 +384,12 @@
 
     // --- Actions ---
 
-    window.claimMatch = function(matchId) {
+    window.claimMatch = function (matchId) {
         if (!isConnected) {
             alert("Connection lost. Reconnecting...");
             return;
         }
-        
+
         // Optimistic UI update (disable button immediately)
         const btn = document.getElementById(`btn-${matchId}`);
         if (btn) {
@@ -390,26 +405,25 @@
 
     const form = document.getElementById('chat-input-form');
     const input = document.getElementById('message-input');
-    
-    form.addEventListener('submit', function(e) {
+
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
         const message = input.value.trim();
         if (!message) return;
-        
-        chatSocket.send(JSON.stringify({ 
-            'type': 'chat_message', 
-            'message': message 
+
+        chatSocket.send(JSON.stringify({
+            'type': 'chat_message',
+            'message': message
         }));
         input.value = '';
     });
-    
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     connectWebSocket();
 </script>
 {% endblock %}
-

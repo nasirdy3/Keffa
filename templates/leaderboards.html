@@ -1,148 +1,346 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Leaderboards - KEFA{% endblock %}
 
-{% block content %}
-<div class="card" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.03)); border: 2px solid rgba(255, 215, 0, 0.3);">
-    <h1 class="card-title" style="font-size: 2.5rem; background: linear-gradient(135deg, var(--gold), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🏆 KEFA Leaderboards</h1>
-    <p style="opacity: 0.9; font-size: 1.1rem; color: var(--text-muted);">Top performers in the Kebbi eFootball Arena</p>
-</div>
+{% block extra_css %}
+<style>
+    .leaderboard-header {
+        text-align: center;
+        padding: 3rem 0;
+        position: relative;
+    }
 
-<div style="display: grid; gap: 2rem;">
-    <div class="card">
-        <h2 class="card-title">⭐ Top Teams by Points</h2>
+    .rank-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .rank-1 {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: #000;
+        border: 2px solid #FFF;
+        transform: scale(1.1);
+    }
+
+    .rank-2 {
+        background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
+        color: #333;
+        border: 2px solid #FFF;
+    }
+
+    .rank-3 {
+        background: linear-gradient(135deg, #CD7F32, #8B4513);
+        color: #FFF;
+        border: 2px solid #FFF;
+    }
+
+    .rank-other {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ccc;
+    }
+
+    .tab-nav {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 2rem;
+        border-radius: 30px;
+        color: var(--text-muted);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .tab-btn.active {
+        background: var(--primary-red);
+        color: #fff;
+        box-shadow: 0 0 15px rgba(230, 0, 18, 0.4);
+        border-color: var(--primary-red);
+    }
+
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .podium-section {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        height: 200px;
+    }
+
+    .podium-card {
+        text-align: center;
+        width: 140px;
+        position: relative;
+    }
+
+    .podium-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid;
+        margin-bottom: 0.5rem;
+        object-fit: cover;
+    }
+
+    .podium-1 {
+        order: 2;
+        transform: scale(1.1);
+        z-index: 2;
+    }
+
+    .podium-2 {
+        order: 1;
+        margin-bottom: -10px;
+        opacity: 0.9;
+    }
+
+    .podium-3 {
+        order: 3;
+        margin-bottom: -20px;
+        opacity: 0.8;
+    }
+
+    .podium-1 .podium-avatar {
+        border-color: #FFD700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .podium-2 .podium-avatar {
+        border-color: #C0C0C0;
+    }
+
+    .podium-3 .podium-avatar {
+        border-color: #CD7F32;
+    }
+
+    .leaderboard-table th {
+        color: var(--text-muted);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .leaderboard-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .leaderboard-row:hover td {
+        background: rgba(255, 255, 255, 0.03);
+    }
+</style>
+<script>
+    function switchTab(tabId) {
+        // Hide all contents
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        // Deactivate all buttons
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        // Activate target
+        document.getElementById(tabId).classList.add('active');
+        document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-bottom: 4rem;">
+
+    <!-- Header -->
+    <div class="leaderboard-header animate-scale-in">
+        <h1 class="text-gradient-gold" style="font-size: 3.5rem; font-weight: 900; margin-bottom: 0.5rem;">HALL OF FAME
+        </h1>
+        <p style="font-size: 1.2rem; color: var(--text-muted);">Celebrating the legends of Kebbi eFootball Arena</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-nav animate-slide-up stagger-1">
+        <button class="tab-btn active" onclick="switchTab('teams')">Top Teams</button>
+        <button class="tab-btn" onclick="switchTab('scorers')">Top Scorers</button>
+        <button class="tab-btn" onclick="switchTab('achievements')">Most Decorated</button>
+    </div>
+
+    <!-- SECTION 1: TOP TEAMS -->
+    <div id="teams" class="tab-content active">
         {% if top_teams %}
+        <div class="glass-panel animate-slide-up stagger-2" style="overflow: hidden;">
             <div style="overflow-x: auto;">
-                <table class="table">
+                <table class="leaderboard-table" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Team</th>
+                            <th class="text-center">Rank</th>
+                            <th style="width: 40%;">Team</th>
                             <th>Tournament</th>
-                            <th>P</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
-                            <th>GD</th>
-                            <th>Pts</th>
+                            <th class="text-center">W-D-L</th>
+                            <th class="text-center">GD</th>
+                            <th class="text-center">Points</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for standing in top_teams %}
-                        <tr style="transition: background 0.2s ease;">
-                            <td>
-                                <div style="{% if forloop.counter == 1 %}background: linear-gradient(135deg, #FFD700, #FFA500); color: #000;{% elif forloop.counter == 2 %}background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: #000;{% elif forloop.counter == 3 %}background: linear-gradient(135deg, #CD7F32, #A0522D); color: #FFF;{% else %}background: rgba(255, 215, 0, 0.1); color: var(--gold);{% endif %} width: 35px; height: 35px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 900;">
+                        <tr class="leaderboard-row"
+                            style="animation: slideUp 0.3s ease-out forwards; animation-delay: {{ forloop.counter }}00ms; opacity: 0;">
+                            <td class="text-center">
+                                <div
+                                    class="rank-badge {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-other{% endif %}">
                                     {{ forloop.counter }}
                                 </div>
                             </td>
                             <td>
-                                <a href="{% url 'teams:profile' standing.team.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600; font-size: 1.05rem;">
-                                    {{ standing.team.team_name }}
+                                <a href="{% url 'teams:profile' standing.team.id %}" style="text-decoration: none;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        {% if standing.team.logo %}
+                                        <img src="{{ standing.team.logo.url }}" alt=""
+                                            style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                        {% else %}
+                                        <div
+                                            style="width: 40px; height: 40px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center;">
+                                            ⚽</div>
+                                        {% endif %}
+                                        <div style="font-weight: 700; color: #fff; font-size: 1.1rem;">{{
+                                            standing.team.team_name }}</div>
+                                    </div>
                                 </a>
                             </td>
-                            <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.tournament.name }}</td>
-                            <td style="font-weight: 500;">{{ standing.played }}</td>
-                            <td style="color: #22C55E; font-weight: 600;">{{ standing.won }}</td>
-                            <td style="color: var(--gold); font-weight: 600;">{{ standing.drawn }}</td>
-                            <td style="color: #EF4444; font-weight: 600;">{{ standing.lost }}</td>
-                            <td style="font-weight: 600;">{{ standing.goal_difference }}</td>
-                            <td><strong style="color: var(--primary-gold); font-size: 1.1rem;">{{ standing.points }}</strong></td>
+                            <td style="color: var(--text-muted); font-size: 0.9rem;">{{ standing.tournament.name }}</td>
+                            <td class="text-center" style="font-family: monospace; font-size: 1.1rem;">
+                                <span style="color: var(--success-green);">{{ standing.won }}</span>-
+                                <span style="color: #aaa;">{{ standing.drawn }}</span>-
+                                <span style="color: var(--danger-red);">{{ standing.lost }}</span>
+                            </td>
+                            <td class="text-center" style="font-weight: 600;">{% if standing.goal_difference > 0 %}+{%
+                                endif %}{{ standing.goal_difference }}</td>
+                            <td class="text-center">
+                                <span style="font-size: 1.25rem; font-weight: 900;" class="text-gradient-gold">{{
+                                    standing.points }}</span>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+        </div>
         {% else %}
-            <div style="text-align: center; padding: 3rem; opacity: 0.5;">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏆</div>
-                <p>No standings yet</p>
-            </div>
+        <div class="empty-state">No team rankings available yet.</div>
         {% endif %}
     </div>
-    
-    <div class="card">
-        <h2 class="card-title">⚽ Top Scorers</h2>
-        <p style="opacity: 0.7; margin-bottom: 1.5rem;">Players with the most goals scored in tournaments</p>
+
+    <!-- SECTION 2: TOP SCORERS -->
+    <div id="scorers" class="tab-content">
         {% if top_scorers %}
-            <div style="overflow-x: auto;">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Player</th>
-                            <th>Team</th>
-                            <th>Tournament</th>
-                            <th>Goals</th>
-                            <th>Matches</th>
-                            <th>Avg</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for standing in top_scorers %}
-                        <tr>
-                            <td><strong style="color: var(--primary-gold);">{{ forloop.counter }}</strong></td>
-                            <td>
-                                <a href="{% url 'players:profile' standing.team.player.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600;">
-                                    {{ standing.team.player.full_name }}
-                                </a>
-                            </td>
-                            <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.team.team_name }}</td>
-                            <td style="opacity: 0.7; font-size: 0.9rem;">{{ standing.tournament.name }}</td>
-                            <td><strong style="color: var(--accent-orange);">{{ standing.goals_for }}</strong></td>
-                            <td>{{ standing.played }}</td>
-                            <td>
-                                {% if standing.played > 0 %}
-                                    {% widthratio standing.goals_for standing.played 1 %}
-                                {% else %}
-                                    0
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div style="text-align: center; padding: 3rem; opacity: 0.5;">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚽</div>
-                <p>No goals scored yet</p>
-            </div>
-        {% endif %}
-    </div>
-    
-    <div class="card">
-        <h2 class="card-title">🌟 Top Players by Achievements</h2>
-        {% if top_players %}
-            <div style="display: grid; gap: 1rem;">
-                {% for player in top_players %}
-                <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.05); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary-gold);">
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary-gold); min-width: 40px;">
-                            #{{ forloop.counter }}
-                        </div>
-                        <div>
-                            <a href="{% url 'players:profile' player.id %}" style="color: var(--primary-gold); text-decoration: none; font-weight: 600; font-size: 1.1rem;">
-                                {{ player.full_name }}
+        <div class="glass-panel animate-slide-up" style="overflow: hidden;">
+            <table class="leaderboard-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th class="text-center">Rank</th>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th class="text-center">Goals</th>
+                        <th class="text-center">Matches</th>
+                        <th class="text-center">Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for standing in top_scorers %}
+                    <tr class="leaderboard-row">
+                        <td class="text-center">
+                            <strong style="color: var(--text-muted);">#{{ forloop.counter }}</strong>
+                        </td>
+                        <td>
+                            <a href="{% url 'players:profile' standing.team.player.id %}"
+                                style="text-decoration: none; color: #fff; font-weight: 700; display: block;">
+                                {{ standing.team.player.full_name }}
                             </a>
-                            <div style="opacity: 0.7; font-size: 0.9rem; margin-top: 0.25rem;">
-                                {{ player.team.team_name }}
-                            </div>
-                        </div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; color: var(--primary-gold);">🏅</div>
-                        <div style="font-weight: 700; color: var(--primary-gold);">{{ player.achievements_count }}</div>
-                        <div style="opacity: 0.7; font-size: 0.8rem;">Achievements</div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+                        </td>
+                        <td style="color: var(--text-muted);">{{ standing.team.team_name }}</td>
+                        <td class="text-center">
+                            <span style="font-size: 1.25rem; font-weight: 900; color: #fff;">{{ standing.goals_for
+                                }}</span> <!-- Using goals_for as proxy for player goals -->
+                        </td>
+                        <td class="text-center">{{ standing.played }}</td>
+                        <td class="text-center" style="color: var(--success-green); font-weight: 600;">
+                            {% widthratio standing.goals_for standing.played 100 as ratio %}{{ ratio|slice:":-2" }}.{{
+                            ratio|slice:"-2:" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-            <div style="text-align: center; padding: 3rem; opacity: 0.5;">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🌟</div>
-                <p>No achievements yet</p>
-            </div>
+        <div style="text-align: center; padding: 4rem; color: var(--text-muted);">No goal scorers recorded yet.</div>
         {% endif %}
     </div>
+
+    <!-- SECTION 3: TOP PLAYERS (ACHIEVEMENTS) -->
+    <div id="achievements" class="tab-content">
+        {% if top_players %}
+        <div class="grid-3">
+            {% for player in top_players %}
+            <div class="card hover-lift animate-slide-up"
+                style="animation-delay: {{ forloop.counter }}00ms; text-align: center;">
+                <div
+                    style="position: absolute; top: 1rem; left: 1rem; font-size: 2rem; font-weight: 900; opacity: 0.1; color: #fff;">
+                    #{{ forloop.counter }}</div>
+
+                {% if player.profile_picture %}
+                <img src="{{ player.profile_picture.url }}"
+                    style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 1rem; border: 3px solid var(--primary-red);">
+                {% else %}
+                <div
+                    style="width: 80px; height: 80px; border-radius: 50%; background: #333; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    👤</div>
+                {% endif %}
+
+                <h3 style="margin-bottom: 0.5rem;"><a href="{% url 'players:profile' player.id %}"
+                        style="color: #fff; text-decoration: none;">{{ player.full_name }}</a></h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">{{ player.team.team_name }}</p>
+
+                <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 2rem; font-weight: 900; color: var(--primary-gold);">{{
+                        player.achievements_count }}</div>
+                    <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Badges Earned</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 4rem; color: var(--text-muted);">No achievements earned yet.</div>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}

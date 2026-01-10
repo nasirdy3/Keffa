@@ -108,6 +108,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
             return
 
+        # 1.5 Strict Compliance: No DB Storage
+        # Per Chapter 13: "Temporary messages only (no DB storage)"
+        # We skip saving to the database entirely.
+        pass
+
         # 2. Broadcast Valid Message
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -274,4 +279,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return {'success': False, 'error': 'Match not found.'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
+
+    @database_sync_to_async
+    def save_message(self, user, username, team_name, message):
+        from .models import ChatMessage
+        try:
+            ChatMessage.objects.create(
+                user=user,
+                username_snapshot=username,
+                team_name_snapshot=team_name,
+                message=message
+            )
+        except Exception as e:
+            print(f"Error saving chat message: {e}")
+
 

@@ -99,7 +99,23 @@ def tournament_top_scorers(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
     standings = Standing.objects.filter(tournament=tournament).select_related('team').order_by('-goals_for')[:20]
     
-    return render(request, 'tournaments/top_scorers.html', {
-        'tournament': tournament,
-        'top_scorers': standings
-    })
+
+@login_required
+def finalize_tournament(request, tournament_id):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "Access Denied")
+        return redirect('tournaments:detail', tournament_id=tournament_id)
+        
+    tournament = get_object_or_404(Tournament, id=tournament_id)
+    
+    if request.method == 'POST':
+        from .services import process_season_end
+        success, message = process_season_end(tournament)
+        
+        if success:
+            messages.success(request, message)
+        else:
+            messages.error(request, message)
+            
+    return redirect('tournaments:detail', tournament_id=tournament_id)
+

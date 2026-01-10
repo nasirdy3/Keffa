@@ -1,38 +1,44 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FFD700">
-    <meta name="description" content="{% block meta_description %}KEFA - Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria. Join tournaments, compete for prizes, and build your legacy.{% endblock %}">
+    <meta name="description"
+        content="{% block meta_description %}KEFA - Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria. Join tournaments, compete for prizes, and build your legacy.{% endblock %}">
     <meta name="author" content="KEFA - Kebbi eFootball Arena">
-    <meta name="keywords" content="{% block meta_keywords %}eFootball, esports, gaming, Kebbi, Nigeria, mobile gaming, tournaments, competitive gaming{% endblock %}">
-    
+    <meta name="keywords"
+        content="{% block meta_keywords %}eFootball, esports, gaming, Kebbi, Nigeria, mobile gaming, tournaments, competitive gaming{% endblock %}">
+
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:title" content="{% block og_title %}KEFA - Kebbi eFootball Arena{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria{% endblock %}">
+    <meta property="og:description"
+        content="{% block og_description %}Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{% static 'images/icon-512.png' %}{% endblock %}">
-    
+
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
     <meta property="twitter:title" content="{% block twitter_title %}KEFA - Kebbi eFootball Arena{% endblock %}">
-    <meta property="twitter:description" content="{% block twitter_description %}Digital esports platform for eFootball mobile gamers{% endblock %}">
+    <meta property="twitter:description"
+        content="{% block twitter_description %}Digital esports platform for eFootball mobile gamers{% endblock %}">
     <meta property="twitter:image" content="{% block twitter_image %}{% static 'images/icon-512.png' %}{% endblock %}">
-    
+
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="{% static 'images/icon-192.png' %}">
-    
+
     <title>{% block title %}KEFA - Kebbi eFootball Arena{% endblock %}</title>
-    
+
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/flashscore.css' %}">
-    
+
     {% block extra_css %}{% endblock %}
-    
+
     <script src="{% static 'js/notifications.js' %}" defer></script>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="navbar-container">
@@ -40,55 +46,93 @@
                 <span class="navbar-brand-icon">⚽</span>
                 <span>KEFA</span>
             </a>
-            
+
             <button class="navbar-toggle" aria-label="Toggle navigation">
                 ☰
             </button>
-            
+
             <ul class="navbar-menu">
                 <li><a href="{% url 'home' %}" class="navbar-link">Home</a></li>
                 <li><a href="{% url 'tournaments:list' %}" class="navbar-link">Tournaments</a></li>
                 <li><a href="{% url 'leaderboards' %}" class="navbar-link">Leaderboards</a></li>
                 <li><a href="{% url 'highlights:gallery' %}" class="navbar-link">Highlights</a></li>
-                
+
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'players:player_dashboard' %}" class="navbar-link">Dashboard</a></li>
-                    <li><a href="{% url 'chat:community' %}" class="navbar-link">Chat</a></li>
-                    
-                    {% if user.is_staff or user.player_profile.role == 'admin' or user.player_profile.role == 'moderator' %}
-                        <li><a href="{% url 'dashboard' %}" class="navbar-link" style="color: var(--primary-gold);">Governance</a></li>
-                    {% endif %}
-                    
-                    <li><a href="{% url 'players:logout' %}" class="navbar-link">Logout</a></li>
+                <li><a href="{% url 'achievements:gallery' %}" class="navbar-link">Achievements</a></li>
+                <li>
+                    <a href="{% url 'notifications:list' %}" class="navbar-link"
+                        style="position: relative; padding-right: 1.5rem;">
+                        🔔
+                        {% if unread_notifications_count > 0 %}
+                        <span
+                            style="position: absolute; top: 0; right: 0; background: var(--primary-gold); color: #000; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">
+                            {{ unread_notifications_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li><a href="{% url 'players:player_dashboard' %}" class="navbar-link">Dashboard</a></li>
+                <li><a href="{% url 'chat:community' %}" class="navbar-link">Chat</a></li>
+
+                {% if user.is_staff or user.player_profile.role == 'admin' or user.player_profile.role == 'moderator' %}
+                <li><a href="{% url 'players:governance_dashboard' %}" class="navbar-link"
+                        style="color: var(--primary-gold);">Governance</a></li>
+                {% endif %}
+
+                <li><a href="{% url 'players:logout' %}" class="navbar-link">Logout</a></li>
                 {% else %}
-                    <li><a href="{% url 'players:login' %}" class="navbar-link">Login</a></li>
-                    <li><a href="{% url 'players:register' %}" class="navbar-link">Join KEFA</a></li>
+                <li><a href="{% url 'players:login' %}" class="navbar-link">Login</a></li>
+                <li><a href="{% url 'players:register' %}" class="navbar-link">Join KEFA</a></li>
                 {% endif %}
             </ul>
         </div>
     </nav>
 
-    {% if messages %}
-        <div class="container" style="margin-top: 1rem;">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <main>
+    <main class="animate-fade-in">
         {% block content %}{% endblock %}
     </main>
 
-    <footer style="background: var(--card-bg); border-top: 2px solid var(--primary-gold); margin-top: 4rem; padding: 2rem 0;">
+    <footer
+        style="background: var(--card-bg); border-top: 2px solid var(--primary-gold); margin-top: 4rem; padding: 2rem 0;">
         <div class="container text-center">
             <div style="margin-bottom: 1.5rem;">
-                <a href="{% url 'pages:about' %}" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">About</a>
-                <a href="{% url 'pages:faq' %}" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">FAQ</a>
-                <a href="{% url 'pages:contact' %}" style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">Contact</a>
+                <a href="{% url 'pages:about' %}"
+                    style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">About</a>
+                <a href="{% url 'pages:faq' %}"
+                    style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">FAQ</a>
+                <a href="{% url 'pages:contact' %}"
+                    style="color: var(--text-muted); margin: 0 10px; text-decoration: none;">Contact</a>
             </div>
+
+            <!-- Chapter 15: Future Mobile App Roadmap -->
+            <div
+                style="margin-bottom: 2rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 12px; display: inline-block;">
+                <h5
+                    style="color: var(--primary-gold); margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
+                    Experience KEFA on Mobile</h5>
+                <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem; opacity: 0.7; cursor: not-allowed;">
+                        <i class="fab fa-apple" style="font-size: 1.2rem;"></i>
+                        <div style="text-align: left; line-height: 1.1;">
+                            <span style="display: block; font-size: 0.6rem;">Coming to</span>
+                            <span style="font-weight: bold; font-size: 0.8rem;">App Store</span>
+                        </div>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem; opacity: 0.7; cursor: not-allowed;">
+                        <i class="fab fa-google-play" style="font-size: 1.2rem;"></i>
+                        <div style="text-align: left; line-height: 1.1;">
+                            <span style="display: block; font-size: 0.6rem;">Coming to</span>
+                            <span style="font-weight: bold; font-size: 0.8rem;">Google Play</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
+                    🚀 Native App Launching 2026. Use our PWA today!
+                </div>
+            </div>
+
             <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
                 &copy; 2025 KEFA - Kebbi eFootball Arena. All rights reserved.
             </p>
@@ -99,9 +143,9 @@
     </footer>
 
     <script src="{% static 'js/main.js' %}"></script>
-    
+
     {% block extra_js %}{% endblock %}
-    
+
     <script>
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
@@ -114,5 +158,5 @@
         }
     </script>
 </body>
-</html>
 
+</html>

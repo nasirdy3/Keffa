@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Achievement Gallery - KEFA{% endblock %}
+
+{% block content %}
+<section class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
+    <div class="text-center mb-4">
+        <h1 class="text-gradient-gold"
+            style="font-size: 3rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase;">
+            Achievement Gallery
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto;">
+            Track your progress and unlock badges as you compete in the arena.
+        </p>
+    </div>
+
+    <div class="grid grid-3">
+        {% for badge in all_badges %}
+        {% if badge.id in earned_ids %}
+        <!-- UNLOCKED BADGE -->
+        <div class="card text-center badge-shine"
+            style="border: 2px solid var(--primary-gold); background: linear-gradient(135deg, rgba(230, 0, 18, 0.1), rgba(0,0,0,0.4));">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">
+                {% if badge.icon %}
+                <img src="{{ badge.icon.url }}" alt="{{ badge.name }}"
+                    style="width: 80px; height: 80px; object-fit: contain;">
+                {% else %}
+                🏆
+                {% endif %}
+            </div>
+            <h3 style="color: #fff; font-weight: 700; margin-bottom: 0.5rem;">{{ badge.name }}</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ badge.description }}</p>
+            <div style="margin-top: 1rem;">
+                <span class="badge badge-gold">UNLOCKED</span>
+            </div>
+        </div>
+        {% else %}
+        <!-- LOCKED BADGE -->
+        <div class="card text-center" style="opacity: 0.5; filter: grayscale(1);">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">
+                🔒
+            </div>
+            <h3 style="color: var(--text-muted); font-weight: 700; margin-bottom: 0.5rem;">{{ badge.name }}</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ badge.description }}</p>
+            <div style="margin-top: 1rem;">
+                <span class="badge" style="background: #333; color: #aaa;">LOCKED</span>
+            </div>
+        </div>
+        {% endif %}
+        {% empty %}
+        <div class="text-center" style="grid-column: 1/-1; padding: 3rem;">
+            <p style="color: var(--text-muted);">No achievements defined yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
