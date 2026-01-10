@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <style>
+    /* Your existing CSS unchanged */
     .leaderboard-header {
         text-align: center;
         padding: 3rem 0;
@@ -241,8 +242,13 @@
                                 <span style="color: #aaa;">{{ standing.drawn }}</span>-
                                 <span style="color: var(--danger-red);">{{ standing.lost }}</span>
                             </td>
-                            <td class="text-center" style="font-weight: 600;">{% if standing.goal_difference > 0 %}+{%
-                                endif %}{{ standing.goal_difference }}</td>
+                            <td class="text-center" style="font-weight: 600;">
+                                {% if standing.goal_difference > 0 %}
+                                    +{{ standing.goal_difference }}
+                                {% else %}
+                                    {{ standing.goal_difference }}
+                                {% endif %}
+                            </td>
                             <td class="text-center">
                                 <span style="font-size: 1.25rem; font-weight: 900;" class="text-gradient-gold">{{
                                     standing.points }}</span>
