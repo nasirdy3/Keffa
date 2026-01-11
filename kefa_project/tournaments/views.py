@@ -31,8 +31,8 @@ def tournament_detail(request, tournament_id):
     # Optimized: fetch specific matches with team data
     fixtures = Match.objects.filter(tournament=tournament).select_related('home_team', 'away_team').order_by('match_date', 'match_time')
     
-    upcoming_fixtures = fixtures.filter(status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress'])
-    completed_fixtures = fixtures.filter(status__in=['completed', 'home_forfeit', 'away_forfeit', 'both_forfeit']).order_by('-match_date', '-match_time')
+    upcoming_fixtures = fixtures.filter(status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress', 'postponed', 'awaiting_highlight', 'pending_verification'])
+    completed_fixtures = fixtures.filter(status__in=['completed', 'home_forfeit', 'away_forfeit', 'both_forfeit']).order_by('-match_date', '-match_time', '-id')
     
     user_team = None
     user_registered = False

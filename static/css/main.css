@@ -10,18 +10,26 @@
   --success-green: #10b981;
   --danger-red: #ef4444;
   --border-color: #1E3A5F;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 20px rgba(230, 0, 18, 0.4);
-
   --primary-gold: #FFD700;
   --gold-light: #FFD700;
   --gold-dark: #B8860B;
   --accent-orange: #FF4500;
-  --glass-bg: rgba(16, 42, 76, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+
+  /* Premium eFootball Gradient Tokens */
+  --grad-primary: linear-gradient(135deg, var(--primary-red) 0%, #B71C1C 100%);
+  --grad-gold: linear-gradient(45deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+  --grad-dark: linear-gradient(180deg, #0A1F44 0%, #051024 100%);
+  --grad-surface: linear-gradient(145deg, rgba(30, 58, 95, 0.4) 0%, rgba(16, 42, 76, 0.6) 100%);
+
+  /* Refined Glassmorphism */
+  --glass-bg: rgba(16, 42, 76, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --glass-blur: blur(16px);
+
+  /* Advanced Shadows */
+  --shadow-neon: 0 0 20px rgba(230, 0, 18, 0.3);
+  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -173,6 +181,7 @@ body {
   letter-spacing: 0.02em;
   text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   background: linear-gradient(to bottom, #fff, #ddd);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
@@ -306,7 +315,6 @@ body {
 
 /* --- Tournament Cards --- */
 .tournament-card {
-  composes: card;
   padding: 0;
   border: none;
   cursor: pointer;
@@ -458,6 +466,7 @@ body {
 /* --- Text Gradients --- */
 .text-gradient-gold {
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -465,6 +474,7 @@ body {
 
 .text-gradient-red {
   background: linear-gradient(135deg, #FF4B4B 0%, #E60012 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

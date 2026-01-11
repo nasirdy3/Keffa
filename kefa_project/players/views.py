@@ -126,11 +126,11 @@ def player_dashboard(request):
     # Get achievements count
     achievements_count = PlayerBadge.objects.filter(player=player).count()
 
-    # Get upcoming matches
+    # Get upcoming/active matches
     upcoming_matches = Match.objects.filter(
         Q(home_team=team) | Q(away_team=team),
-        status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress', 'awaiting_highlight']
-    ).distinct().order_by('match_date', 'match_time')
+        status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress', 'awaiting_highlight', 'postponed', 'pending_verification']
+    ).distinct().order_by('match_date', 'match_time', 'id')
 
     # Get recent achievements
     recent_achievements = PlayerBadge.objects.filter(
@@ -251,21 +251,22 @@ def governance_dashboard(request):
     try:
         profile = request.user.player_profile
         role = profile.role
-    except Player.DoesNotExist:
+    except (Player.DoesNotExist, AttributeError):
         # If user is Superuser/Staff but has no profile, treat as Admin
         if request.user.is_superuser or request.user.is_staff:
             profile = None # Explicitly None for template handling
             role = 'admin'
         else:
-            messages.error(request, "Profile access error.")
+            messages.error(request, "Profile access error. Specialized profile required.")
             return redirect('home')
 
     # Access Control: Only Admins and Moderators allowed
-    if role not in ['admin', 'moderator'] and not request.user.is_superuser:
+    is_admin = (role == 'admin') or request.user.is_superuser
+    is_moderator = (role == 'moderator')
+    
+    if not (is_admin or is_moderator):
         messages.warning(request, "Access restricted to KEFA officials.")
         return redirect('players:player_dashboard')
-
-    is_admin = (role == 'admin') or request.user.is_superuser
 
     # Imports for data aggregation
     from kefa_project.payments.models import Payment

@@ -10,8 +10,8 @@ from django.db.models import Sum
 
 def get_randomized_match_time(default_time):
     """
-    Returns a randomized match time with 70-80% at default (usually 5 PM)
-    and the rest distributed among other valid times (3 PM, 4 PM, 6 PM, 7 PM)
+    Returns a randomized match time with 70-80% at default (usually 9 PM)
+    and the rest distributed among other valid times (3 PM, 5 PM, 6 PM, 8 PM)
     """
     random_choice = random.random()
     
@@ -20,9 +20,9 @@ def get_randomized_match_time(default_time):
     
     other_times = [
         time(15, 0),
-        time(16, 0),
+        time(17, 0),
         time(18, 0),
-        time(19, 0),
+        time(20, 0),
     ]
     
     return random.choice(other_times)
@@ -284,8 +284,8 @@ def update_standings_after_match(match):
             home_result = 'D'
             away_result = 'D'
         
-        home_standing.form = (home_result + home_standing.form)[:5]
-        away_standing.form = (away_result + away_standing.form)[:5]
+        home_standing.form = (home_result + home_standing.form).replace(" ", "").upper()[:5]
+        away_standing.form = (away_result + away_standing.form).replace(" ", "").upper()[:5]
         
         home_standing.save()
         away_standing.save()

@@ -36,7 +36,7 @@ def check_match_ready_windows():
     for match in ready_pending_matches:
         time_since_ready = (now - match.ready_time_start).total_seconds()
         
-        if time_since_ready > 300:
+        if time_since_ready > 72000: # 20 Hours Timeout
             from django.db import transaction
             with transaction.atomic():
                 match_locked = Match.objects.select_for_update().get(id=match.id)
@@ -67,6 +67,7 @@ def check_match_ready_windows():
                     match_locked.away_score = 0
                     match_locked.verified_at = now
                     match_locked.save()
+                    update_standings_on_forfeit(match_locked, 'both')
     
     creating_game_matches = Match.objects.filter(
         status='creating_game',

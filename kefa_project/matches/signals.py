@@ -96,7 +96,8 @@ def recalculate_team_standing(tournament, team):
     
     # Reverse to show oldest->newest or keep newest->oldest? 
     # Usually Form is displayed Left=Newest. 
-    form = "".join(form_list)
+    # Join and clean form (remove any unintentional spaces)
+    form = "".join(form_list).replace(" ", "").upper()
 
     # 7. Save the Standing
     standing.played = played
