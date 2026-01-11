@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ team.team_name }} - KEFA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .team-header {
+        background: var(--grad-surface);
+        border-radius: var(--fs-radius-md);
+        padding: 3rem;
+        margin-bottom: 3rem;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--fs-shadow-sm);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: var(--glass-blur);
+        border-left: 6px solid var(--primary-gold);
+    }
+
+    .team-stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .team-stat-card:hover {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: var(--primary-gold);
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="team-header animate-fade-in">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+        <div style="flex: 1;">
+            <h1 class="text-gradient-gold"
+                style="font-size: 3.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 2px;">
+                {{ team.team_name }}</h1>
+            <p style="color: var(--text-muted); font-size: 1.25rem; font-weight: 600;">Managed by: <strong
+                    style="color: #fff;">{{ player.full_name }}</strong></p>
+        </div>
+        {% if team.logo %}
+        <img src="{{ team.logo.url }}" alt="{{ team.team_name }}"
+            style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 4px solid var(--primary-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">
+        {% else %}
+        <div
+            style="width: 150px; height: 150px; border-radius: 50%; background: var(--grad-gold); display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: 900; color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">
+            {{ team.team_name.0 }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if team.squad_image %}
+<div class="card">
+    <h2 class="card-title">🎮 Squad Photo</h2>
+    <div style="position: relative;">
+        <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad" class="squad-image-clickable"
+            onclick="openImageModal()" style="width: 100%; border-radius: 12px;">
+        <div
+            style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); padding: 0.5rem 1rem; border-radius: 8px; pointer-events: none;">
+            <span style="color: var(--gold); font-size: 0.9rem;">🔍 Click to enlarge</span>
+        </div>
+    </div>
+</div>
+
+<div id="squadImageModal" class="image-modal" onclick="closeImageModal()">
+    <span class="close-modal" onclick="closeImageModal()">&times;</span>
+    <div class="image-modal-content">
+        <img src="{{ team.squad_image.url }}" alt="{{ team.team_name }} Squad">
+    </div>
+</div>
+{% endif %}
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin-bottom: 4rem;"
+    class="animate-fade-in stagger-1">
+    <div class="team-stat-card">
+        <div
+            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
+            Total Matches</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: #fff;">{{ total_matches|default:0 }}</div>
+    </div>
+
+    <div class="team-stat-card">
+        <div
+            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
+            Wins</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--fs-success);">{{ total_wins|default:0 }}</div>
+    </div>
+
+    <div class="team-stat-card">
+        <div
+            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
+            Win Rate</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: #fff;">{{ win_rate|default:0 }}%</div>
+    </div>
+
+    <div class="team-stat-card">
+        <div
+            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
+            Trophies</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary-gold);">{{ trophies_count|default:0 }}
+        </div>
+    </div>
+</div>
+
+{% if badges %}
+<div class="card">
+    <h2 class="card-title">🏅 Achievements</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        {% for badge in badges %}
+        <div
+            style="padding: 1.5rem; background: rgba(255, 215, 0, 0.05); border-radius: 10px; text-align: center; border: 2px solid rgba(255, 215, 0, 0.2);">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">
+                {% if 'Winner' in badge.badge.name %}🏆
+                {% elif 'Runner' in badge.badge.name %}🥈
+                {% elif 'Scorer' in badge.badge.name %}⚽
+                {% else %}🏅
+                {% endif %}
+            </div>
+            <strong style="color: var(--gold);">{{ badge.badge.name }}</strong>
+            <div style="opacity: 0.7; font-size: 0.85rem; margin-top: 0.25rem;">{{ badge.tournament.name }}</div>
+            <div style="opacity: 0.6; font-size: 0.8rem; margin-top: 0.25rem;">{{ badge.awarded_at|date:"M d, Y" }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+    <!-- Recent Matches -->
+    {% if recent_matches %}
+    <div class="card">
+        <h2 class="card-title">📊 Recent Matches</h2>
+        <div style="display: grid; gap: 1rem;">
+            {% for match in recent_matches %}
+            <div
+                style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-left: 3px solid {% if match.home_team == team and match.home_score > match.away_score %}var(--success-green){% elif match.away_team == team and match.away_score > match.home_score %}var(--success-green){% elif match.home_score == match.away_score %}var(--text-muted){% else %}var(--danger-red){% endif %};">
+                <div style="flex: 1;">
+                    <strong style="color: var(--gold);">{{ match.home_team.team_name }}</strong> vs <strong>{{
+                        match.away_team.team_name }}</strong>
+                    <div style="opacity: 0.7; font-size: 0.9rem; margin-top: 0.25rem;">{{ match.tournament.name }}</div>
+                </div>
+                {% if match.home_score is not None %}
+                <div style="font-size: 1.5rem; font-weight: 900; color: var(--gold);">
+                    {{ match.home_score }} - {{ match.away_score }}
+                </div>
+                {% else %}
+                <span class="badge badge-warning">{{ match.get_status_display }}</span>
+                {% endif %}
+                <div style="opacity: 0.6; font-size: 0.85rem;">{{ match.match_date }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Standings History -->
+    {% if standings %}
+    <div class="card">
+        <h2 class="card-title">🏆 Tournament History</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for standing in standings %}
+            <div
+                style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="color: var(--text-light); font-weight: 600;">{{ standing.tournament.name }}</div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">
+                        {{ standing.played }} P | {{ standing.won }} W | {{ standing.drawn }} D | {{ standing.lost }} L
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="color: var(--gold); font-weight: 800; font-size: 1.2rem;">{{ standing.points }} pts
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">
+                        GD: {% if standing.goal_difference > 0 %}+{% endif %}{{ standing.goal_difference }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Highlights -->
+    {% if highlights %}
+    {% if not recent_matches and not standings %}
+    <div class="card">
+        {% else %}
+        <div class="card" style="grid-column: 1 / -1;">
+            {% endif %}
+            <h2 class="card-title">🎬 Recent Highlights</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                {% for highlight in highlights %}
+                <a href="{% url 'highlights:gallery' %}" style="text-decoration: none;">
+                    <div
+                        style="position: relative; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.2s;">
+                        {% if highlight.thumbnail %}
+                        <img src="{{ highlight.thumbnail.url }}"
+                            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
+                        {% elif highlight.video_file %}
+                        <video src="{{ highlight.video_file.url }}"
+                            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;"></video>
+                        {% else %}
+                        <div
+                            style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #222;">
+                            <span style="font-size: 2rem;">📺</span>
+                        </div>
+                        {% endif %}
+                        <div
+                            style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+                            <div
+                                style="background: rgba(230, 0, 18, 0.8); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: white; font-size: 0.8rem;">▶</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {{ highlight.match }}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endblock %}
+
+    {% block extra_js %}
+    <script>
+        function openImageModal() {
+            document.getElementById('squadImageModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            document.getElementById('squadImageModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+    </script>
+    {% endblock %}

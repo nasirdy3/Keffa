@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Payment - Admin - KEFA{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Verify Offline Payment</h1>
+    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+        <span class="badge badge-warning">Pending Verification</span>
+        <a href="{% url 'payments:admin_payment_queue' %}" style="color: var(--gold); text-decoration: underline;">← Back to Queue</a>
+    </div>
+</div>
+
+<div style="display: grid; gap: 1.5rem;">
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Payment Information</h3>
+        
+        <div style="display: grid; gap: 1rem;">
+            <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong style="color: var(--gold);">Tournament:</strong>
+                <div style="margin-top: 0.5rem;">{{ payment.registration.tournament.name }}</div>
+            </div>
+            
+            <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong style="color: var(--gold);">Team:</strong>
+                <div style="margin-top: 0.5rem;">{{ payment.registration.team.team_name }}</div>
+            </div>
+            
+            <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                <strong style="color: var(--gold);">Player:</strong>
+                <div style="margin-top: 0.5rem;">
+                    {{ payment.registration.team.player.full_name }}<br>
+                    <a href="mailto:{{ payment.registration.team.player.user.email }}" style="color: var(--gold); font-size: 0.9rem;">{{ payment.registration.team.player.user.email }}</a><br>
+                    <span style="font-size: 0.9rem; opacity: 0.7;">{{ payment.registration.team.player.phone_number }}</span>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                    <strong style="color: var(--gold);">Amount:</strong>
+                    <div style="margin-top: 0.5rem; font-size: 1.5rem; font-weight: 700;">₦{{ payment.amount }}</div>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                    <strong style="color: var(--gold);">Reference:</strong>
+                    <div style="margin-top: 0.5rem; font-family: monospace; word-break: break-all;">{{ payment.transaction_reference }}</div>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-radius: 8px;">
+                    <strong style="color: var(--gold);">Submitted:</strong>
+                    <div style="margin-top: 0.5rem;">{{ payment.created_at|date:"M d, Y" }}<br><span style="font-size: 0.9rem; opacity: 0.7;">{{ payment.created_at|date:"H:i" }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if payment.payment_proof %}
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Payment Proof</h3>
+        <a href="{{ payment.payment_proof.url }}" target="_blank">
+            <img src="{{ payment.payment_proof.url }}" alt="Payment Proof" style="max-width: 100%; border-radius: 12px; border: 2px solid var(--border-color);">
+        </a>
+        <p style="text-align: center; margin-top: 1rem; opacity: 0.7; font-size: 0.9rem;">Click to view full size</p>
+    </div>
+    {% else %}
+    <div class="card">
+        <div style="padding: 2rem; background: rgba(239, 68, 68, 0.1); border-radius: 12px; border-left: 4px solid var(--danger-red); text-align: center;">
+            <strong style="color: var(--danger-red); font-size: 1.25rem;">⚠️ No Payment Proof Uploaded</strong>
+            <p style="margin-top: 0.75rem; opacity: 0.8;">The player has not yet uploaded proof of payment</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Verification Action</h3>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
+                <button 
+                    type="submit" 
+                    name="action" 
+                    value="approve" 
+                    class="btn btn-success"
+                    onclick="return confirm('Approve this payment? The team will be registered for the tournament.')"
+                    style="padding: 1.25rem; font-size: 1.1rem;"
+                >
+                    ✓ Approve Payment & Register Team
+                </button>
+                
+                <button 
+                    type="submit" 
+                    name="action" 
+                    value="reject" 
+                    class="btn btn-danger"
+                    onclick="return confirm('Reject this payment? This action cannot be undone.')"
+                    style="padding: 1.25rem; font-size: 1.1rem;"
+                >
+                    ✗ Reject Payment
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes (optional)</label>
+                <textarea 
+                    name="notes" 
+                    id="notes" 
+                    rows="3" 
+                    placeholder="Add any notes about this payment verification..."
+                    style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--border-color); border-radius: 0.5rem; color: var(--text); resize: vertical;"
+                ></textarea>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

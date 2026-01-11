@@ -1,0 +1,535 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - KEFA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .welcome-card {
+        background: var(--grad-surface);
+        border-radius: var(--fs-radius-md);
+        padding: 3rem;
+        margin-bottom: 2.5rem;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-premium);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 2rem;
+        backdrop-filter: var(--glass-blur);
+    }
+
+    .welcome-card::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: var(--primary-red);
+        filter: blur(80px);
+        opacity: 0.2;
+        z-index: 0;
+    }
+
+    .welcome-info {
+        position: relative;
+        z-index: 1;
+    }
+
+    .welcome-info h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #FFFFFF;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0.7));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .stat-card {
+        background: var(--glass-bg);
+        border-radius: var(--fs-radius-md);
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-md);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        backdrop-filter: var(--glass-blur);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        background: rgba(16, 42, 76, 0.7);
+        border-color: var(--primary-red);
+        box-shadow: var(--shadow-neon);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #fff;
+        margin-top: 0.5rem;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--primary-red);
+        line-height: 1;
+    }
+
+    .section-card {
+        background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(230, 0, 18, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    /* ARCHITECT UPDATE: Added Date Header Styling */
+    .date-group-header {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0 1rem 0;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 0.5rem;
+    }
+
+    .date-group-header i {
+        color: var(--primary-red);
+        margin-right: 0.75rem;
+    }
+
+    .match-item {
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        border-left: 4px solid var(--primary-red);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .match-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateX(4px);
+    }
+
+    .match-teams {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .match-teams strong {
+        color: var(--primary-red);
+        font-weight: 700;
+    }
+
+    .match-details {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .match-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .game-code {
+        color: var(--primary-red);
+        font-size: 1.5rem;
+        font-weight: 900;
+        letter-spacing: 3px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
+        border-radius: 12px;
+        padding: 2rem;
+        border: 1px solid rgba(230, 0, 18, 0.3);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .info-card h3 {
+        color: var(--primary-red);
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+    }
+
+    .info-value {
+        color: #FFFFFF;
+    }
+
+    .action-btn-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .achievement-item {
+        padding: 1.25rem;
+        background: rgba(230, 0, 18, 0.05);
+        border-radius: 10px;
+        border-left: 3px solid var(--primary-red);
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .achievement-item:hover {
+        background: rgba(230, 0, 18, 0.08);
+        transform: translateX(4px);
+    }
+
+    .achievement-name {
+        color: var(--primary-red);
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .achievement-date {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    .status-pill {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pill-primary {
+        background: rgba(10, 120, 190, 0.2);
+        color: #0A78BE;
+        border: 1px solid #0A78BE;
+    }
+
+    .status-pill-success {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22C55E;
+        border: 1px solid #22C55E;
+    }
+
+    .status-pill-warning {
+        background: rgba(251, 191, 36, 0.2);
+        color: #FBBF24;
+        border: 1px solid #FBBF24;
+    }
+
+    .status-pill-danger {
+        background: rgba(239, 68, 68, 0.2);
+        color: #EF4444;
+        border: 1px solid #EF4444;
+    }
+
+    .waiting-status {
+        background: rgba(251, 191, 36, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        color: #FBBF24;
+        font-weight: 600;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .welcome-card {
+            padding: 1.5rem;
+        }
+
+        .welcome-info h1 {
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+        }
+
+        .section-card {
+            padding: 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="welcome-card animate-scale-in">
+        <div class="welcome-info">
+            <h1>Welcome, {{ player.full_name }}!</h1>
+            <p>Team: <strong>{{ team.team_name }}</strong></p>
+        </div>
+        {% if player.profile_picture %}
+        <img src="{{ player.profile_picture.url }}" alt="{{ player.full_name }}" class="welcome-avatar">
+        {% else %}
+        <div class="welcome-avatar-placeholder">
+            {{ player.full_name.0 }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="stats-grid animate-fade-in stagger-1">
+        <div class="stat-card">
+            <div class="stat-label"
+                style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-muted);">
+                Tournaments</div>
+            <div class="stat-value text-gradient-gold">{{ tournaments_count|default:0 }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label"
+                style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-muted);">
+                Matches Played</div>
+            <div class="stat-value">{{ matches_count|default:0 }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label"
+                style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-muted);">Win
+                Rate</div>
+            <div class="stat-value text-gradient-red">{{ win_rate|default:0 }}%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label"
+                style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-muted);">
+                Achievements</div>
+            <div class="stat-value">{{ achievements_count|default:0 }}</div>
+        </div>
+    </div>
+
+    {% if upcoming_matches %}
+    <div class="section-card">
+        <h2 class="section-title">📅 Your Scheduled Matches</h2>
+        <div>
+            {% regroup upcoming_matches by match_date as match_list %}
+
+            {% for date_group in match_list %}
+            <div class="date-group-header">
+                <i class="fas fa-calendar-day"></i> {{ date_group.grouper|date:"l, F j, Y" }}
+            </div>
+
+            {% for match in date_group.list %}
+            <div class="match-item">
+                <div class="match-teams">
+                    <div>
+                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name
+                            }}</strong>
+                    </div>
+                    <span
+                        class="status-pill status-pill-{% if match.status == 'scheduled' %}primary{% elif match.status == 'ready_pending' %}success{% elif match.status == 'postponed' %}danger{% elif match.status == 'in_progress' %}success{% else %}warning{% endif %}">
+                        {% if match.status == 'in_progress' %}● LIVE{% else %}{{ match.get_status_display }}{% endif %}
+                    </span>
+                </div>
+
+                <div class="match-details">
+                    ⏰ {{ match.match_time }} • 🏆 {{ match.tournament.name }}
+                </div>
+
+                <div class="match-actions">
+                    {% if match.status == 'scheduled' or match.status == 'ready_pending' or match.status ==
+                    'creating_game' or match.status == 'waiting_join' %}
+                    {% if match.home_team == team %}
+                    {% with opponent=match.away_team.player %}
+                    {% if opponent.get_whatsapp_link %}
+                    <a href="{{ opponent.get_whatsapp_link }}" target="_blank" class="btn btn-outline"
+                        style="background: #25D366; color: white; border: none; font-size: 0.85rem; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="fab fa-whatsapp"></i> Chat Opponent
+                    </a>
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    {% with opponent=match.home_team.player %}
+                    {% if opponent.get_whatsapp_link %}
+                    <a href="{{ opponent.get_whatsapp_link }}" target="_blank" class="btn btn-outline"
+                        style="background: #25D366; color: white; border: none; font-size: 0.85rem; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="fab fa-whatsapp"></i> Chat Opponent
+                    </a>
+                    {% endif %}
+                    {% endwith %}
+                    {% endif %}
+                    {% endif %}
+
+                    {% if match.status == 'ready_pending' %}
+                    <a href="{% url 'matches:ready' match.id %}" class="btn btn-primary">Mark Ready ✓</a>
+                    {% elif match.status == 'creating_game' %}
+                    {% if match.home_team == team %}
+                    <a href="{% url 'matches:create_code' match.id %}" class="btn btn-primary">Create Game Code</a>
+                    {% else %}
+                    <div class="waiting-status">Waiting for home team to create game...</div>
+                    {% endif %}
+                    {% elif match.status == 'waiting_join' %}
+                    <div style="width: 100%;">
+                        <div style="margin-bottom: 1rem;">Game Code: <span class="game-code">{{ match.game_code
+                                }}</span></div>
+                        {% if match.away_team == team %}
+                        <a href="{% url 'matches:join' match.id %}" class="btn btn-primary">Join Game Now</a>
+                        {% else %}
+                        <div class="waiting-status">Waiting for away team to join...</div>
+                        {% endif %}
+                    </div>
+                    {% elif match.status == 'in_progress' %}
+                    <a href="{% url 'matches:finished' match.id %}" class="btn btn-secondary">Mark as Finished</a>
+                    {% elif match.status == 'awaiting_highlight' %}
+                    <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
+                    {% elif match.status == 'scheduled' %}
+                    <a href="{% url 'matches:postpone' match.id %}" class="btn btn-secondary"
+                        style="font-size: 0.9rem;">Request Postponement</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="section-card">
+        <h2 class="section-title">📅 Your Upcoming Matches</h2>
+        <div class="empty-state">
+            <div class="empty-state-icon">⚽</div>
+            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">No upcoming matches. Join a tournament to start
+                playing!</p>
+            <a href="{% url 'tournaments:list' %}" class="btn btn-primary">Browse Tournaments</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>Player Info</h3>
+            <div>
+                <div class="info-item">
+                    <span class="info-label">Username</span>
+                    <span class="info-value">{{ player.user.username }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">eFootball ID</span>
+                    <span class="info-value">{{ player.efootball_id }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Device</span>
+                    <span class="info-value">{{ player.get_device_type_display }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{ player.phone_number }}</span>
+                </div>
+            </div>
+            <a href="{% url 'players:edit_profile' %}" class="btn btn-secondary"
+                style="margin-top: 1.5rem; width: 100%;">Edit Profile</a>
+        </div>
+
+        <div class="info-card">
+            <h3>Quick Actions</h3>
+            <div class="action-btn-grid">
+                <a href="{% url 'tournaments:list' %}" class="btn btn-secondary">Browse Tournaments</a>
+                <a href="{% url 'teams:profile' team.id %}" class="btn btn-secondary">View Team Profile</a>
+                <a href="{% url 'chat:community' %}" class="btn btn-secondary">Community Chat</a>
+                <a href="{% url 'highlights:gallery' %}" class="btn btn-secondary">Highlights Gallery</a>
+            </div>
+        </div>
+
+        {% if recent_achievements %}
+        <div class="info-card">
+            <h3>🏅 Recent Achievements</h3>
+            <div>
+                {% for achievement in recent_achievements %}
+                <div class="achievement-item">
+                    <div class="achievement-name">{{ achievement.badge.name }}</div>
+                    <div class="achievement-date">{{ achievement.awarded_at|date:"M d, Y" }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

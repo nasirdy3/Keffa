@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tournament.name }} - KEFA{% endblock %}
+
+{% block content %}
+<!-- Flashscore-Style League Header -->
+<!-- Premium Tournament Header -->
+<div class="container animate-fade-in" style="margin-top: 3rem;">
+    <div class="glass-morphism"
+        style="padding: 2.5rem; border-radius: var(--fs-radius-md); margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; border-left: 6px solid var(--primary-red);">
+        <div style="flex: 1; min-width: 300px;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.5rem;">🏆</span>
+                <h1 class="text-gradient-gold"
+                    style="margin: 0; font-size: 2.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
+                    {{ tournament.name }}</h1>
+            </div>
+            <p style="color: var(--text-muted); font-size: 1.1rem; font-weight: 600;">
+                <span class="badge"
+                    style="background: rgba(255,255,255,0.1); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; text-transform: uppercase;">{{
+                    tournament.get_tournament_type_display }}</span>
+                <span style="margin-left: 1rem; opacity: 0.8;"><i class="fas fa-info-circle"></i> {{
+                    tournament.get_status_display }}</span>
+            </p>
+        </div>
+        <div class="fs-league-meta"
+            style="display: flex; gap: 2rem; background: rgba(255,255,255,0.03); padding: 1.5rem 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <div class="fs-league-stat" style="text-align: center;">
+                <span style="display: block; font-size: 1.8rem; font-weight: 900; color: #fff;">{{
+                    tournament.current_teams_count }}</span>
+                <span
+                    style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Teams</span>
+            </div>
+            <div class="fs-league-stat"
+                style="text-align: center; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.5rem;">
+                <span style="display: block; font-size: 1.8rem; font-weight: 900; color: #fff;">{{
+                    total_matches|default:0 }}</span>
+                <span
+                    style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Matches</span>
+            </div>
+            <div class="fs-league-stat"
+                style="text-align: center; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.5rem;">
+                <span style="display: block; font-size: 1.8rem; font-weight: 900; color: var(--primary-gold);">{{
+                    tournament.start_date|date:"M d" }}</span>
+                <span
+                    style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Start</span>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_superuser or user.is_staff %}
+    {% if tournament.status == 'ongoing' or tournament.status == 'locked' %}
+    <div style="margin-bottom: 2rem; text-align: right;">
+        <form method="post" action="{% url 'tournaments:finalize' tournament.id %}"
+            onsubmit="return confirm('⚠️ Are you sure you want to END this season?\n\nThis will:\n- Lock standings\n- Award trophies & badges\n- Process promotions/relegations\n\nThis action cannot be undone.');"
+            style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background: #E60012; color: #FFF; font-weight: 700;">
+                🏁 Finalize Season
+            </button>
+        </form>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Tab Navigation -->
+    <div class="fs-tabs"
+        style="border-bottom: 2px solid rgba(255,255,255,0.05); margin-bottom: 3rem; display: flex; gap: 2rem;">
+        <button class="fs-tab active" data-tab="standings"
+            style="padding: 1rem 0; background: none; border: none; border-bottom: 3px solid transparent; color: var(--text-muted); font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease;">Standings</button>
+        <button class="fs-tab" data-tab="fixtures"
+            style="padding: 1rem 0; background: none; border: none; border-bottom: 3px solid transparent; color: var(--text-muted); font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease;">Fixtures</button>
+        <button class="fs-tab" data-tab="results"
+            style="padding: 1rem 0; background: none; border: none; border-bottom: 3px solid transparent; color: var(--text-muted); font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease;">Results</button>
+    </div>
+
+    <style>
+        .fs-tabs {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 3rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .fs-tab {
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .fs-tab.active {
+            color: #fff !important;
+            border-bottom-color: var(--primary-red) !important;
+        }
+
+        .fs-tab:hover {
+            color: #fff !important;
+        }
+
+        .fs-premium-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 4px;
+        }
+
+        .fs-premium-table th {
+            padding: 1rem;
+            text-align: left;
+            opacity: 0.6;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .fs-premium-table tr {
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .fs-premium-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.002);
+        }
+
+        .fs-premium-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .fs-premium-table td:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .fs-premium-table td:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .match-card-premium {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .match-card-premium:hover {
+            border-color: var(--primary-red);
+            box-shadow: var(--shadow-neon);
+            transform: translateY(-2px);
+        }
+
+        .fs-date-header {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin: 2rem 0 1rem 0;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .fs-date-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+
+    <!-- Standings Tab -->
+    <div class="fs-tab-content active" id="standings-tab">
+        {% if standings %}
+        <table class="fs-premium-table animate-fade-in stagger-1">
+            <thead>
+                <tr>
+                    <th>Pos</th>
+                    <th>Team</th>
+                    <th>P</th>
+                    <th>W</th>
+                    <th>D</th>
+                    <th>L</th>
+                    <th>GF</th>
+                    <th>GA</th>
+                    <th>GD</th>
+                    <th>Pts</th>
+                    <th>Form</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for standing in standings %}
+                <tr>
+                    <td>
+                        <span
+                            class="fs-position {% if forloop.counter == 1 %}fs-position-1{% elif forloop.counter == 2 %}fs-position-2{% elif forloop.counter == 3 %}fs-position-3{% else %}fs-position-default{% endif %}"
+                            style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 900; {% if forloop.counter == 1 %}background: var(--grad-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);{% else %}background: rgba(255,255,255,0.05); color: #fff;{% endif %}">
+                            {{ forloop.counter }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'teams:profile' standing.team.id %}"
+                            style="color: #fff; text-decoration: none; font-weight: 900; font-size: 1.1rem;">
+                            {{ standing.team.team_name }}
+                        </a>
+                    </td>
+                    <td style="font-weight: 600;">{{ standing.played }}</td>
+                    <td style="color: var(--fs-success); font-weight: 600;">{{ standing.won }}</td>
+                    <td>{{ standing.drawn }}</td>
+                    <td style="color: var(--fs-danger);">{{ standing.lost }}</td>
+                    <td style="opacity: 0.6;">{{ standing.goals_for }}</td>
+                    <td style="opacity: 0.6;">{{ standing.goals_against }}</td>
+                    <td
+                        style="font-weight: 900; {% if standing.goal_difference > 0 %}color: var(--fs-success);{% elif standing.goal_difference < 0 %}color: var(--fs-danger);{% endif %}">
+                        {{ standing.goal_difference|stringformat:"+d" }}
+                    </td>
+                    <td style="font-weight: 900; color: #fff; font-size: 1.2rem;">{{ standing.points }}</td>
+                    <td>
+                        <div class="fs-form" style="display: flex; gap: 4px;">
+                            {% for char in standing.form %}
+                            {% if char == 'W' or char == 'D' or char == 'L' %}
+                            <span class="fs-form-badge"
+                                style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 0.75rem; font-weight: 900; {% if char == 'W' %}background: var(--fs-success);{% elif char == 'D' %}background: var(--fs-warning);{% else %}background: var(--fs-danger);{% endif %} color: #fff;">{{
+                                char }}</span>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; color: var(--fs-text-muted);">
+            <p>Standings will appear once matches begin</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Fixtures Tab -->
+    <div class="fs-tab-content" id="fixtures-tab">
+        {% if upcoming_fixtures %}
+        {% regroup upcoming_fixtures by match_date as fixtures_by_date %}
+        {% for date_group in fixtures_by_date %}
+        <div class="fs-date-header {% if date_group.grouper == today %}today{% endif %}">
+            {{ date_group.grouper|date:"l, F j, Y" }}
+            {% if date_group.grouper == today %}
+            <span style="margin-left: 0.5rem; font-weight: 700; color: var(--fs-primary);">• TODAY</span>
+            {% endif %}
+        </div>
+        {% for match in date_group.list %}
+        <div class="match-card-premium">
+            <div style="flex: 1; text-align: right; padding-right: 1.5rem;">
+                <a href="{% url 'teams:profile' match.home_team.id %}"
+                    style="color: #fff; text-decoration: none; font-weight: 700; font-size: 1.1rem;">
+                    {{ match.home_team.team_name }}
+                </a>
+            </div>
+
+            <div style="text-align: center; min-width: 100px;">
+                {% if match.status == 'in_progress' %}
+                <span
+                    style="background: var(--primary-red); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; box-shadow: 0 0 10px rgba(230, 0, 18, 0.5);">LIVE</span>
+                {% else %}
+                <span style="opacity: 0.3; font-weight: 900;">VS</span>
+                {% endif %}
+                <div style="margin-top: 0.5rem; font-weight: 700; font-size: 0.9rem; color: var(--text-muted);">
+                    {{ match.match_time|time:"H:i" }}
+                </div>
+            </div>
+
+            <div style="flex: 1; text-align: left; padding-left: 1.5rem;">
+                <a href="{% url 'teams:profile' match.away_team.id %}"
+                    style="color: #fff; text-decoration: none; font-weight: 700; font-size: 1.1rem;">
+                    {{ match.away_team.team_name }}
+                </a>
+            </div>
+
+            <div style="margin-left: 1rem;">
+                {% if match.status == 'ready_pending' %}
+                <span class="badge"
+                    style="background: var(--primary-gold); color: #000; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; font-weight: 900;">READY</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        {% else %}
+        <div style="text-align: center; padding: 3rem; color: var(--fs-text-muted);">
+            <p>No upcoming fixtures</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Results Tab -->
+    <div class="fs-tab-content" id="results-tab">
+        {% if completed_fixtures %}
+        {% regroup completed_fixtures by match_date as results_by_date %}
+        {% for date_group in results_by_date %}
+        <div class="fs-date-header">
+            {{ date_group.grouper|date:"l, F j, Y" }}
+        </div>
+        {% for match in date_group.list %}
+        <div class="match-card-premium">
+            <div style="flex: 1; text-align: right; padding-right: 1.5rem;">
+                <a href="{% url 'teams:profile' match.home_team.id %}"
+                    style="color: #fff; text-decoration: none; font-weight: 700; font-size: 1.1rem;">
+                    {{ match.home_team.team_name }}
+                </a>
+            </div>
+
+            <div
+                style="text-align: center; min-width: 100px; background: rgba(0,0,0,0.2); padding: 0.5rem 1rem; border-radius: 8px;">
+                <span style="font-size: 1.4rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif;">
+                    {{ match.home_score }} - {{ match.away_score }}
+                </span>
+            </div>
+
+            <div style="flex: 1; text-align: left; padding-left: 1.5rem;">
+                <a href="{% url 'teams:profile' match.away_team.id %}"
+                    style="color: #fff; text-decoration: none; font-weight: 700; font-size: 1.1rem;">
+                    {{ match.away_team.team_name }}
+                </a>
+            </div>
+
+            <div style="margin-left: 1rem;">
+                <span class="fs-badge fs-badge-completed"
+                    style="border-radius: 20px; padding: 4px 12px; font-weight: 900;">FT</span>
+            </div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        {% else %}
+        <div style="text-align: center; padding: 3rem; color: var(--fs-text-muted);">
+            <p>No completed matches yet</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Registration CTA (if applicable) -->
+    {% if user_registered %}
+    <div
+        style="margin-top: 2rem; padding: 1rem; background: var(--fs-success); color: #FFF; border-radius: 8px; text-align: center; font-weight: 600;">
+        ✓ You are registered for this tournament
+    </div>
+    {% elif tournament.status == 'registration' and not tournament.is_full %}
+    <div style="margin-top: 2rem; text-align: center;">
+        <a href="{% url 'payments:initiate' tournament.id %}" class="btn btn-primary"
+            style="padding: 1rem 2rem; font-size: 1.1rem;">
+            Register for Tournament
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Tab Switching Logic
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.fs-tab');
+        const tabContents = document.querySelectorAll('.fs-tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                const targetTab = this.getAttribute('data-tab');
+
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                document.getElementById(targetTab + '-tab').classList.add('active');
+
+                // Update URL hash
+                window.location.hash = targetTab;
+            });
+        });
+
+        // Handle initial hash
+        const hash = window.location.hash.substring(1);
+        if (hash && ['standings', 'fixtures', 'results'].includes(hash)) {
+            const targetTab = document.querySelector(`[data-tab="${hash}"]`);
+            if (targetTab) {
+                targetTab.click();
+            }
+        }
+    });
+</script>
+{% endblock %}

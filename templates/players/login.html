@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - KEFA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    
+    .auth-card {
+        background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
+        border-radius: 16px;
+        padding: 3rem;
+        max-width: 500px;
+        width: 100%;
+        border: 1px solid rgba(230, 0, 18, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(230, 0, 18, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #E60012, #FF4444, #E60012);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .auth-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #FFFFFF;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .auth-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #FFFFFF;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-red);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.1);
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #E60012, #C50010);
+        color: #FFFFFF;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(230, 0, 18, 0.4);
+        background: linear-gradient(135deg, #FF0015, #E60012);
+    }
+    
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .auth-footer a {
+        color: var(--primary-red);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .auth-footer a:hover {
+        color: #FF4444;
+        text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to your KEFA account</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" style="margin-bottom: 1.5rem;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" required autocomplete="username" placeholder="Enter your username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" required autocomplete="current-password" placeholder="Enter your password">
+            </div>
+            
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p style="color: rgba(255, 255, 255, 0.7);">
+                Don't have an account? <a href="{% url 'players:register' %}">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
