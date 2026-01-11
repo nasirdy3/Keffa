@@ -67,7 +67,7 @@ def leaderboards(request):
     }
     
     return render(request, 'leaderboards.html', context)
-    return render(request, 'leaderboards.html', context)
+
 
 
 from django.contrib.auth.decorators import login_required

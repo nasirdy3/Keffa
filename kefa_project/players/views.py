@@ -251,17 +251,18 @@ def governance_dashboard(request):
     - Users: Redirected to player dashboard.
     """
     
-    # ARCHITECT FIX: Safely determine Role and Profile existence
+    # PRODUCTION FIX: Robust role determination with better error handling
     try:
         profile = request.user.player_profile
         role = profile.role
     except (Player.DoesNotExist, AttributeError):
         # If user is Superuser/Staff but has no profile, treat as Admin
         if request.user.is_superuser or request.user.is_staff:
-            profile = None # Explicitly None for template handling
+            profile = None  # Explicitly None for template handling
             role = 'admin'
         else:
-            messages.error(request, "Profile access error. Specialized profile required.")
+            # Regular user without profile - should not happen in production
+            messages.error(request, "Profile not found. Please contact support.")
             return redirect('home')
 
     # Access Control: Only Admins and Moderators allowed
@@ -350,7 +351,8 @@ def governance_dashboard(request):
         context['audit_logs'] = audit_logs
         
         # Simple user search for role management
-        users_list = User.objects.select_related('player_profile').all().order_by('-date_joined')[:50]
+        # PRODUCTION FIX: Optimized query to prevent N+1 on team access
+        users_list = User.objects.select_related('player_profile').prefetch_related('player_profile__team').order_by('-date_joined')[:50]
         context['users_list'] = users_list
 
     return render(request, 'admin/governance_dashboard.html', context)

@@ -13,4 +13,9 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kefa_project.settings')
 
+# PRODUCTION FIX: Ensure settings are loaded before application starts
+from django.conf import settings
+settings.DEBUG  # Force settings load
+
 application = get_wsgi_application()
+
