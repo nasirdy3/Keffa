@@ -82,20 +82,18 @@ def player_dashboard(request):
     from kefa_project.matches.models import Match
     from kefa_project.tournaments.models import TournamentRegistration
     from kefa_project.achievements.models import PlayerBadge
+    from kefa_project.utils.player_context import get_performance_context
 
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except Player.DoesNotExist:
-        # ARCHITECT FIX: Handle Superusers/Admins who don't have a Player profile
+    # ARCHITECT FIX: Use standardized context retrieval
+    player, team, error_resp = get_performance_context(request)
+    
+    if error_resp:
+        return error_resp
+        
+    # Handle the case where Admin has no team (get_performance_context returns None, None, None for admin bypass)
+    if not player or not team:
         if request.user.is_superuser or request.user.is_staff:
-            # This redirect now maps correctly to 'players:governance_dashboard' in urls.py
-            return redirect('players:governance_dashboard')
-            
-        messages.error(request, 'Player profile not found. Please contact support.')
-        return redirect('home')
-    except Exception:
-        # Fallback for other relationship errors (e.g., Player exists but Team missing)
+             return redirect('players:governance_dashboard')
         messages.error(request, 'Team data missing. Please update your profile.')
         return redirect('players:edit_profile')
 
@@ -113,12 +111,12 @@ def player_dashboard(request):
     
     matches_count = completed_matches.count()
 
-    # Calculate win rate
+    # Calculate win rate using IDs to avoid DB hits on foreign keys
     wins = 0
     for match in completed_matches:
-        if match.home_team == team and match.home_score > match.away_score:
+        if match.home_team_id == team.id and match.home_score > match.away_score:
             wins += 1
-        elif match.away_team == team and match.away_score > match.home_score:
+        elif match.away_team_id == team.id and match.away_score > match.home_score:
             wins += 1
             
     win_rate = round((wins / matches_count * 100) if matches_count > 0 else 0, 1)
@@ -127,10 +125,11 @@ def player_dashboard(request):
     achievements_count = PlayerBadge.objects.filter(player=player).count()
 
     # Get upcoming/active matches
+    # ARCHITECT FIX: Added select_related to prevent N+1 queries in template
     upcoming_matches = Match.objects.filter(
         Q(home_team=team) | Q(away_team=team),
         status__in=['scheduled', 'ready_pending', 'creating_game', 'waiting_join', 'in_progress', 'awaiting_highlight', 'postponed', 'pending_verification']
-    ).distinct().order_by('match_date', 'match_time', 'id')
+    ).select_related('home_team', 'away_team', 'tournament').distinct().order_by('match_date', 'match_time', 'id')
 
     # Get recent achievements
     recent_achievements = PlayerBadge.objects.filter(
@@ -168,7 +167,12 @@ def player_profile(request, player_id):
             Q(home_team=team) | Q(away_team=team)
         ).distinct()
         
-        recent_matches = all_matches.order_by('-match_date', '-match_time')[:10]
+        # ARCHITECT FIX: 'Recent Matches' should only show COMPLETED matches
+        # Sorted by Newest First. Future matches should not be here.
+        recent_matches = all_matches.filter(status='completed').order_by('-match_date', '-match_time')[:10]
+        
+        # Optional: If we want to show upcoming matches in profile, we can add a separate list
+        # upcoming_matches = all_matches.filter(status__in=['scheduled', 'ready_pending']).order_by('match_date')[:5]
         
         highlights = Highlight.objects.filter(
             uploaded_by_team=team,

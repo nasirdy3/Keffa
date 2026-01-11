@@ -6,11 +6,6 @@ from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from kefa_project.matches.models import FriendlyMatch
 
-# --- Volatile In-Memory Locking (Single Instance) ---
-# This set acts as a mutex for friendly match IDs currently being processed
-# to prevent race conditions where two users click "Accept" simultaneously.
-MATCH_LOCKS = set()
-
 # --- Content Governance Service ---
 class ModerationService:
     # Basic list of regex patterns for moderation
@@ -151,27 +146,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def handle_claim_match(self, data):
         """
         Atomic Logic:
-        1. Check memory lock.
-        2. If locked, reject.
-        3. If free, lock it -> Update DB -> Broadcast "Taken" -> Reveal code to participants.
+        1. Attempt DB Claim (Locked Transaction).
+        2. If success, Broadcast "Taken" -> Reveal code to participants.
         """
         match_id = data.get('match_id')
         if not match_id or not self.team_id:
             return
 
-        # 1. Check Global Memory Lock
-        if match_id in MATCH_LOCKS:
-            await self.send_error("This match is currently being processed by another user.")
-            return
-
-        MATCH_LOCKS.add(match_id)
+        # ARCHITECT FIX: Removed volatile MATCH_LOCKS. 
+        # Database transaction now handles concurrency safely.
         
-        try:
-            # 2. Attempt DB Claim
-            result = await self.claim_friendly_match_db(match_id, self.team_id)
-            
-            if result['success']:
-                # 3. Broadcast to EVERYONE that match is taken (Updates UI, removes button)
+        # 1. Attempt DB Claim
+        result = await self.claim_friendly_match_db(match_id, self.team_id)
+        
+        if result['success']:
+            # 2. Broadcast to EVERYONE that match is taken (Updates UI, removes button)
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -194,13 +183,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # or can refresh their dashboard. 
                 # Optimization: We could send a specific message if we tracked channel_names by user_id.
                 
-            else:
                 await self.send_error(result['error'])
-                
-        finally:
-            # Release lock immediately after processing
-            if match_id in MATCH_LOCKS:
-                MATCH_LOCKS.remove(match_id)
 
     # --- Channel Layer Event Receivers ---
 
@@ -243,37 +226,45 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_match_data(self, match_id):
         try:
-            match = FriendlyMatch.objects.get(id=match_id)
+            match = FriendlyMatch.objects.select_related('created_by_team__player__user').get(id=match_id)
             return {
                 'creator_team': match.created_by_team.team_name,
-                'creator_id': match.created_by_team.player_set.first().user.id, # Assumes 1 player per team for this logic
+                # ARCHITECT FIX: Correct relationship access (OneToOne)
+                'creator_id': match.created_by_team.player.user.id, 
                 'status': match.status
             }
         except FriendlyMatch.DoesNotExist:
             return None
+        except Exception as e:
+            # Fallback logger
+            print(f"Error fetching match data: {e}")
+            return None
 
     @database_sync_to_async
     def claim_friendly_match_db(self, match_id, team_id):
+        from django.db import transaction
+        from kefa_project.teams.models import Team
+        
         try:
-            match = FriendlyMatch.objects.get(id=match_id)
-            
-            # DB Double Check (in case lock failed or server restarted)
-            if match.status != 'open':
-                return {'success': False, 'error': 'Match already taken or cancelled.'}
-            
-            if match.created_by_team.id == team_id:
-                return {'success': False, 'error': 'You cannot accept your own match.'}
+            with transaction.atomic():
+                # ARCHITECT FIX: Use select_for_update to lock the row
+                # This prevents two people from claiming it simultaneously at the DB level
+                match = FriendlyMatch.objects.select_for_update().get(id=match_id)
+                
+                if match.status != 'open':
+                    return {'success': False, 'error': 'Match already taken or cancelled.'}
+                
+                if match.created_by_team.id == team_id:
+                    return {'success': False, 'error': 'You cannot accept your own match.'}
 
-            # Update Match
-            from kefa_project.teams.models import Team
-            opponent = Team.objects.get(id=team_id)
-            
-            match.opponent_team = opponent
-            match.status = 'accepted'
-            match.accepted_at = timezone.now()
-            match.save()
-            
-            return {'success': True, 'game_code': match.game_code}
+                opponent = Team.objects.get(id=team_id)
+                
+                match.opponent_team = opponent
+                match.status = 'accepted'
+                match.accepted_at = timezone.now()
+                match.save()
+                
+                return {'success': True, 'game_code': match.game_code}
             
         except FriendlyMatch.DoesNotExist:
             return {'success': False, 'error': 'Match not found.'}

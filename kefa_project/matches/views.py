@@ -7,16 +7,15 @@ from .models import Match, MatchPostponement, FriendlyMatch
 from kefa_project.teams.models import Team
 
 
+from kefa_project.utils.player_context import require_team
+
 @login_required
 def match_ready(request, match_id):
     match = get_object_or_404(Match, id=match_id)
     
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team to mark ready.')
-        return redirect('players:player_dashboard')
+    player, team, error_resp = require_team(request, func_name="mark ready")
+    if error_resp:
+        return error_resp
     
     if match.status != 'ready_pending':
         messages.error(request, 'This match is not in ready phase.')
@@ -48,12 +47,9 @@ def match_ready(request, match_id):
 def match_finished(request, match_id):
     match = get_object_or_404(Match, id=match_id)
     
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team.')
-        return redirect('players:player_dashboard')
+    player, team, error_resp = require_team(request, func_name="finish match")
+    if error_resp:
+        return error_resp
     
     if match.home_team != team and match.away_team != team:
         messages.error(request, 'This is not your match.')
@@ -71,12 +67,9 @@ def match_finished(request, match_id):
 def request_postponement(request, match_id):
     match = get_object_or_404(Match, id=match_id)
     
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team.')
-        return redirect('players:player_dashboard')
+    player, team, error_resp = require_team(request, func_name="request postponement")
+    if error_resp:
+        return error_resp
     
     if match.home_team != team and match.away_team != team:
         messages.error(request, 'This is not your match.')
@@ -109,12 +102,9 @@ def accept_postponement(request, postponement_id):
     postponement = get_object_or_404(MatchPostponement, id=postponement_id)
     match = postponement.match
     
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team.')
-        return redirect('players:player_dashboard')
+    player, team, error_resp = require_team(request, func_name="accept postponement")
+    if error_resp:
+        return error_resp
     
     opponent_team = match.away_team if match.home_team == postponement.requested_by else match.home_team
     
@@ -133,12 +123,9 @@ def accept_postponement(request, postponement_id):
 
 @login_required
 def create_friendly_match(request):
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team to create a friendly match.')
-        return redirect('players:player_dashboard')
+    player, team, error_resp = require_team(request, func_name="create friendly match")
+    if error_resp:
+        return error_resp
     
     if request.method == 'POST':
         game_code = request.POST.get('game_code', '').strip()
@@ -161,12 +148,9 @@ def create_friendly_match(request):
 def accept_friendly_match(request, friendly_id):
     friendly = get_object_or_404(FriendlyMatch, id=friendly_id)
     
-    try:
-        player = request.user.player_profile
-        team = player.team
-    except:
-        messages.error(request, 'You must have a team.')
-        return redirect('players:player_dashboard')
+    player, team, error_resp = require_team(request, func_name="accept friendly match")
+    if error_resp:
+        return error_resp
     
     if friendly.created_by_team == team:
         messages.error(request, 'You cannot accept your own friendly match.')

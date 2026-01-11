@@ -67,3 +67,16 @@ def leaderboards(request):
     }
     
     return render(request, 'leaderboards.html', context)
+    return render(request, 'leaderboards.html', context)
+
+
+from django.contrib.auth.decorators import login_required
+from kefa_project.players.views import governance_dashboard
+
+@login_required
+def governance_dashboard_alias(request):
+    """
+    Alias view to allow access via /admin-dashboard/ and /moderator-dashboard/
+    Redirects logic to the actual governance dashboard implementation.
+    """
+    return governance_dashboard(request)

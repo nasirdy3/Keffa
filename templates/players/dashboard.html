@@ -401,8 +401,8 @@
             <div class="match-item">
                 <div class="match-teams">
                     <div>
-                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name
-                            }}</strong>
+                        <strong>{{ match.home_team.team_name|default:"Unknown" }}</strong> vs <strong>{{
+                            match.away_team.team_name|default:"Unknown" }}</strong>
                     </div>
                     <span
                         class="status-pill status-pill-{% if match.status == 'scheduled' %}primary{% elif match.status == 'ready_pending' %}success{% elif match.status == 'postponed' %}danger{% elif match.status == 'in_progress' %}success{% else %}warning{% endif %}">
