@@ -236,3 +236,55 @@ def approve_postponement(request, postponement_id):
         'postponement': postponement
     })
 
+
+@staff_member_required
+def verification_queue(request):
+    """Admin view to see matches pending result verification."""
+    # Matches that are marked as 'pending_verification' or disputed.
+    # Currently strictly filtering by 'pending_verification' status.
+    pending_matches = Match.objects.filter(
+        status='pending_verification'
+    ).select_related('tournament', 'home_team', 'away_team').order_by('match_date')
+    
+    return render(request, 'matches/verification_queue.html', {
+        'matches': pending_matches
+    })
+
+
+@staff_member_required
+def verify_match_result(request, match_id):
+    match = get_object_or_404(Match, id=match_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'verify':
+            home_score = request.POST.get('home_score')
+            away_score = request.POST.get('away_score')
+            
+            if home_score is not None and away_score is not None:
+                match.home_score = int(home_score)
+                match.away_score = int(away_score)
+                match.status = 'completed'
+                match.verified_at = timezone.now()
+                match.verified_by = request.user
+                match.save()
+                
+                # Update standings
+                from kefa_project.tournaments.services import update_standings
+                update_standings(match)
+                
+                messages.success(request, f"Match {match} verified as {home_score}-{away_score}.")
+            else:
+                messages.error(request, 'Scores are required for verification.')
+        
+        elif action == 'cancel':
+            # Optionally reset to in_progress or another status
+            match.status = 'in_progress'
+            match.save()
+            messages.info(request, "Match status reverted to In Progress.")
+            
+        return redirect('matches:verification_queue')
+        
+    return redirect('matches:verification_queue')
+

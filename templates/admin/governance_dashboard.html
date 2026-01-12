@@ -32,7 +32,7 @@
         <div class="card" style="border-left: 4px solid var(--secondary-blue);">
             <h3 style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">Match Disputes</h3>
             <div style="font-size: 2rem; font-weight: bold; color: var(--secondary-blue);">{{ disputed_matches }}</div>
-            <a href="{% url 'matches:match_list' %}" class="btn btn-sm btn-outline" style="margin-top: 1rem; width: 100%;">Review Matches</a>
+            <a href="{% url 'matches:verification_queue' %}" class="btn btn-sm btn-outline" style="margin-top: 1rem; width: 100%;">Review Matches</a>
         </div>
 
         <div class="card" style="border-left: 4px solid #e74c3c;">

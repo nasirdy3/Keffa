@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Match Verification - KEFA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0;">
+    <h1 style="color: var(--primary-gold); margin-bottom: 2rem;">Match Disputes / Verification</h1>
+
+    <div class="card">
+        {% if matches %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; background: rgba(255,255,255,0.05);">
+                        <th style="padding: 1rem;">Date</th>
+                        <th style="padding: 1rem;">Match</th>
+                        <th style="padding: 1rem;">Tournament</th>
+                        <th style="padding: 1rem;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for match in matches %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 1rem;">
+                            {{ match.match_date }}<br>
+                            <span style="font-size: 0.8em; opacity: 0.7;">{{ match.match_time }}</span>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
+                        </td>
+                        <td style="padding: 1rem;">{{ match.tournament.name }}</td>
+                        <td style="padding: 1rem;">
+                            <form method="POST" action="{% url 'matches:verify_result' match.id %}"
+                                style="display: flex; gap: 0.5rem; align-items: center;">
+                                {% csrf_token %}
+                                <input type="number" name="home_score" placeholder="Home"
+                                    style="width: 60px; padding: 0.25rem;" required>
+                                <span>-</span>
+                                <input type="number" name="away_score" placeholder="Away"
+                                    style="width: 60px; padding: 0.25rem;" required>
+
+                                <button type="submit" name="action" value="verify"
+                                    class="btn btn-sm btn-primary">Verify</button>
+                                <button type="submit" name="action" value="cancel"
+                                    class="btn btn-sm btn-outline-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; opacity: 0.7;">
+            <p>No matches currently pending verification.</p>
+            <a href="{% url 'players:governance_dashboard' %}" class="btn btn-outline" style="margin-top: 1rem;">Back to
+                Dashboard</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

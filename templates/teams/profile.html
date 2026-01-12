@@ -180,8 +180,7 @@
             <div
                 style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-left: 3px solid {% if match.home_team == team and match.home_score > match.away_score %}var(--success-green){% elif match.away_team == team and match.away_score > match.home_score %}var(--success-green){% elif match.home_score == match.away_score %}var(--text-muted){% else %}var(--danger-red){% endif %};">
                 <div style="flex: 1;">
-                    <strong style="color: var(--gold);">{{ match.home_team.team_name }}</strong> vs <strong>{{
-                        match.away_team.team_name }}</strong>
+                    <strong style="color: var(--gold);">{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
                     <div style="opacity: 0.7; font-size: 0.9rem; margin-top: 0.25rem;">{{ match.tournament.name }}</div>
                 </div>
                 {% if match.home_score is not None %}

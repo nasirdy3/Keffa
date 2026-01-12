@@ -409,8 +409,7 @@
             <div class="match-item">
                 <div class="match-teams">
                     <div>
-                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name
-                            }}</strong>
+                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
                     </div>
                     <span
                         class="status-pill status-pill-{% if match.status == 'scheduled' %}primary{% elif match.status == 'ready_pending' %}success{% else %}warning{% endif %}">
@@ -433,8 +432,7 @@
                     {% endif %}
                     {% elif match.status == 'waiting_join' %}
                     <div style="width: 100%;">
-                        <div style="margin-bottom: 1rem;">Game Code: <span class="game-code">{{ match.game_code
-                                }}</span></div>
+                        <div style="margin-bottom: 1rem;">Game Code: <span class="game-code">{{ match.game_code }}</span></div>
                         {% if match.away_team == team %}
                         <a href="{% url 'matches:join' match.id %}" class="btn btn-primary">Join Game Now</a>
                         {% else %}

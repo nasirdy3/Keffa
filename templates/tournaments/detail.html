@@ -74,7 +74,7 @@
                 <tr>
                     <td>
                         <span
-                            class="fs-position {% if forloop.counter == 1 %}fs-position-1{% elif forloop.counter == 2 %}fs-position-2{% elif forloop.counter == 3 %}fs-position-3{% else %}fs-position-default{% endif %}">
+                            class="fs-position fs-position-{% if forloop.counter <= 3 %}{{ forloop.counter }}{% else %}default{% endif %}">
                             {{ forloop.counter }}
                         </span>
                     </td>
@@ -89,17 +89,15 @@
                     <td>{{ standing.lost }}</td>
                     <td>{{ standing.goals_for }}</td>
                     <td>{{ standing.goals_against }}</td>
-                    <td
-                        style="font-weight: 600; {% if standing.goal_difference > 0 %}color: var(--fs-success);{% elif standing.goal_difference < 0 %}color: var(--fs-danger);{% endif %}">
+                    <td style="font-weight: 600;"
+                        class="{% if standing.goal_difference > 0 %}text-success{% elif standing.goal_difference < 0 %}text-danger{% endif %}">
                         {{ standing.goal_difference|stringformat:"+d" }}
                     </td>
                     <td style="font-weight: 700; color: var(--fs-primary);">{{ standing.points }}</td>
                     <td>
                         <div class="fs-form">
                             {% for char in standing.form %}
-                            <span
-                                class="fs-form-badge fs-form-{% if char == 'W' %}w{% elif char == 'D' %}d{% else %}l{% endif %}">{{
-                                char }}</span>
+                            <span class="fs-form-badge fs-form-{{ char|lower }}">{{ char }}</span>
                             {% endfor %}
                         </div>
                     </td>
