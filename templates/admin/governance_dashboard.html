@@ -2,204 +2,90 @@
 
 {% block title %}Governance Dashboard - KEFA{% endblock %}
 
-{% block extra_css %}
-<style>
-    .gov-card {
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--fs-radius-md);
-        padding: 1.5rem;
-        box-shadow: var(--fs-shadow-sm);
-        backdrop-filter: var(--glass-blur);
-        transition: all 0.3s ease;
-    }
-
-    .gov-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-neon);
-        border-color: var(--primary-red);
-    }
-
-    .gov-stat-value {
-        font-family: 'Outfit', sans-serif;
-        font-weight: 900;
-        font-size: 2.5rem;
-        background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .gov-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 8px;
-    }
-
-    .gov-table tr {
-        background: rgba(255, 255, 255, 0.03);
-        transition: all 0.3s ease;
-    }
-
-    .gov-table tr:hover {
-        background: rgba(255, 255, 255, 0.07);
-        transform: scale(1.005);
-    }
-
-    .gov-table td {
-        padding: 1rem;
-    }
-
-    .gov-table td:first-child {
-        border-radius: 8px 0 0 8px;
-    }
-
-    .gov-table td:last-child {
-        border-radius: 0 8px 8px 0;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container animate-fade-in" style="padding: 3rem 0;">
+<div class="container" style="padding: 2rem 0;">
 
-    <div
-        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
         <div>
-            <h1 class="text-gradient-gold" style="margin: 0; font-size: 2.5rem; font-weight: 900;">
+            <h1 style="color: var(--primary-gold); margin: 0;">
                 {% if is_admin %}🛡️ Admin Console{% else %}⚖️ Moderator Console{% endif %}
             </h1>
-            <p style="opacity: 0.7; margin-top: 0.5rem; font-size: 1.1rem;">
-                Logged in as: <strong style="color: #fff;">{{ profile.full_name|default:user.username }}</strong>
-                <span style="color: var(--primary-gold); margin-left: 0.5rem;">({% if profile %}{{
-                    profile.get_role_display }}{% else %}Administrator{% endif %})</span>
+            <p style="opacity: 0.7; margin-top: 0.5rem;">
+                Logged in as: <strong>{{ profile.full_name }}</strong> ({{ profile.get_role_display }})
             </p>
         </div>
-        <div class="animate-scale-in">
-            <span class="glass-morphism"
-                style="padding: 0.75rem 1.5rem; border-radius: 30px; font-weight: 600; color: var(--primary-gold);">
+        <div>
+            <span style="background: var(--card-bg); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--primary-gold);">
                 {{ now|date:"F j, Y" }}
             </span>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; margin-bottom: 4rem;"
-        class="animate-fade-in stagger-1">
-
-        <div class="gov-card" style="border-left: 5px solid var(--warning-yellow);">
-            <h3
-                style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
-                Pending Payments</h3>
-            <div class="gov-stat-value" style="color: var(--warning-yellow); -webkit-text-fill-color: initial;">{{
-                pending_payments }}</div>
-            <a href="{% url 'payments:admin_payment_queue' %}" class="btn btn-sm btn-primary"
-                style="margin-top: 1.5rem; width: 100%; font-size: 0.8rem;">Verify Now</a>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+        
+        <div class="card" style="border-left: 4px solid var(--warning-yellow);">
+            <h3 style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">Pending Payments</h3>
+            <div style="font-size: 2rem; font-weight: bold; color: var(--warning-yellow);">{{ pending_payments }}</div>
+            <a href="{% url 'payments:admin_payment_queue' %}" class="btn btn-sm btn-outline" style="margin-top: 1rem; width: 100%;">Verify Now</a>
         </div>
 
-        <div class="gov-card" style="border-left: 5px solid var(--accent-blue);">
-            <h3
-                style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
-                Match Disputes</h3>
-            <div class="gov-stat-value" style="color: var(--accent-blue); -webkit-text-fill-color: initial;">{{
-                disputed_matches }}</div>
-            <a href="{% url 'matches:match_list' %}" class="btn btn-sm btn-outline"
-                style="margin-top: 1.5rem; width: 100%; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.1);">Review
-                Matches</a>
+        <div class="card" style="border-left: 4px solid var(--secondary-blue);">
+            <h3 style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">Match Disputes</h3>
+            <div style="font-size: 2rem; font-weight: bold; color: var(--secondary-blue);">{{ disputed_matches }}</div>
+            <a href="{% url 'matches:match_list' %}" class="btn btn-sm btn-outline" style="margin-top: 1rem; width: 100%;">Review Matches</a>
         </div>
 
-        <div class="gov-card" style="border-left: 5px solid #e74c3c;">
-            <h3
-                style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
-                Pending Highlights</h3>
-            <div class="gov-stat-value" style="color: #e74c3c; -webkit-text-fill-color: initial;">{{ pending_highlights
-                }}</div>
-            <a href="{% url 'highlights:verification_queue' %}" class="btn btn-sm btn-outline"
-                style="margin-top: 1.5rem; width: 100%; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.1);">Review
-                Media</a>
+        <div class="card" style="border-left: 4px solid #e74c3c;">
+            <h3 style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">Pending Highlights</h3>
+            <div style="font-size: 2rem; font-weight: bold; color: #e74c3c;">{{ pending_highlights }}</div>
+            <a href="{% url 'highlights:verification_queue' %}" class="btn btn-sm btn-outline" style="margin-top: 1rem; width: 100%;">Review Media</a>
         </div>
 
-        <div class="gov-card">
-            <h3
-                style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
-                Total Revenue</h3>
-            <div class="gov-stat-value">₦{{ total_revenue|floatformat:0 }}</div>
+        <div class="card">
+            <h3 style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">Total Revenue</h3>
+            <div style="font-size: 1.5rem; font-weight: bold; color: var(--text-color);">₦{{ total_revenue|floatformat:0 }}</div>
         </div>
     </div>
 
     {% if is_admin %}
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem;"
-        class="animate-fade-in stagger-2">
-
-        <div class="gov-card" style="grid-column: span 2;">
-            <h3 class="text-gradient-gold"
-                style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 2rem; font-weight: 900; letter-spacing: 1px;">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        
+        <div class="card">
+            <h3 style="color: var(--primary-gold); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1rem;">
                 👥 User Role Management
             </h3>
             <div style="overflow-x: auto;">
-                <table class="gov-table">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
                     <thead>
-                        <tr
-                            style="text-align: left; opacity: 0.6; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
-                            <th style="padding: 1rem;">User</th>
-                            <th style="padding: 1rem;">Current Role</th>
-                            <th style="padding: 1rem;">Action</th>
+                        <tr style="text-align: left; background: rgba(255,255,255,0.05);">
+                            <th style="padding: 0.75rem;">User</th>
+                            <th style="padding: 0.75rem;">Current Role</th>
+                            <th style="padding: 0.75rem;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for user_obj in users_list %}
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <div
-                                        style="width: 40px; height: 40px; border-radius: 50%; background: var(--grad-primary); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem; color: #fff;">
-                                        {{ user_obj.username|first|upper }}
-                                    </div>
-                                    <div>
-                                        <strong style="color: #fff; font-size: 1.1rem;">{{ user_obj.username
-                                            }}</strong><br>
-                                        <span style="font-size: 0.85rem; opacity: 0.6;">{{ user_obj.email }}</span>
-                                    </div>
-                                </div>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 0.75rem;">
+                                <strong>{{ user_obj.username }}</strong><br>
+                                <span style="font-size: 0.8em; opacity: 0.6;">{{ user_obj.email }}</span>
                             </td>
-                            <td>
-                                {% if user_obj.player_profile %}
-                                <span
-                                    class="badge {% if user_obj.player_profile.role == 'admin' %}bg-danger{% elif user_obj.player_profile.role == 'moderator' %}bg-warning{% else %}bg-secondary{% endif %}"
-                                    style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: var(--fs-shadow-sm);">
-                                    {{ user_obj.player_profile.role|default:"user"|title }}
+                            <td style="padding: 0.75rem;">
+                                <span class="badge {% if user_obj.player_profile.role == 'admin' %}bg-danger{% elif user_obj.player_profile.role == 'moderator' %}bg-warning{% else %}bg-secondary{% endif %}" style="padding: 2px 6px; border-radius: 4px; font-size: 0.8em;">
+                                    {{ user_obj.player_profile.role|title }}
                                 </span>
-                                {% else %}
-                                <span class="badge bg-secondary"
-                                    style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: var(--fs-shadow-sm);">
-                                    No Profile
-                                </span>
-                                {% endif %}
                             </td>
-                            <td>
-                                <form method="POST" style="display: flex; gap: 0.75rem; align-items: center;">
+                            <td style="padding: 0.75rem;">
+                                <form method="POST" style="display: flex; gap: 0.5rem;">
                                     {% csrf_token %}
                                     <input type="hidden" name="update_role" value="1">
                                     <input type="hidden" name="target_username" value="{{ user_obj.username }}">
-                                    <select name="new_role" class="glass-morphism"
-                                        style="padding: 0.5rem 1rem; border-radius: 8px; color: #fff; font-size: 0.9rem; border: 1px solid var(--glass-border); outline: none;">
-                                        {% if user_obj.player_profile %}
-                                        <option value="user" {% if user_obj.player_profile.role=='user' %}selected{%
-                                            endif %} style="background: var(--fs-bg-dark);">User</option>
-                                        <option value="moderator" {% if user_obj.player_profile.role=='moderator'
-                                            %}selected{% endif %} style="background: var(--fs-bg-dark);">Moderator
-                                        </option>
-                                        <option value="admin" {% if user_obj.player_profile.role=='admin' %}selected{%
-                                            endif %} style="background: var(--fs-bg-dark);">Admin</option>
-                                        {% else %}
-                                        <option value="user" selected style="background: var(--fs-bg-dark);">User
-                                        </option>
-                                        <option value="moderator" style="background: var(--fs-bg-dark);">Moderator
-                                        </option>
-                                        <option value="admin" style="background: var(--fs-bg-dark);">Admin</option>
-                                        {% endif %}
+                                    <select name="new_role" style="padding: 0.25rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color);">
+                                        <option value="user" {% if user_obj.player_profile.role == 'user' %}selected{% endif %}>User</option>
+                                        <option value="moderator" {% if user_obj.player_profile.role == 'moderator' %}selected{% endif %}>Moderator</option>
+                                        <option value="admin" {% if user_obj.player_profile.role == 'admin' %}selected{% endif %}>Admin</option>
                                     </select>
-                                    <button type="submit" class="btn btn-sm btn-primary"
-                                        style="padding: 0.5rem 1.2rem; border-radius: 8px;">Save</button>
+                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
                                 </form>
                             </td>
                         </tr>
@@ -209,33 +95,24 @@
             </div>
         </div>
 
-        <div class="gov-card">
-            <h3 class="text-gradient-gold"
-                style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 2rem; font-weight: 900; letter-spacing: 1px;">
+        <div class="card">
+            <h3 style="color: var(--primary-gold); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1rem;">
                 📜 Audit Log
             </h3>
-            <div style="max-height: 600px; overflow-y: auto; padding-right: 0.5rem;">
+            <div style="max-height: 500px; overflow-y: auto;">
                 {% if audit_logs %}
-                {% for log in audit_logs %}
-                <div class="hover-glow"
-                    style="margin-bottom: 1.5rem; font-size: 0.9rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div
-                        style="display: flex; justify-content: space-between; opacity: 0.6; font-size: 0.8rem; margin-bottom: 0.5rem;">
-                        <span style="font-weight: 600;"><i class="fas fa-clock"></i> {{ log.timestamp|date:"M j, H:i"
-                            }}</span>
-                        <span style="color: var(--primary-gold); font-weight: 800;"><i class="fas fa-user-shield"></i>
-                            {{ log.admin.username }}</span>
+                    {% for log in audit_logs %}
+                    <div style="margin-bottom: 1rem; font-size: 0.85rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: flex; justify-content: space-between; opacity: 0.7;">
+                            <span>{{ log.timestamp|date:"M j, H:i" }}</span>
+                            <span>{{ log.admin.username }}</span>
+                        </div>
+                        <div style="color: var(--primary-gold); margin: 2px 0;">{{ log.get_action_display }}</div>
+                        <div style="opacity: 0.9;">{{ log.details }}</div>
                     </div>
-                    <div style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 1rem;">{{
-                        log.get_action_display }}</div>
-                    <div style="opacity: 0.8; line-height: 1.4;">{{ log.details }}</div>
-                </div>
-                {% endfor %}
+                    {% endfor %}
                 {% else %}
-                <div style="text-align: center; padding: 3rem 1rem; opacity: 0.4;">
-                    <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <p>No activity logs found</p>
-                </div>
+                    <p style="opacity: 0.5; text-align: center;">No logs recorded yet.</p>
                 {% endif %}
             </div>
         </div>
@@ -244,3 +121,4 @@
 
 </div>
 {% endblock %}
+

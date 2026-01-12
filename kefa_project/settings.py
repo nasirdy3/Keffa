@@ -140,9 +140,6 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'kefa_project.notifications.context_processors.notifications_processor',
             ],
-            # PRODUCTION FIX: Make missing template variables visible in production
-            # This helps diagnose template rendering issues without enabling DEBUG
-            'string_if_invalid': '***MISSING_VAR:%s***' if not DEBUG else '',
         },
     },
 ]

@@ -54,10 +54,6 @@ urlpatterns = [
     path('chat/', include('kefa_project.chat.urls')),
     path('notifications/', include('kefa_project.notifications.urls')),
     path('achievements/', include('kefa_project.achievements.urls')),
-    
-    # Dashboard Aliases (Per User Request)
-    path('admin-dashboard/', views.governance_dashboard_alias, name='admin_dashboard_alias'),
-    path('moderator-dashboard/', views.governance_dashboard_alias, name='moderator_dashboard_alias'),
 ]
 
 if settings.DEBUG:

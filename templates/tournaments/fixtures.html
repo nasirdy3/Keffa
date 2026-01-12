@@ -3,8 +3,7 @@
 {% block title %}Fixtures - {{ tournament.name }} - KEFA{% endblock %}
 
 {% block content %}
-<div
-    style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h1 class="page-title">{{ tournament.name }}</h1>
         <p style="opacity: 0.8;">Full Match Calendar</p>
@@ -13,74 +12,67 @@
 </div>
 
 {% if fixtures %}
-{% regroup fixtures by match_date as match_days %}
+    {% regroup fixtures by match_date as match_days %}
 
-<div style="display: flex; flex-direction: column; gap: 2rem;">
-    {% for day in match_days %}
-    <div class="card">
-        <h3
-            style="color: var(--gold); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-            {{ day.grouper|date:"l, d F Y" }}
-        </h3>
-
-        <div style="display: grid; gap: 1rem;">
-            {% for match in day.list %}
-            <div
-                style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; flex-direction: column; gap: 0.5rem;">
-
-                {# Match Status Badge #}
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; opacity: 0.7;">
-                    <span>{{ match.match_time }}</span>
-                    {% if match.status == 'in_progress' %}
-                    <span style="color: #00ff00; font-weight: bold;">● LIVE</span>
-                    {% elif match.status == 'completed' %}
-                    <span>FT</span>
-                    {% elif match.status == 'postponed' %}
-                    <span style="color: #ff4444;">Postponed</span>
-                    {% else %}
-                    <span>{{ match.get_status_display }}</span>
-                    {% endif %}
-                </div>
-
-                {# Match Teams & Score #}
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
-                    <div
-                        style="flex: 1; text-align: right; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                        <a href="{% url 'teams:profile' match.home_team.id %}"
-                            style="color: var(--text); text-decoration: none; font-weight: 600;">
-                            {{ match.home_team.team_name|default:"Unknown Team" }}
-                        </a>
-                    </div>
-
-                    <div
-                        style="padding: 0.5rem 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 6px; font-weight: 700; min-width: 80px; text-align: center;">
-                        {% if match.status == 'completed' or match.status == 'in_progress' %}
-                        {{ match.home_score|default:0 }} - {{ match.away_score|default:0 }}
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        {% for day in match_days %}
+        <div class="card">
+            <h3 style="color: var(--gold); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                {{ day.grouper|date:"l, d F Y" }}
+            </h3>
+            
+            <div style="display: grid; gap: 1rem;">
+                {% for match in day.list %}
+                <div style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; flex-direction: column; gap: 0.5rem;">
+                    
+                    {# Match Status Badge #}
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; opacity: 0.7;">
+                        <span>{{ match.match_time }}</span>
+                        {% if match.status == 'in_progress' %}
+                            <span style="color: #00ff00; font-weight: bold;">● LIVE</span>
+                        {% elif match.status == 'completed' %}
+                            <span>FT</span>
+                        {% elif match.status == 'postponed' %}
+                            <span style="color: #ff4444;">Postponed</span>
                         {% else %}
-                        VS
+                            <span>{{ match.get_status_display }}</span>
                         {% endif %}
                     </div>
 
-                    <div
-                        style="flex: 1; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                        <a href="{% url 'teams:profile' match.away_team.id %}"
-                            style="color: var(--text); text-decoration: none; font-weight: 600;">
-                            {{ match.away_team.team_name|default:"Unknown Team" }}
-                        </a>
+                    {# Match Teams & Score #}
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                        <div style="flex: 1; text-align: right; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                            <a href="{% url 'teams:profile' match.home_team.id %}" style="color: var(--text); text-decoration: none; font-weight: 600;">
+                                {{ match.home_team.team_name }}
+                            </a>
+                        </div>
+                        
+                        <div style="padding: 0.5rem 1rem; background: rgba(255, 215, 0, 0.1); border-radius: 6px; font-weight: 700; min-width: 80px; text-align: center;">
+                            {% if match.status == 'completed' or match.status == 'in_progress' %}
+                                {{ match.home_score }} - {{ match.away_score }}
+                            {% else %}
+                                VS
+                            {% endif %}
+                        </div>
+                        
+                        <div style="flex: 1; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                            <a href="{% url 'teams:profile' match.away_team.id %}" style="color: var(--text); text-decoration: none; font-weight: 600;">
+                                {{ match.away_team.team_name }}
+                            </a>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
 {% else %}
-<div class="card" style="text-align: center; padding: 4rem;">
-    <h2 style="opacity: 0.7;">No fixtures generated yet</h2>
-    <p>Matches will appear here once the tournament setup is complete.</p>
-</div>
+    <div class="card" style="text-align: center; padding: 4rem;">
+        <h2 style="opacity: 0.7;">No fixtures generated yet</h2>
+        <p>Matches will appear here once the tournament setup is complete.</p>
+    </div>
 {% endif %}
 
 {% endblock %}

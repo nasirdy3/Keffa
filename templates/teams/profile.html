@@ -4,52 +4,97 @@
 
 {% block extra_css %}
 <style>
-    .team-header {
-        background: var(--grad-surface);
-        border-radius: var(--fs-radius-md);
-        padding: 3rem;
-        margin-bottom: 3rem;
-        border: 1px solid var(--glass-border);
-        box-shadow: var(--fs-shadow-sm);
-        position: relative;
-        overflow: hidden;
-        backdrop-filter: var(--glass-blur);
-        border-left: 6px solid var(--primary-gold);
-    }
-
-    .team-stat-card {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 2rem;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        text-align: center;
+    .squad-image-clickable {
+        cursor: pointer;
         transition: all 0.3s ease;
     }
 
-    .team-stat-card:hover {
-        background: rgba(255, 255, 255, 0.07);
-        border-color: var(--primary-gold);
-        transform: translateY(-5px);
+    .squad-image-clickable:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .image-modal-content {
+        position: relative;
+        margin: auto;
+        max-width: 95%;
+        max-height: 95vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .image-modal-content img {
+        max-width: 100%;
+        max-height: 95vh;
+        object-fit: contain;
+        border-radius: 12px;
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1001;
+        transition: color 0.3s;
+    }
+
+    .close-modal:hover,
+    .close-modal:focus {
+        color: var(--gold);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .close-modal {
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="team-header animate-fade-in">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 2rem;">
         <div style="flex: 1;">
-            <h1 class="text-gradient-gold"
-                style="font-size: 3.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 2px;">
-                {{ team.team_name }}</h1>
-            <p style="color: var(--text-muted); font-size: 1.25rem; font-weight: 600;">Managed by: <strong
-                    style="color: #fff;">{{ player.full_name }}</strong></p>
+            <h1 class="card-title">{{ team.team_name }}</h1>
+            <p style="opacity: 0.8;">Player: <strong style="color: var(--gold);">{{ player.full_name }}</strong></p>
         </div>
         {% if team.logo %}
         <img src="{{ team.logo.url }}" alt="{{ team.team_name }}"
-            style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 4px solid var(--primary-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">
+            style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 3px solid var(--gold);">
         {% else %}
         <div
-            style="width: 150px; height: 150px; border-radius: 50%; background: var(--grad-gold); display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: 900; color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">
+            style="width: 120px; height: 120px; border-radius: 12px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 900; color: var(--dark);">
             {{ team.team_name.0 }}
         </div>
         {% endif %}
@@ -77,35 +122,26 @@
 </div>
 {% endif %}
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin-bottom: 4rem;"
-    class="animate-fade-in stagger-1">
-    <div class="team-stat-card">
-        <div
-            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
-            Total Matches</div>
-        <div style="font-size: 2.5rem; font-weight: 900; color: #fff;">{{ total_matches|default:0 }}</div>
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Total Matches</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ total_matches|default:0 }}</div>
     </div>
 
-    <div class="team-stat-card">
-        <div
-            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
-            Wins</div>
-        <div style="font-size: 2.5rem; font-weight: 900; color: var(--fs-success);">{{ total_wins|default:0 }}</div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Wins</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ total_wins|default:0 }}</div>
     </div>
 
-    <div class="team-stat-card">
-        <div
-            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
-            Win Rate</div>
-        <div style="font-size: 2.5rem; font-weight: 900; color: #fff;">{{ win_rate|default:0 }}%</div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Win Rate</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ win_rate|default:0 }}%</div>
     </div>
 
-    <div class="team-stat-card">
-        <div
-            style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; font-weight: 800;">
-            Trophies</div>
-        <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary-gold);">{{ trophies_count|default:0 }}
-        </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 0.5rem;">Trophies</div>
+        <div style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">{{ trophies_count|default:0 }}</div>
     </div>
 </div>
 

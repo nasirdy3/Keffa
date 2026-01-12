@@ -13,15 +13,16 @@ from .models import Payment
 from kefa_project.tournaments.models import Tournament, TournamentRegistration
 
 
-from kefa_project.utils.player_context import require_team
-
 @login_required
 def initiate_payment(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
     
-    player, team, error_resp = require_team(request, func_name="register for tournaments")
-    if error_resp:
-        return error_resp
+    try:
+        player = request.user.player_profile
+        team = player.team
+    except:
+        messages.error(request, 'You must have a team to register for tournaments.')
+        return redirect('tournaments:list')
     
     if tournament.status != 'registration':
         messages.error(request, 'Registration is closed for this tournament.')
@@ -402,9 +403,12 @@ def paystack_callback(request):
 def payment_proof_upload(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
     
-    player, team, error_resp = require_team(request, func_name="upload payment proof")
-    if error_resp:
-        return error_resp
+    try:
+        player = request.user.player_profile
+        team = player.team
+    except:
+        messages.error(request, 'Access denied.')
+        return redirect('players:player_dashboard')
     
     if payment.registration.team != team:
         messages.error(request, 'Access denied.')

@@ -48,9 +48,9 @@ Prizes:
             promotion_relegation_enabled=False,
             fixtures_generated=False,
         )
-        print("[OK] Champions League tournament created successfully")
+        print("✓ Champions League tournament created successfully")
     else:
-        print("[OK] Champions League tournament already exists")
+        print("✓ Champions League tournament already exists")
 
 
 def handle_season_completion(tournament):
@@ -82,7 +82,7 @@ def handle_season_completion(tournament):
         
         new_season_start = timezone.now().date() + timedelta(days=2)
         
-        print(f"[OK] Season completed for {tournament.name}")
+        print(f"✓ Season completed for {tournament.name}")
         print(f"  - {len(relegated_teams)} teams relegated")
         print(f"  - {len(promoted_teams)} teams promoted")
         print(f"  - New season starts on {new_season_start}")
