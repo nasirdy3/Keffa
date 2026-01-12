@@ -214,7 +214,7 @@ def player_profile(request, player_id):
 @login_required
 def edit_profile(request):
     player = request.user.player_profile
-    team = player.team
+    team = getattr(player, 'team', None)
 
     if request.method == 'POST':
         player_form = PlayerProfileForm(request.POST, request.FILES, instance=player)
@@ -222,7 +222,9 @@ def edit_profile(request):
 
         if player_form.is_valid() and team_form.is_valid():
             player_form.save()
-            team_form.save()
+            new_team = team_form.save(commit=False)
+            new_team.player = player  # Explicitly associate team with player
+            new_team.save()
             messages.success(request, 'Your profile has been updated successfully!')
             return redirect('players:player_dashboard')
         else:

@@ -65,9 +65,9 @@ if current_host:
 
 # CSRF and Session Cookie Settings
 CSRF_COOKIE_SAMESITE = 'Lax'  # Standard for production
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_HTTPONLY = True
 
@@ -146,6 +146,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kefa_project.wsgi.application'
 ASGI_APPLICATION = 'kefa_project.asgi.application'
+
+# Channel Layers for WebSocket support
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database

@@ -82,6 +82,12 @@
                         <a href="{% url 'teams:profile' standing.team.id %}" class="fs-team-name">
                             {{ standing.team.team_name }}
                         </a>
+                        {% if standing.team.player.get_whatsapp_link %}
+                        <a href="{{ standing.team.player.get_whatsapp_link }}" target="_blank"
+                            style="color: #25D366; margin-left: 0.5rem;" title="Contact on WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        {% endif %}
                     </td>
                     <td>{{ standing.played }}</td>
                     <td>{{ standing.won }}</td>

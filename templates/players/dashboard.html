@@ -409,7 +409,8 @@
             <div class="match-item">
                 <div class="match-teams">
                     <div>
-                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name }}</strong>
+                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name
+                            }}</strong>
                     </div>
                     <span
                         class="status-pill status-pill-{% if match.status == 'scheduled' %}primary{% elif match.status == 'ready_pending' %}success{% else %}warning{% endif %}">
@@ -432,7 +433,8 @@
                     {% endif %}
                     {% elif match.status == 'waiting_join' %}
                     <div style="width: 100%;">
-                        <div style="margin-bottom: 1rem;">Game Code: <span class="game-code">{{ match.game_code }}</span></div>
+                        <div style="margin-bottom: 1rem;">Game Code: <span class="game-code">{{ match.game_code
+                                }}</span></div>
                         {% if match.away_team == team %}
                         <a href="{% url 'matches:join' match.id %}" class="btn btn-primary">Join Game Now</a>
                         {% else %}
@@ -443,9 +445,29 @@
                     <a href="{% url 'matches:finished' match.id %}" class="btn btn-secondary">Mark as Finished</a>
                     {% elif match.status == 'awaiting_highlight' %}
                     <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
-                    {% elif match.status == 'scheduled' %}
+                    {% if match.status == 'scheduled' %}
                     <a href="{% url 'matches:postpone' match.id %}" class="btn btn-secondary"
                         style="font-size: 0.9rem;">Request Postponement</a>
+                    {% endif %}
+
+                    {% if match.home_team == team %}
+                    {% with opponent=match.away_team.player %}
+                    {% if opponent.get_whatsapp_link %}
+                    <a href="{{ opponent.get_whatsapp_link }}" class="btn btn-success" target="_blank"
+                        style="background-color: #25D366; border-color: #25D366; font-size: 0.9rem;">
+                        <i class="fab fa-whatsapp"></i> Message Opponent
+                    </a>
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    {% with opponent=match.home_team.player %}
+                    {% if opponent.get_whatsapp_link %}
+                    <a href="{{ opponent.get_whatsapp_link }}" class="btn btn-success" target="_blank"
+                        style="background-color: #25D366; border-color: #25D366; font-size: 0.9rem;">
+                        <i class="fab fa-whatsapp"></i> Message Opponent
+                    </a>
+                    {% endif %}
+                    {% endwith %}
                     {% endif %}
                 </div>
             </div>

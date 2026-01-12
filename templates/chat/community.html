@@ -197,6 +197,12 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
                         <div>
                             <strong style="color: var(--primary-gold);">{{ friendly.created_by_team.team_name }}</strong>
+                            {% if friendly.created_by_team.player.get_whatsapp_link %}
+                            <a href="{{ friendly.created_by_team.player.get_whatsapp_link }}" target="_blank"
+                                style="color: #25D366; margin-left: 0.5rem;" title="Contact on WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            {% endif %}
                             <p style="font-size: 0.8rem; margin: 5px 0 0 0;">
                                 Code: <span class="game-code-blur">HIDDEN</span>
                             </p>

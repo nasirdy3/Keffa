@@ -22,7 +22,8 @@ def check_match_ready_windows():
         
         time_until_match = (match_datetime - now).total_seconds()
         
-        if -300 <= time_until_match <= 300:
+        # Extended window: Allow start check up to 8 hours after scheduled time
+        if -28800 <= time_until_match <= 300:
             if not match.ready_time_start:
                 match.status = 'ready_pending'
                 match.ready_time_start = now
@@ -36,7 +37,8 @@ def check_match_ready_windows():
     for match in ready_pending_matches:
         time_since_ready = (now - match.ready_time_start).total_seconds()
         
-        if time_since_ready > 300:
+        # Extended timeout: Allow 8 hours for players to accept
+        if time_since_ready > 28800:
             from django.db import transaction
             with transaction.atomic():
                 match_locked = Match.objects.select_for_update().get(id=match.id)
