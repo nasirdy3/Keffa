@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Postponement - KEFA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .postpone-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
+        border-radius: 16px;
+        border: 1px solid rgba(230, 0, 18, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .match-summary {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .team-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-gold);
+    }
+
+    .vs-badge {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-red);
+        outline: none;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #E60012, #C50010);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(230, 0, 18, 0.4);
+    }
+
+    .btn-cancel {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-cancel:hover {
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="postpone-container">
+    <div class="page-header">
+        <h1>Request Match Postponement</h1>
+        <p>Propose a new date and time for your match</p>
+    </div>
+
+    <div class="match-summary">
+        <div class="team-name">{{ match.home_team.team_name }}</div>
+        <div class="vs-badge">VS</div>
+        <div class="team-name">{{ match.away_team.team_name }}</div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 2rem; color: rgba(255,255,255,0.7);">
+        Originally Scheduled: <strong>{{ match.match_date|date:"F j, Y" }} at {{ match.match_time }}</strong>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">Reason for Postponement</label>
+            <textarea name="reason" class="form-control" rows="3" required
+                placeholder="e.g. Network issues, Power failure..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Proposed Date</label>
+            <input type="date" name="proposed_date" class="form-control" required
+                min="{{ match.match_date|date:'Y-m-d' }}">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Proposed Time</label>
+            <input type="time" name="proposed_time" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit Request</button>
+        <a href="{% url 'players:player_dashboard' %}" class="btn-cancel">Cancel and Go Back</a>
+    </form>
+</div>
+{% endblock %}

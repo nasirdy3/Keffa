@@ -409,8 +409,9 @@
             <div class="match-item">
                 <div class="match-teams">
                     <div>
-                        <strong>{{ match.home_team.team_name }}</strong> vs <strong>{{ match.away_team.team_name
-                            }}</strong>
+                        {% with h=match.home_team.team_name a=match.away_team.team_name %}
+                        <strong>{{ h }}</strong> vs <strong>{{ a }}</strong>
+                        {% endwith %}
                     </div>
                     <span
                         class="status-pill status-pill-{% if match.status == 'scheduled' %}primary{% elif match.status == 'ready_pending' %}success{% else %}warning{% endif %}">
@@ -467,6 +468,7 @@
                     </a>
                     {% endif %}
                     {% endwith %}
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>

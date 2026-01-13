@@ -311,12 +311,18 @@
                 <h1 class="profile-name">{{ player.full_name }}</h1>
                 <p class="profile-username">@{{ player.user.username }}</p>
 
-                {% if player.get_whatsapp_link %}
-                <a href="{{ player.get_whatsapp_link }}" target="_blank" class="whatsapp-btn">
-                    <i class="fab fa-whatsapp"></i> Message on WhatsApp (Public)
-                </a>
-                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-bottom: 2rem;">
-                    <i class="fas fa-eye"></i> This number is visible to registered users
+                {% if player.phone_number %}
+                <div style="margin-bottom: 2rem;">
+                    <div
+                        style="font-size: 1.1rem; color: #fff; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-phone-alt" style="color: var(--primary-red);"></i> {{ player.phone_number }}
+                    </div>
+
+                    {% if player.get_whatsapp_link %}
+                    <a href="{{ player.get_whatsapp_link }}" target="_blank" class="whatsapp-btn">
+                        <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                    </a>
+                    {% endif %}
                 </div>
                 {% endif %}
 
@@ -399,11 +405,13 @@
                     style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary-gold); transition: background 0.2s;">
                     <div style="flex: 1;">
                         <div style="color: var(--text-light); font-weight: 600;">
-                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.home_team.team_name }}</span>
+                            {% with h=match.home_team.team_name a=match.away_team.team_name %}
+                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{ h
+                                }}</span>
                             <span style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0.5rem;">vs</span>
-                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.away_team.team_name }}</span>
+                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{ a
+                                }}</span>
+                            {% endwith %}
                         </div>
                         <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{
                             match.tournament.name }} • {{ match.match_date|date:"F j, Y" }} at {{ match.match_time }}
@@ -432,11 +440,13 @@
                     style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid {% if match.home_team == team and match.home_score > match.away_score %}var(--success-green){% elif match.away_team == team and match.away_score > match.home_score %}var(--success-green){% elif match.home_score == match.away_score %}var(--text-muted){% else %}var(--danger-red){% endif %}; transition: background 0.2s;">
                     <div style="flex: 1;">
                         <div style="color: var(--text-light); font-weight: 600;">
-                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.home_team.team_name }}</span>
+                            {% with h=match.home_team.team_name a=match.away_team.team_name %}
+                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{ h
+                                }}</span>
                             <span style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0.5rem;">vs</span>
-                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.away_team.team_name }}</span>
+                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{ a
+                                }}</span>
+                            {% endwith %}
                         </div>
                         <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{
                             match.tournament.name }} • {{ match.match_date }}</div>
