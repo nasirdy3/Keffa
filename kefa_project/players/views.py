@@ -168,7 +168,11 @@ def player_profile(request, player_id):
             Q(home_team=team) | Q(away_team=team)
         ).distinct()
         
-        recent_matches = all_matches.order_by('-match_date', '-match_time')[:10]
+        # Upcoming Matches (Future): Sorted Ascending (Soonest first)
+        upcoming_matches = all_matches.exclude(status='completed').order_by('match_date', 'match_time')[:5]
+        
+        # Recent Results (Past): Sorted Descending (Latest first)
+        recent_matches = all_matches.filter(status='completed').order_by('-match_date', '-match_time')[:10]
         
         highlights = Highlight.objects.filter(
             uploaded_by_team=team,
@@ -186,6 +190,7 @@ def player_profile(request, player_id):
         win_rate = round((total_wins / total_matches * 100) if total_matches > 0 else 0, 1)
     else:
         standings = []
+        upcoming_matches = []
         recent_matches = []
         highlights = []
         badges = []
@@ -200,6 +205,7 @@ def player_profile(request, player_id):
         'player': player,
         'team': team,
         'standings': standings,
+        'upcoming_matches': upcoming_matches,
         'recent_matches': recent_matches,
         'highlights': highlights,
         'badges': badges,

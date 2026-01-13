@@ -445,10 +445,9 @@
                     <a href="{% url 'matches:finished' match.id %}" class="btn btn-secondary">Mark as Finished</a>
                     {% elif match.status == 'awaiting_highlight' %}
                     <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
-                    {% if match.status == 'scheduled' %}
+                    {% elif match.status == 'scheduled' %}
                     <a href="{% url 'matches:postpone' match.id %}" class="btn btn-secondary"
                         style="font-size: 0.9rem;">Request Postponement</a>
-                    {% endif %}
 
                     {% if match.home_team == team %}
                     {% with opponent=match.away_team.player %}
