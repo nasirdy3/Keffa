@@ -16,6 +16,14 @@ class Match(models.Model):
         ('postponed', 'Postponed'),
     ]
     
+    KNOCKOUT_ROUND_CHOICES = [
+        ('round_of_32', 'Round of 32'),
+        ('round_of_16', 'Round of 16'),
+        ('quarter_final', 'Quarter-finals'),
+        ('semi_final', 'Semi-finals'),
+        ('final', 'Final'),
+    ]
+    
     tournament = models.ForeignKey('tournaments.Tournament', on_delete=models.CASCADE, related_name='matches')
     home_team = models.ForeignKey('teams.Team', on_delete=models.CASCADE, related_name='home_matches')
     away_team = models.ForeignKey('teams.Team', on_delete=models.CASCADE, related_name='away_matches')
@@ -38,11 +46,109 @@ class Match(models.Model):
     verified_at = models.DateTimeField(null=True, blank=True)
     verified_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_matches')
     
+    # Knockout Bracket Fields
+    knockout_round = models.CharField(
+        max_length=20, 
+        choices=KNOCKOUT_ROUND_CHOICES, 
+        null=True, 
+        blank=True,
+        help_text='Knockout stage round (e.g., Quarter-finals, Semi-finals)'
+    )
+    next_match = models.ForeignKey(
+        'self', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='previous_matches',
+        help_text='The match that the winner of this match advances to'
+    )
+    feeder_match_1 = models.ForeignKey(
+        'self', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='feeds_to_1',
+        help_text='First match that feeds into this match'
+    )
+    feeder_match_2 = models.ForeignKey(
+        'self', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='feeds_to_2',
+        help_text='Second match that feeds into this match'
+    )
+    aggregate_home_score = models.IntegerField(
+        null=True, 
+        blank=True,
+        help_text='Aggregate score for two-leg knockout ties'
+    )
+    aggregate_away_score = models.IntegerField(
+        null=True, 
+        blank=True,
+        help_text='Aggregate score for two-leg knockout ties'
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.home_team.team_name} vs {self.away_team.team_name} - {self.match_date}"
+    
+    def get_winner(self):
+        """Determine the winner of this match (for knockout progression)"""
+        if self.status not in ['completed', 'home_forfeit', 'away_forfeit']:
+            return None
+        
+        # Handle forfeits
+        if self.status == 'home_forfeit':
+            return self.away_team
+        if self.status == 'away_forfeit':
+            return self.home_team
+        
+        # For two-leg knockouts, use aggregate score
+        if self.aggregate_home_score is not None and self.aggregate_away_score is not None:
+            if self.aggregate_home_score > self.aggregate_away_score:
+                return self.home_team
+            elif self.aggregate_away_score > self.aggregate_home_score:
+                return self.away_team
+            else:
+                return None  # Draw - would need penalty shootout or away goals rule
+        
+        # For single-leg matches
+        if self.home_score is not None and self.away_score is not None:
+            if self.home_score > self.away_score:
+                return self.home_team
+            elif self.away_score > self.home_score:
+                return self.away_team
+            else:
+                return None  # Draw - would need extra time/penalties
+        
+        return None
+    
+    def advance_winner(self):
+        """Advance the winner to the next round (if applicable)"""
+        if not self.next_match or not self.knockout_round:
+            return False
+        
+        winner = self.get_winner()
+        if not winner:
+            return False
+        
+        # Determine which slot in the next match to fill
+        # If this match is feeder_match_1, winner goes to home_team
+        # If this match is feeder_match_2, winner goes to away_team
+        if self.next_match.feeder_match_1 == self:
+            self.next_match.home_team = winner
+            self.next_match.save()
+            return True
+        elif self.next_match.feeder_match_2 == self:
+            self.next_match.away_team = winner
+            self.next_match.save()
+            return True
+        
+        return False
+    
     
     class Meta:
         ordering = ['match_date', 'match_time']

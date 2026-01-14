@@ -5,16 +5,22 @@ from .services import lock_and_generate_fixtures, regenerate_fixtures
 
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ['name', 'tournament_type', 'status', 'current_teams_count', 'team_limit', 'start_date', 'end_date', 'match_frequency', 'fixtures_generated']
-    list_filter = ['tournament_type', 'status', 'start_date', 'match_frequency']
+    list_display = ['name', 'tournament_type', 'round_robin_type', 'priority', 'status', 'current_teams_count', 'team_limit', 'start_date', 'end_date', 'match_frequency', 'fixtures_generated']
+    list_filter = ['tournament_type', 'status', 'start_date', 'match_frequency', 'priority', 'round_robin_type']
     search_fields = ['name']
-    readonly_fields = ['created_at', 'updated_at', 'current_teams_count']
+    readonly_fields = ['created_at', 'updated_at', 'current_teams_count', 'allowed_weekdays']
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'tournament_type', 'team_limit', 'registration_fee', 'prize', 'rules', 'status')
+            'fields': ('name', 'tournament_type', 'team_limit', 'priority', 'registration_fee', 'prize', 'rules', 'status')
         }),
         ('Scheduling', {
-            'fields': ('start_date', 'end_date', 'default_match_time', 'match_frequency', 'matches_per_day', 'auto_schedule_enabled', 'fixtures_generated')
+            'fields': (
+                'start_date', 'end_date', 'default_match_time', 
+                'match_frequency', 'matches_per_day', 
+                'round_robin_type',
+                'allowed_weekdays',
+                'auto_schedule_enabled', 'fixtures_generated'
+            )
         }),
         ('Advanced', {
             'fields': ('junior_league', 'promotion_relegation_enabled', 'teams_to_promote', 'teams_to_relegate'),

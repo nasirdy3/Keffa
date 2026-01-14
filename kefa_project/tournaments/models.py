@@ -26,6 +26,11 @@ class Tournament(models.Model):
         ('weekly', 'Weekly'),
     ]
     
+    ROUND_ROBIN_CHOICES = [
+        ('single', 'Single Round Robin'),
+        ('double', 'Double Round Robin'),
+    ]
+    
     name = models.CharField(max_length=200)
     tournament_type = models.CharField(max_length=20, choices=TOURNAMENT_TYPES)
     team_limit = models.IntegerField()
@@ -41,6 +46,27 @@ class Tournament(models.Model):
     match_frequency = models.CharField(max_length=20, choices=MATCH_FREQUENCY_CHOICES, default='every_2_days')
     matches_per_day = models.IntegerField(default=1, help_text='Maximum matches per day (for tournaments with multiple simultaneous matches)')
     auto_schedule_enabled = models.BooleanField(default=True, help_text='Enable automatic fixture scheduling')
+    
+    # Round Robin Configuration (for League tournaments)
+    round_robin_type = models.CharField(
+        max_length=10, 
+        choices=ROUND_ROBIN_CHOICES, 
+        default='double',
+        help_text='Single: each team plays once | Double: each team plays home and away'
+    )
+    
+    # Priority-Based Scheduling (lower number = higher priority)
+    priority = models.IntegerField(
+        default=3,
+        help_text='Competition priority for scheduling conflicts. Lower number = higher priority. Champions Cup=1, Cups=2, Leagues=3'
+    )
+    
+    # Weekday Rules (comma-separated weekday numbers: 0=Monday, 6=Sunday)
+    allowed_weekdays = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text='Allowed weekdays for matches (auto-populated based on tournament type)'
+    )
     
     junior_league = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='senior_league')
     promotion_relegation_enabled = models.BooleanField(default=False)
@@ -73,12 +99,22 @@ class Tournament(models.Model):
         }
         return frequency_map.get(self.match_frequency, 2)
     
+    def get_allowed_weekdays(self):
+        """Returns list of allowed weekday numbers based on tournament type"""
+        if not self.allowed_weekdays:
+            return []
+        return [int(day) for day in self.allowed_weekdays.split(',') if day.strip()]
+    
     def calculate_total_matches(self):
         """Calculate total matches needed for round-robin (league) format"""
         if self.tournament_type in ['league', 'champions_league']:
             n = self.current_teams_count
-            # Double round-robin: n * (n-1) matches
-            return n * (n - 1) if n > 1 else 0
+            if self.round_robin_type == 'single':
+                # Single round-robin: n * (n-1) / 2 matches
+                return (n * (n - 1)) // 2 if n > 1 else 0
+            else:
+                # Double round-robin: n * (n-1) matches
+                return n * (n - 1) if n > 1 else 0
         return 0
     
     def validate_scheduling_feasibility(self):
@@ -105,6 +141,33 @@ class Tournament(models.Model):
             return False, f"Date range too short: need {total_matches} matches but can only fit {total_capacity}"
         
         return True, "Scheduling is feasible"
+    
+    def clean(self):
+        """Auto-populate allowed_weekdays based on tournament type"""
+        super().clean()
+        
+        # Auto-set weekday rules based on tournament type
+        if self.tournament_type in ['league', 'champions_league']:
+            # League matches: Thursday-Sunday (3,4,5,6)
+            self.allowed_weekdays = '3,4,5,6'
+        elif self.tournament_type in ['knockout', 'group_stage', 'mixed']:
+            # Cup matches: Monday-Wednesday (0,1,2)
+            self.allowed_weekdays = '0,1,2'
+        
+        # Auto-set priority based on tournament type
+        if not self.priority or self.priority == 3:  # Only auto-set if not manually configured
+            if self.tournament_type == 'champions_league':
+                self.priority = 1
+            elif self.tournament_type in ['knockout', 'group_stage', 'mixed']:
+                self.priority = 2
+            else:  # league
+                self.priority = 3
+    
+    def save(self, *args, **kwargs):
+        """Ensure clean() is called before saving"""
+        if not self.pk:  # Only on creation
+            self.full_clean()
+        super().save(*args, **kwargs)
     
     class Meta:
         ordering = ['-created_at']

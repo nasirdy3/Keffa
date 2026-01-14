@@ -184,7 +184,7 @@
     <div class="leaderboard-header animate-scale-in">
         <h1 class="text-gradient-gold" style="font-size: 3.5rem; font-weight: 900; margin-bottom: 0.5rem;">HALL OF FAME
         </h1>
-        <p style="font-size: 1.2rem; color: var(--text-muted);">Celebrating the legends of Kebbi eFootball Arena</p>
+        <p style="font-size: 1.2rem; color: var(--text-muted);">Celebrating the legends of Kratos eFootball Arena</p>
     </div>
 
     <!-- Navigation Tabs -->
@@ -232,7 +232,8 @@
                                             style="width: 40px; height: 40px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center;">
                                             ⚽</div>
                                         {% endif %}
-                                        <div style="font-weight: 700; color: #fff; font-size: 1.1rem;">{{ standing.team.team_name }}</div>
+                                        <div style="font-weight: 700; color: #fff; font-size: 1.1rem;">{{
+                                            standing.team.team_name }}</div>
                                     </a>
                                     {% if standing.team.player.get_whatsapp_link %}
                                     <a href="{{ standing.team.player.get_whatsapp_link }}" target="_blank"
@@ -256,7 +257,8 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                <span style="font-size: 1.25rem; font-weight: 900;" class="text-gradient-gold">{{ standing.points }}</span>
+                                <span style="font-size: 1.25rem; font-weight: 900;" class="text-gradient-gold">{{
+                                    standing.points }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -304,11 +306,13 @@
                         </td>
                         <td style="color: var(--text-muted);">{{ standing.team.team_name }}</td>
                         <td class="text-center">
-                            <span style="font-size: 1.25rem; font-weight: 900; color: #fff;">{{ standing.goals_for }}</span> <!-- Using goals_for as proxy for player goals -->
+                            <span style="font-size: 1.25rem; font-weight: 900; color: #fff;">{{ standing.goals_for
+                                }}</span> <!-- Using goals_for as proxy for player goals -->
                         </td>
                         <td class="text-center">{{ standing.played }}</td>
                         <td class="text-center" style="color: var(--success-green); font-weight: 600;">
-                            {% widthratio standing.goals_for standing.played 100 as ratio %}{{ ratio|slice:":-2" }}.{{ ratio|slice:"-2:" }}
+                            {% widthratio standing.goals_for standing.played 100 as ratio %}{{ ratio|slice:":-2" }}.{{
+                            ratio|slice:"-2:" }}
                         </td>
                     </tr>
                     {% endfor %}
@@ -345,7 +349,8 @@
                 <p style="color: var(--text-muted); margin-bottom: 1.5rem;">{{ player.team.team_name }}</p>
 
                 <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
-                    <div style="font-size: 2rem; font-weight: 900; color: var(--primary-gold);">{{ player.achievements_count }}</div>
+                    <div style="font-size: 2rem; font-weight: 900; color: var(--primary-gold);">{{
+                        player.achievements_count }}</div>
                     <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Badges Earned</div>
                 </div>
             </div>

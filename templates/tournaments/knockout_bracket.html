@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tournament.name }} - Knockout Bracket - KEFA{% endblock %}
+
+{% block content %}
+<style>
+    /* ALLFootball-Style Knockout Bracket CSS */
+    .bracket-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .bracket-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 2rem 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .bracket-wrapper {
+        display: flex;
+        gap: 3rem;
+        min-width: min-content;
+        padding: 1rem;
+    }
+
+    .bracket-round {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        min-width: 200px;
+    }
+
+    .round-title {
+        text-align: center;
+        color: var(--gold);
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .bracket-match {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .bracket-match:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--gold);
+        transform: translateX(5px);
+    }
+
+    .bracket-match.completed {
+        border-color: rgba(0, 255, 0, 0.3);
+    }
+
+    .match-team {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0.6rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .match-team.winner {
+        background: rgba(255, 215, 0, 0.15);
+        border-left: 3px solid var(--gold);
+        font-weight: 700;
+    }
+
+    .team-name {
+        flex: 1;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
+    }
+
+    .team-score {
+        font-weight: 700;
+        font-size: 1rem;
+        min-width: 30px;
+        text-align: center;
+        color: var(--gold);
+    }
+
+    .match-info {
+        font-size: 0.7rem;
+        opacity: 0.6;
+        text-align: center;
+        margin-top: 0.25rem;
+    }
+
+    .match-status {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+    }
+
+    .match-status.live {
+        background: #00ff00;
+        color: #000;
+        animation: pulse 1.5s infinite;
+    }
+
+    .match-status.scheduled {
+        background: rgba(255, 215, 0, 0.2);
+        color: var(--gold);
+    }
+
+    .match-status.completed {
+        background: rgba(0, 255, 0, 0.2);
+        color: #00ff00;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+        .bracket-wrapper {
+            gap: 2rem;
+        }
+
+        .bracket-round {
+            min-width: 160px;
+        }
+
+        .team-name {
+            max-width: 100px;
+            font-size: 0.8rem;
+        }
+
+        .bracket-match {
+            padding: 0.5rem;
+        }
+    }
+
+    /* Connector Lines (Simple Version) */
+    .bracket-match::after {
+        content: '';
+        position: absolute;
+        right: -1.5rem;
+        top: 50%;
+        width: 1.5rem;
+        height: 2px;
+        background: rgba(255, 215, 0, 0.3);
+        display: none;
+        /* Simplified - can be enhanced */
+    }
+
+    .final-badge {
+        text-align: center;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05));
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+
+    .final-badge h3 {
+        color: var(--gold);
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .empty-bracket {
+        text-align: center;
+        padding: 4rem 2rem;
+        opacity: 0.7;
+    }
+</style>
+
+<div class="bracket-header">
+    <div>
+        <h1 class="page-title">{{ tournament.name }}</h1>
+        <p style="opacity: 0.8;">Knockout Bracket</p>
+    </div>
+    <a href="{% url 'tournaments:detail' tournament.id %}" class="btn btn-secondary">Back to Tournament</a>
+</div>
+
+{% if bracket_data.total_rounds > 0 %}
+<div class="bracket-container">
+    <div class="bracket-wrapper">
+        {% for round in bracket_data.rounds %}
+        <div class="bracket-round">
+            <div class="round-title">{{ round.display_name }}</div>
+
+            {% for match in round.matches %}
+            <div class="bracket-match {% if match.status == 'completed' %}completed{% endif %}">
+                <!-- Home Team -->
+                <div class="match-team {% if match.home_team.is_winner %}winner{% endif %}">
+                    <span class="team-name" title="{{ match.home_team.name }}">
+                        {{ match.home_team.name }}
+                    </span>
+                    <span class="team-score">
+                        {% if match.home_score is not None %}{{ match.home_score }}{% else %}-{% endif %}
+                    </span>
+                </div>
+
+                <!-- Away Team -->
+                <div class="match-team {% if match.away_team.is_winner %}winner{% endif %}">
+                    <span class="team-name" title="{{ match.away_team.name }}">
+                        {{ match.away_team.name }}
+                    </span>
+                    <span class="team-score">
+                        {% if match.away_score is not None %}{{ match.away_score }}{% else %}-{% endif %}
+                    </span>
+                </div>
+
+                <!-- Match Info -->
+                <div class="match-info">
+                    {{ match.match_date }} | {{ match.match_time }}
+                </div>
+
+                <!-- Status Badge -->
+                {% if match.status == 'in_progress' %}
+                <div class="match-status live">● LIVE</div>
+                {% elif match.status == 'completed' %}
+                <div class="match-status completed">FT</div>
+                {% else %}
+                <div class="match-status scheduled">Scheduled</div>
+                {% endif %}
+
+                <!-- Aggregate Scores (if applicable) -->
+                {% if match.aggregate_home and match.aggregate_away %}
+                <div class="match-info" style="font-weight: 600; opacity: 0.9;">
+                    Agg: {{ match.aggregate_home }} - {{ match.aggregate_away }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if round.name == 'final' %}
+            <div class="final-badge">
+                <h3>🏆 Championship Final</h3>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Live Update Script -->
+<script>
+    // Auto-refresh bracket data every 30 seconds
+    setInterval(function () {
+        fetch('{% url "tournaments:bracket_api" tournament.id %}')
+            .then(response => response.json())
+            .then(data => {
+                // Simple page reload for now - can be enhanced with dynamic updates
+                if (data.rounds && data.rounds.length > 0) {
+                    // Check if any match status changed
+                    location.reload();
+                }
+            })
+            .catch(error => console.log('Bracket update check failed:', error));
+    }, 30000);
+</script>
+
+{% else %}
+<div class="empty-bracket card">
+    <h2>No Knockout Matches Yet</h2>
+    <p>The bracket will appear here once knockout fixtures are generated.</p>
+    <a href="{% url 'tournaments:detail' tournament.id %}" class="btn btn-primary">Go to Tournament</a>
+</div>
+{% endif %}
+
+{% endblock %}

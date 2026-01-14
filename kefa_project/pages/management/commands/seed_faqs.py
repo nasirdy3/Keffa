@@ -9,7 +9,7 @@ class Command(BaseCommand):
             {
                 "order": 1,
                 "question": "What is KEFA?",
-                "answer": "KEFA (Kebbi eFootball Arena) is the premier digital platform for competitive eFootball mobile gaming in Birnin Kebbi. We organize professional leagues, tournaments, and community events to connect gamers and elevate the esports standards in the region."
+                "answer": "KEFA (Kratos eFootball Arena) is the premier digital platform for competitive eFootball mobile gaming in Birnin Kebbi. We organize professional leagues, tournaments, and community events to connect gamers and elevate the esports standards in the region."
             },
             {
                 "order": 2,

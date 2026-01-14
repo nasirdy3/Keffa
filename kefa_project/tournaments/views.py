@@ -2,8 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import F
+from django.http import JsonResponse
 from .models import Tournament, Standing, TournamentRegistration
 from kefa_project.matches.models import Match
+from .services import get_bracket_structure
 
 
 def tournaments_list(request):
@@ -118,4 +120,29 @@ def finalize_tournament(request, tournament_id):
             messages.error(request, message)
             
     return redirect('tournaments:detail', tournament_id=tournament_id)
+
+
+def knockout_bracket_view(request, tournament_id):
+    """
+    Display ALLFootball-style knockout bracket visualization.
+    """
+    tournament = get_object_or_404(Tournament, id=tournament_id)
+    
+    # Get bracket structure
+    bracket_data = get_bracket_structure(tournament)
+    
+    return render(request, 'tournaments/knockout_bracket.html', {
+        'tournament': tournament,
+        'bracket_data': bracket_data,
+    })
+
+
+def knockout_bracket_api(request, tournament_id):
+    """
+    JSON API endpoint for bracket data (for live updates).
+    """
+    tournament = get_object_or_404(Tournament, id=tournament_id)
+    bracket_data = get_bracket_structure(tournament)
+    
+    return JsonResponse(bracket_data)
 

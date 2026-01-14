@@ -6,30 +6,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FFD700">
+    <title>{% block title %}KEFA - Kratos eFootball Arena{% endblock %}</title>
     <meta name="description"
         content="{% block meta_description %}KEFA - Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria. Join tournaments, compete for prizes, and build your legacy.{% endblock %}">
-    <meta name="author" content="KEFA - Kebbi eFootball Arena">
+    <meta name="author" content="KEFA - Kratos eFootball Arena">
     <meta name="keywords"
-        content="{% block meta_keywords %}eFootball, esports, gaming, Kebbi, Nigeria, mobile gaming, tournaments, competitive gaming{% endblock %}">
+        content="{% block meta_keywords %}eFootball, esports, gaming, Kratos, Kebbi, Nigeria, mobile gaming, tournaments, competitive gaming{% endblock %}">
 
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{% block og_title %}KEFA - Kebbi eFootball Arena{% endblock %}">
+    <meta property="og:url" content="https://kefa.ng/">
+    <meta property="og:title" content="{% block og_title %}KEFA - Kratos eFootball Arena{% endblock %}">
     <meta property="og:description"
         content="{% block og_description %}Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{% static 'images/icon-512.png' %}{% endblock %}">
+    <meta property="og:image" content="{% static 'images/icon-512.png' %}">
 
+    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
-    <meta property="twitter:title" content="{% block twitter_title %}KEFA - Kebbi eFootball Arena{% endblock %}">
+    <meta property="twitter:url" content="https://kefa.ng/">
+    <meta property="twitter:title" content="{% block twitter_title %}KEFA - Kratos eFootball Arena{% endblock %}">
     <meta property="twitter:description"
-        content="{% block twitter_description %}Digital esports platform for eFootball mobile gamers{% endblock %}">
+        content="{% block twitter_description %}Digital esports platform for eFootball mobile gamers in Birnin Kebbi, Nigeria{% endblock %}">
     <meta property="twitter:image" content="{% block twitter_image %}{% static 'images/icon-512.png' %}{% endblock %}">
 
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="{% static 'images/icon-192.png' %}">
-
-    <title>{% block title %}KEFA - Kebbi eFootball Arena{% endblock %}</title>
 
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/flashscore.css' %}">
@@ -133,12 +134,12 @@
                 </div>
             </div>
 
-            <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
-                &copy; 2025 KEFA - Kebbi eFootball Arena. All rights reserved.
-            </p>
-            <p style="color: var(--text-muted); font-size: 0.875rem;">
+            <div class="footer-content">
+                &copy; 2026 KEFA - Kratos eFootball Arena | Built on the Rock.
+            </div>
+            <div class="footer-tagline">
                 The Premier eFootball Platform in Birnin Kebbi, Nigeria
-            </p>
+            </div>
         </div>
     </footer>
 
