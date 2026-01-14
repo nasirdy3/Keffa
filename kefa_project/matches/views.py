@@ -288,3 +288,8 @@ def verify_match_result(request, match_id):
         
     return redirect('matches:verification_queue')
 
+
+@login_required
+def match_detail(request, match_id):
+    match = get_object_or_404(Match, id=match_id)
+    return render(request, 'matches/match_detail.html', {'match': match})

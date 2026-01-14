@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from cloudinary.models import CloudinaryField
+
 
 class Match(models.Model):
     STATUS_CHOICES = [
@@ -88,6 +90,12 @@ class Match(models.Model):
         blank=True,
         help_text='Aggregate score for two-leg knockout ties'
     )
+
+    # Match Summary Fields
+    match_summary = models.TextField(blank=True, help_text="Written summary of the match")
+    summary_image = CloudinaryField('image', blank=True, null=True, help_text="Image attachment for match summary")
+    summary_video = CloudinaryField('video', resource_type='video', blank=True, null=True, help_text="Video attachment for match summary")
+
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

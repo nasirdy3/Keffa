@@ -5,7 +5,7 @@ from django.db import transaction
 from .models import Tournament, TournamentRegistration, Standing
 from kefa_project.matches.models import Match
 from kefa_project.achievements.models import Badge, PlayerBadge, Trophy
-from django.db.models import Sum
+from django.db import models
 
 
 def get_randomized_match_time(default_time):
@@ -116,7 +116,6 @@ def find_next_available_date(team1, team2, start_date, allowed_weekdays, tournam
     Returns:
         Next valid date or None if no date available
     """
-    from django.db import models
     
     search_end = end_date if end_date else start_date + timedelta(days=max_days_ahead)
     current = start_date
@@ -219,7 +218,6 @@ def generate_league_fixtures(tournament, teams):
     5. Handles odd number of teams with bye weeks
     6. Maintains proper home/away balance
     """
-    from django.db import models
     
     # 1. Handle Odd Number of Teams (Add a dummy for bye weeks)
     rotation_teams = list(teams)
@@ -417,7 +415,6 @@ def generate_knockout_fixtures(tournament, teams):
     - Assigns knockout_round labels (Quarter-finals, Semi-finals, Final)
     """
     import math
-    from django.db import models
     
     teams_list = list(teams)
     num_teams = len(teams_list)

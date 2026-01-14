@@ -444,8 +444,15 @@
                     </div>
                     {% elif match.status == 'in_progress' %}
                     <a href="{% url 'matches:finished' match.id %}" class="btn btn-secondary">Mark as Finished</a>
-                    {% elif match.status == 'awaiting_highlight' %}
-                    <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
+                    {% elif match.status == 'awaiting_highlight' or match.status == 'completed' %}
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'matches:detail' match.id %}" class="btn btn-primary"
+                            style="background-color: var(--primary-gray); border-color: var(--primary-gray);">View
+                            Summary 📄</a>
+                        {% if match.status == 'awaiting_highlight' %}
+                        <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary">Upload Highlight 🎬</a>
+                        {% endif %}
+                    </div>
                     {% elif match.status == 'scheduled' %}
                     <a href="{% url 'matches:postpone' match.id %}" class="btn btn-secondary"
                         style="font-size: 0.9rem;">Request Postponement</a>

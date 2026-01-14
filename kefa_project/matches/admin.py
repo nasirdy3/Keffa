@@ -7,6 +7,24 @@ class MatchAdmin(admin.ModelAdmin):
     list_filter = ['status', 'tournament', 'match_date']
     search_fields = ['home_team__team_name', 'away_team__team_name']
     readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Match Details', {
+            'fields': ('tournament', 'home_team', 'away_team', 'match_date', 'match_time', 'status')
+        }),
+        ('Scores & Verification', {
+            'fields': ('home_score', 'away_score', 'verified_at', 'verified_by')
+        }),
+        ('Match Summary', {
+            'fields': ('match_summary', 'summary_image', 'summary_video'),
+            'classes': ('collapse',),
+            'description': 'Add a written summary and media attachments for completed matches.'
+        }),
+        ('Technical Info', {
+            'fields': ('home_ready', 'away_ready', 'ready_time_start', 'game_code', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 @admin.register(MatchPostponement)
 class MatchPostponementAdmin(admin.ModelAdmin):

@@ -14,5 +14,6 @@ urlpatterns = [
     path('friendly/<int:friendly_id>/accept/', views.accept_friendly_match, name='accept_friendly'),
     path('verification-queue/', views.verification_queue, name='verification_queue'),
     path('verify/<int:match_id>/', views.verify_match_result, name='verify_result'),
+    path('<int:match_id>/', views.match_detail, name='detail'),
 ]
 
