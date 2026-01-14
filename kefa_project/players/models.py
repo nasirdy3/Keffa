@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 import re
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 class Player(models.Model):
     DEVICE_CHOICES = [
@@ -45,9 +46,14 @@ class Player(models.Model):
         """
         Enforce unique email on related User model.
         """
-        if self.user.email:
-            if User.objects.filter(email=self.user.email).exclude(pk=self.user.pk).exists():
-                raise ValidationError({'user': "This email address is already in use by another account."})
+        try:
+            # Check if user is set (it might not be during creation)
+            if hasattr(self, 'user') and self.user.email:
+                if User.objects.filter(email=self.user.email).exclude(pk=self.user.pk).exists():
+                    raise ValidationError({'user': "This email address is already in use by another account."})
+        except (ObjectDoesNotExist, AttributeError, ValueError):
+             # User not assigned yet (e.g. during registration) or other concurrent access issue
+            pass
 
     def save(self, *args, **kwargs):
         self.full_clean()  # Trigger validation before saving

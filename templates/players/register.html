@@ -11,7 +11,7 @@
         justify-content: center;
         padding: 2rem 1rem;
     }
-    
+
     .auth-card {
         background: linear-gradient(135deg, rgba(10, 31, 68, 0.95), rgba(16, 42, 76, 0.95));
         border-radius: 16px;
@@ -23,7 +23,7 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .auth-card::before {
         content: '';
         position: absolute;
@@ -33,12 +33,12 @@
         height: 4px;
         background: linear-gradient(90deg, #E60012, #FF4444, #E60012);
     }
-    
+
     .auth-header {
         text-align: center;
         margin-bottom: 2.5rem;
     }
-    
+
     .auth-title {
         font-size: 2.5rem;
         font-weight: 900;
@@ -47,12 +47,12 @@
         text-transform: uppercase;
         letter-spacing: 2px;
     }
-    
+
     .auth-subtitle {
         color: rgba(255, 255, 255, 0.7);
         font-size: 1rem;
     }
-    
+
     .form-section {
         background: rgba(255, 255, 255, 0.03);
         border-radius: 12px;
@@ -60,7 +60,7 @@
         margin-bottom: 2rem;
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    
+
     .section-title {
         color: var(--primary-red);
         font-size: 1.3rem;
@@ -71,17 +71,17 @@
         padding-bottom: 0.75rem;
         border-bottom: 2px solid rgba(230, 0, 18, 0.3);
     }
-    
+
     .form-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1.5rem;
     }
-    
+
     .form-group {
         margin-bottom: 0;
     }
-    
+
     .form-group label {
         display: block;
         margin-bottom: 0.5rem;
@@ -91,7 +91,7 @@
         font-size: 0.85rem;
         letter-spacing: 1px;
     }
-    
+
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -104,7 +104,7 @@
         font-size: 1rem;
         transition: all 0.3s ease;
     }
-    
+
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
@@ -113,26 +113,26 @@
         background: rgba(255, 255, 255, 0.08);
         box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.1);
     }
-    
+
     .form-group small {
         display: block;
         margin-top: 0.5rem;
         color: rgba(255, 255, 255, 0.5);
         font-size: 0.85rem;
     }
-    
+
     .errorlist {
         list-style: none;
         padding: 0;
         margin: 0.5rem 0 0 0;
     }
-    
+
     .errorlist li {
         color: #FF4444;
         font-size: 0.85rem;
         padding: 0.25rem 0;
     }
-    
+
     .btn-register {
         width: 100%;
         padding: 1rem;
@@ -148,48 +148,68 @@
         transition: all 0.3s ease;
         margin-top: 1rem;
     }
-    
+
     .btn-register:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(230, 0, 18, 0.4);
         background: linear-gradient(135deg, #FF0015, #E60012);
     }
-    
+
     .auth-footer {
         margin-top: 2rem;
         text-align: center;
         padding-top: 1.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
+
     .auth-footer a {
         color: var(--primary-red);
         font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
     }
-    
+
     .auth-footer a:hover {
         color: #FF4444;
         text-decoration: underline;
     }
-    
+
     @media (max-width: 768px) {
         .auth-card {
             padding: 2rem 1.5rem;
         }
-        
+
         .auth-title {
             font-size: 2rem;
         }
-        
+
         .form-section {
             padding: 1.5rem;
         }
-        
+
         .form-grid {
             grid-template-columns: 1fr;
         }
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.6);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-toggle:hover {
+        color: #fff;
     }
 </style>
 {% endblock %}
@@ -201,82 +221,82 @@
             <h1 class="auth-title">Join KEFA</h1>
             <p class="auth-subtitle">Become part of the eFootball community in Birnin Kebbi</p>
         </div>
-        
+
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            
+
             <!-- Account Information Section -->
             <div class="form-section">
                 <h3 class="section-title">Account Information</h3>
                 <div class="form-grid">
                     {% for field in user_form %}
-                        <div class="form-group">
-                            <label>{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <ul class="errorlist">
-                                    {% for error in field.errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% if field.help_text %}
-                                <small>{{ field.help_text }}</small>
-                            {% endif %}
-                        </div>
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <small>{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
             </div>
-            
+
             <!-- Player Profile Section -->
             <div class="form-section">
                 <h3 class="section-title">Player Profile</h3>
                 <div class="form-grid">
                     {% for field in player_form %}
-                        <div class="form-group">
-                            <label>{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <ul class="errorlist">
-                                    {% for error in field.errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% if field.help_text %}
-                                <small>{{ field.help_text }}</small>
-                            {% endif %}
-                        </div>
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <small>{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
             </div>
-            
+
             <!-- Team Information Section -->
             <div class="form-section">
                 <h3 class="section-title">Team Information</h3>
                 <div class="form-grid">
                     {% for field in team_form %}
-                        <div class="form-group">
-                            <label>{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <ul class="errorlist">
-                                    {% for error in field.errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% if field.help_text %}
-                                <small>{{ field.help_text }}</small>
-                            {% endif %}
-                        </div>
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <small>{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
             </div>
-            
+
             <button type="submit" class="btn-register">Create Account</button>
         </form>
-        
+
         <div class="auth-footer">
             <p style="color: rgba(255, 255, 255, 0.7);">
                 Already have an account? <a href="{% url 'players:login' %}">Login here</a>
@@ -284,4 +304,38 @@
         </div>
     </div>
 </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+
+        passwordInputs.forEach(function (input) {
+            // Create wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'password-wrapper';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            // Create toggle icon
+            const toggle = document.createElement('span');
+            toggle.className = 'password-toggle';
+            toggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+
+            toggle.addEventListener('click', function () {
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+
+                // Toggle icon
+                if (type === 'text') {
+                    toggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+                } else {
+                    toggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+                }
+            });
+
+            wrapper.appendChild(toggle);
+        });
+    });
+</script>
 {% endblock %}

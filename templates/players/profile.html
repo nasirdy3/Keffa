@@ -405,13 +405,11 @@
                     style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary-gold); transition: background 0.2s;">
                     <div style="flex: 1;">
                         <div style="color: var(--text-light); font-weight: 600;">
-                            {% with h=match.home_team.team_name a=match.away_team.team_name %}
-                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{ h
-                                }}</span>
+                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{
+                                match.home_team.team_name }}</span>
                             <span style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0.5rem;">vs</span>
-                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{ a
-                                }}</span>
-                            {% endwith %}
+                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{
+                                match.away_team.team_name }}</span>
                         </div>
                         <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{
                             match.tournament.name }} • {{ match.match_date|date:"F j, Y" }} at {{ match.match_time }}
@@ -440,13 +438,11 @@
                     style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid {% if match.home_team == team and match.home_score > match.away_score %}var(--success-green){% elif match.away_team == team and match.away_score > match.home_score %}var(--success-green){% elif match.home_score == match.away_score %}var(--text-muted){% else %}var(--danger-red){% endif %}; transition: background 0.2s;">
                     <div style="flex: 1;">
                         <div style="color: var(--text-light); font-weight: 600;">
-                            {% with h=match.home_team.team_name a=match.away_team.team_name %}
-                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{ h
-                                }}</span>
+                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{
+                                match.home_team.team_name }}</span>
                             <span style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0.5rem;">vs</span>
-                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{ a
-                                }}</span>
-                            {% endwith %}
+                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{
+                                match.away_team.team_name }}</span>
                         </div>
                         <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{
                             match.tournament.name }} • {{ match.match_date }}</div>
