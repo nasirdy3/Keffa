@@ -162,6 +162,58 @@
     .leaderboard-row:hover td {
         background: rgba(255, 255, 255, 0.03);
     }
+
+    /* Mobile Responsiveness Improvements */
+    @media (max-width: 768px) {
+        .leaderboard-header {
+            padding: 2rem 0;
+        }
+
+        .leaderboard-header h1 {
+            font-size: 2.2rem !important;
+        }
+
+        .leaderboard-header p {
+            font-size: 1rem !important;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+            border-radius: 20px;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+        }
+
+        .podium-section {
+            gap: 0.5rem;
+            height: 180px;
+        }
+
+        .podium-card {
+            width: 100px;
+        }
+
+        .podium-avatar {
+            width: 50px;
+            height: 50px;
+        }
+
+        .grid-3 {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+    }
 </style>
 <script>
     function switchTab(tabId) {
@@ -182,9 +234,8 @@
 
     <!-- Header -->
     <div class="leaderboard-header animate-scale-in">
-        <h1 class="text-gradient-gold" style="font-size: 3.5rem; font-weight: 900; margin-bottom: 0.5rem;">HALL OF FAME
-        </h1>
-        <p style="font-size: 1.2rem; color: var(--text-muted);">Celebrating the legends of Kratos eFootball Arena</p>
+        <h1 class="text-gradient-gold" style="font-weight: 900; margin-bottom: 0.5rem;">HALL OF FAME</h1>
+        <p style="color: var(--text-muted);">Celebrating the legends of Kratos eFootball Arena</p>
     </div>
 
     <!-- Navigation Tabs -->
@@ -275,49 +326,51 @@
     <div id="scorers" class="tab-content">
         {% if top_scorers %}
         <div class="glass-panel animate-slide-up" style="overflow: hidden;">
-            <table class="leaderboard-table" style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th class="text-center">Rank</th>
-                        <th>Player</th>
-                        <th>Team</th>
-                        <th class="text-center">Goals</th>
-                        <th class="text-center">Matches</th>
-                        <th class="text-center">Ratio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for standing in top_scorers %}
-                    <tr class="leaderboard-row">
-                        <td class="text-center">
-                            <strong style="color: var(--text-muted);">#{{ forloop.counter }}</strong>
-                        </td>
-                        <td>
-                            <a href="{% url 'players:player_profile' standing.team.player.id %}"
-                                style="text-decoration: none; color: #fff; font-weight: 700; display: block;">
-                                {{ standing.team.player.full_name }}
-                            </a>
-                            {% if standing.team.player.get_whatsapp_link %}
-                            <a href="{{ standing.team.player.get_whatsapp_link }}" target="_blank"
-                                style="color: #25D366; margin-left: 0.5rem;" title="Contact on WhatsApp">
-                                <i class="fab fa-whatsapp"></i>
-                            </a>
-                            {% endif %}
-                        </td>
-                        <td style="color: var(--text-muted);">{{ standing.team.team_name }}</td>
-                        <td class="text-center">
-                            <span style="font-size: 1.25rem; font-weight: 900; color: #fff;">{{ standing.goals_for
-                                }}</span> <!-- Using goals_for as proxy for player goals -->
-                        </td>
-                        <td class="text-center">{{ standing.played }}</td>
-                        <td class="text-center" style="color: var(--success-green); font-weight: 600;">
-                            {% widthratio standing.goals_for standing.played 100 as ratio %}{{ ratio|slice:":-2" }}.{{
-                            ratio|slice:"-2:" }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table class="leaderboard-table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Rank</th>
+                            <th>Player</th>
+                            <th>Team</th>
+                            <th class="text-center">Goals</th>
+                            <th class="text-center">Matches</th>
+                            <th class="text-center">Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for standing in top_scorers %}
+                        <tr class="leaderboard-row">
+                            <td class="text-center">
+                                <strong style="color: var(--text-muted);">#{{ forloop.counter }}</strong>
+                            </td>
+                            <td>
+                                <a href="{% url 'players:player_profile' standing.team.player.id %}"
+                                    style="text-decoration: none; color: #fff; font-weight: 700; display: block;">
+                                    {{ standing.team.player.full_name }}
+                                </a>
+                                {% if standing.team.player.get_whatsapp_link %}
+                                <a href="{{ standing.team.player.get_whatsapp_link }}" target="_blank"
+                                    style="color: #25D366; margin-left: 0.5rem;" title="Contact on WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                            <td style="color: var(--text-muted);">{{ standing.team.team_name }}</td>
+                            <td class="text-center">
+                                <span style="font-size: 1.25rem; font-weight: 900; color: #fff;">{{ standing.goals_for
+                                    }}</span> <!-- Using goals_for as proxy for player goals -->
+                            </td>
+                            <td class="text-center">{{ standing.played }}</td>
+                            <td class="text-center" style="color: var(--success-green); font-weight: 600;">
+                                {% widthratio standing.goals_for standing.played 100 as ratio %}{{ ratio|slice:":-2"
+                                }}.{{ ratio|slice:"-2:" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         {% else %}
         <div style="text-align: center; padding: 4rem; color: var(--text-muted);">No goal scorers recorded yet.</div>
