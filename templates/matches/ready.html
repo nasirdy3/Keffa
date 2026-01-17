@@ -5,19 +5,20 @@
 {% block content %}
 <div class="card">
     <h1 class="card-title">⏰ Match Ready Check</h1>
-    
+
     <div style="padding: 1.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 12px; margin-bottom: 2rem;">
         <div style="font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 1rem;">
-            <span style="color: var(--gold);">{{ match.home_team.team_name }}</span> 
-            <span style="opacity: 0.6;">vs</span> 
+            <span style="color: var(--gold);">{{ match.home_team.team_name }}</span>
+            <span style="opacity: 0.6;">vs</span>
             <span style="color: var(--gold);">{{ match.away_team.team_name }}</span>
         </div>
         <div style="text-align: center; opacity: 0.8;">
             📅 {{ match.match_date }} • ⏰ {{ match.match_time }}
         </div>
     </div>
-    
-    <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); border-radius: 8px; margin-bottom: 2rem;">
+
+    <div
+        style="padding: 1.5rem; background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); border-radius: 8px; margin-bottom: 2rem;">
         <h3 style="color: var(--warning); margin-bottom: 0.75rem;">⚠️ Important Procedure</h3>
         <p style="line-height: 1.6;">
             1. Click "I'm Ready" below to confirm your presence.
@@ -27,16 +28,31 @@
             3. Coordinate the match room in eFootball Mobile via chat.
         </p>
     </div>
-    
-    <form method="post" style="text-align: center;">
+
+    <form id="ready-form" method="post" style="text-align: center;">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2.5rem;">
-            ✓ I'm Ready to Play
+        <button id="ready-btn" type="submit" class="btn btn-primary"
+            style="font-size: 1.125rem; padding: 1rem 2.5rem; transition: all 0.3s ease;">
+            <span id="btn-text">✓ I'm Ready to Play</span>
         </button>
         <div style="margin-top: 1rem;">
             <a href="{% url 'players:player_dashboard' %}" class="btn btn-secondary">Go Back</a>
         </div>
     </form>
 </div>
-{% endblock %}
 
+<script>
+    document.getElementById('ready-form').addEventListener('submit', function (e) {
+        const btn = document.getElementById('ready-btn');
+        const btnText = document.getElementById('btn-text');
+
+        // Disable button and change appearance
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'not-allowed';
+
+        // Show processing state
+        btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    });
+</script>
+{% endblock %}

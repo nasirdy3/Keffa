@@ -217,6 +217,17 @@
             <div class="score">{{ match.away_score|default:"-" }}</div>
             <div class="team-name">{{ match.away_team.team_name }}</div>
         </div>
+
+        {% if user.is_authenticated and match.status == 'awaiting_highlight' %}
+        {% if user.player_profile.team == match.home_team %}
+        <div style="margin-top: 1.5rem; text-align: center;">
+            <a href="{% url 'highlights:upload' match.id %}" class="btn btn-primary"
+                style="padding: 1rem 2rem; font-size: 1.1rem;">
+                📤 Upload Match Highlight
+            </a>
+        </div>
+        {% endif %}
+        {% endif %}
     </div>
 
     {% if match.match_summary or match.summary_image or match.summary_video %}

@@ -1,51 +1,424 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Edit Profile - KEFA{% endblock %}
+{% block title %}Edit Profile | Kratos Arena{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom Scrollbar for this page */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #0a0a0a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-red);
+    }
+
+    .edit-profile-container {
+        max-width: 900px;
+        margin: 2rem auto 4rem;
+        padding: 0 1rem;
+    }
+
+    .glass-card {
+        background: rgba(16, 24, 45, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #E60012, #FFD700);
+        z-index: 10;
+    }
+
+    .header-section {
+        padding: 3rem;
+        background: linear-gradient(180deg, rgba(230, 0, 18, 0.08) 0%, transparent 100%);
+        text-align: center;
+        position: relative;
+    }
+
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1rem;
+    }
+
+    .form-section {
+        padding: 0 3rem 3rem;
+    }
+
+    .section-label {
+        color: var(--primary-gold);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        margin: 2.5rem 0 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-label::after {
+        content: '';
+        flex-grow: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--primary-gold), transparent);
+        opacity: 0.3;
+    }
+
+    /* Custom Form Styling */
+    .form-group {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .custom-input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        color: #fff;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .custom-input:focus {
+        background: rgba(0, 0, 0, 0.5);
+        border-color: var(--primary-red);
+        box-shadow: 0 0 0 4px rgba(230, 0, 18, 0.1);
+        outline: none;
+    }
+
+    textarea.custom-input {
+        min-height: 120px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    /* File Upload Styling */
+    .file-upload-wrapper {
+        position: relative;
+        background: rgba(255, 255, 255, 0.03);
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .file-upload-wrapper:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--primary-gold);
+    }
+
+    .file-upload-wrapper.has-preview {
+        border-style: solid;
+        padding: 1rem;
+    }
+
+    .upload-icon {
+        font-size: 2.5rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 1rem;
+    }
+
+    .upload-text {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 12px;
+        display: none;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .file-input-hidden {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* Action Buttons */
+    .actions-bar {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: flex-end;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .btn-cancel {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-cancel:hover {
+        color: #fff;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #E60012 0%, #B0000E 100%);
+        color: white;
+        border: none;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(230, 0, 18, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(230, 0, 18, 0.4);
+    }
+
+    .btn-save::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .btn-save:hover::after {
+        opacity: 1;
+    }
+
+    /* Grid layout for specific fields */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .header-section {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-section {
+            padding: 0 1.5rem 2rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 800px; margin: 0 auto;">
-    <h1 class="card-title" style="margin-bottom: 2rem;">Edit Profile</h1>
-    
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <h3 style="margin-bottom: 1rem; color: var(--primary-gold);">Player Information</h3>
-        {% for field in player_form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <ul class="errorlist">
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        {% endfor %}
-        
-        <h3 style="margin: 2rem 0 1rem; color: var(--primary-gold);">Team Information</h3>
-        {% for field in team_form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <ul class="errorlist">
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if field.help_text %}
-                    <small style="color: var(--text-muted);">{{ field.help_text }}</small>
-                {% endif %}
-            </div>
-        {% endfor %}
-        
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="{% url 'players:player_dashboard' %}" class="btn btn-secondary">Cancel</a>
+<div class="edit-profile-container">
+    <div class="glass-card animate-slide-up">
+
+        <div class="header-section">
+            <h1 class="header-title">Edit Profile</h1>
+            <p class="header-subtitle">Update your personal and team details</p>
         </div>
-    </form>
+
+        <form method="post" enctype="multipart/form-data" class="form-section">
+            {% csrf_token %}
+
+            <!-- Player Information -->
+            <div class="section-label">
+                <i class="fas fa-user-circle"></i> Player Information
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    {{ player_form.full_name }} <!-- Assuming manual rendering wrapper or relying on widget attrs -->
+                    <!-- We will use JS to inject classes if widget tweaks aren't possible, or cleaner: render manually below -->
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" name="{{ player_form.phone_number.name }}"
+                        value="{{ player_form.phone_number.value|default:'' }}" class="custom-input"
+                        placeholder="+234...">
+                    {% if player_form.phone_number.errors %}
+                    <div style="color: var(--primary-red); font-size: 0.85rem; margin-top: 0.5rem;">{{
+                        player_form.phone_number.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Bio</label>
+                <textarea name="{{ player_form.bio.name }}" class="custom-input" rows="4"
+                    placeholder="Tell us about yourself...">{{ player_form.bio.value|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Profile Picture</label>
+                <div class="file-upload-wrapper" id="profile-upload-wrapper">
+                    <input type="file" name="{{ player_form.profile_picture.name }}" class="file-input-hidden"
+                        accept="image/*" onchange="previewImage(this, 'profile-preview', 'profile-upload-wrapper')">
+
+                    <div id="profile-upload-content">
+                        <div class="upload-icon"><i class="fas fa-camera"></i></div>
+                        <div class="upload-text">Click or drag to upload new photo</div>
+                        {% if player_form.profile_picture.value %}
+                        <div style="margin-top: 1rem; color: var(--primary-gold); font-size: 0.8rem;">Current: {{
+                            player_form.profile_picture.value.url|slice:"15:" }}...</div>
+                        {% endif %}
+                    </div>
+                    <img id="profile-preview" class="preview-image" src="#" alt="Profile Preview">
+                </div>
+            </div>
+
+            <!-- Team Information -->
+            <div class="section-label">
+                <i class="fas fa-shield-alt"></i> Team Information
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Team Name</label>
+                <input type="text" name="{{ team_form.team_name.name }}"
+                    value="{{ team_form.team_name.value|default:'' }}" class="custom-input"
+                    placeholder="e.g. Kebbi Warriors">
+                {% if team_form.team_name.errors %}
+                <div style="color: var(--primary-red); font-size: 0.85rem; margin-top: 0.5rem;">{{
+                    team_form.team_name.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Team Logo</label>
+                    <div class="file-upload-wrapper" id="logo-upload-wrapper">
+                        <input type="file" name="{{ team_form.logo.name }}" class="file-input-hidden" accept="image/*"
+                            onchange="previewImage(this, 'logo-preview', 'logo-upload-wrapper')">
+                        <div id="logo-upload-content">
+                            <div class="upload-icon"><i class="fas fa-shield"></i></div>
+                            <div class="upload-text">Upload Team Logo</div>
+                        </div>
+                        <img id="logo-preview" class="preview-image" src="#" alt="Logo Preview">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Squad Photo</label>
+                    <div class="file-upload-wrapper" id="squad-upload-wrapper">
+                        <input type="file" name="{{ team_form.squad_image.name }}" class="file-input-hidden"
+                            accept="image/*" onchange="previewImage(this, 'squad-preview', 'squad-upload-wrapper')">
+                        <div id="squad-upload-content">
+                            <div class="upload-icon"><i class="fas fa-users"></i></div>
+                            <div class="upload-text">Upload Squad Photo</div>
+                        </div>
+                        <img id="squad-preview" class="preview-image" src="#" alt="Squad Preview">
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-bar">
+                <a href="{% url 'players:player_dashboard' %}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-save">
+                    Save Changes <i class="fas fa-check-circle" style="margin-left: 0.5rem;"></i>
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add custom class to Django rendered inputs if we missed any manually
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
+        inputs.forEach(input => {
+            if (!input.classList.contains('custom-input')) {
+                input.classList.add('custom-input');
+            }
+        });
+    });
+
+    function previewImage(input, previewId, wrapperId) {
+        const preview = document.getElementById(previewId);
+        const wrapper = document.getElementById(wrapperId);
+        const contentId = wrapperId.replace('wrapper', 'content');
+        const content = document.getElementById(contentId);
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'inline-block';
+                content.style.display = 'none';
+                wrapper.classList.add('has-preview');
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 {% endblock %}

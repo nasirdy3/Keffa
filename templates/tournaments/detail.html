@@ -130,37 +130,33 @@
             {% endif %}
         </div>
         {% for match in date_group.list %}
-        <div class="fs-match-card">
-            <div class="fs-match-teams">
-                <div class="fs-match-team home">
-                    <a href="{% url 'teams:profile' match.home_team.id %}"
-                        style="color: inherit; text-decoration: none;">
+        <a href="{% url 'matches:detail' match.id %}" class="fs-match-card-link">
+            <div class="fs-match-card">
+                <div class="fs-match-teams">
+                    <div class="fs-match-team home">
                         {{ match.home_team.team_name }}
-                    </a>
+                    </div>
+                    <div>
+                        {% if match.status == 'in_progress' %}
+                        <span class="fs-badge fs-badge-live">
+                            <span class="fs-live-dot"></span> LIVE
+                        </span>
+                        {% else %}
+                        <span class="fs-match-vs">VS</span>
+                        {% endif %}
+                    </div>
+                    <div class="fs-match-team away">
+                        {{ match.away_team.team_name }}
+                    </div>
                 </div>
-                <div>
-                    {% if match.status == 'in_progress' %}
-                    <span class="fs-badge fs-badge-live">
-                        <span class="fs-live-dot"></span> LIVE
-                    </span>
-                    {% else %}
-                    <span class="fs-match-vs">VS</span>
+                <div class="fs-match-time">
+                    {{ match.match_time|time:"H:i" }}
+                    {% if match.status == 'ready_pending' %}
+                    <span class="fs-badge fs-badge-upcoming" style="margin-left: 0.5rem;">READY</span>
                     {% endif %}
                 </div>
-                <div class="fs-match-team away">
-                    <a href="{% url 'teams:profile' match.away_team.id %}"
-                        style="color: inherit; text-decoration: none;">
-                        {{ match.away_team.team_name }}
-                    </a>
-                </div>
             </div>
-            <div class="fs-match-time">
-                {{ match.match_time|time:"H:i" }}
-                {% if match.status == 'ready_pending' %}
-                <span class="fs-badge fs-badge-upcoming" style="margin-left: 0.5rem;">READY</span>
-                {% endif %}
-            </div>
-        </div>
+        </a>
         {% endfor %}
         {% endfor %}
         {% else %}
@@ -179,28 +175,24 @@
             {{ date_group.grouper|date:"l, F j, Y" }}
         </div>
         {% for match in date_group.list %}
-        <div class="fs-match-card">
-            <div class="fs-match-teams">
-                <div class="fs-match-team home">
-                    <a href="{% url 'teams:profile' match.home_team.id %}"
-                        style="color: inherit; text-decoration: none;">
+        <a href="{% url 'matches:detail' match.id %}" class="fs-match-card-link">
+            <div class="fs-match-card">
+                <div class="fs-match-teams">
+                    <div class="fs-match-team home">
                         {{ match.home_team.team_name }}
-                    </a>
-                </div>
-                <div class="fs-match-score">
-                    {{ match.home_score }} - {{ match.away_score }}
-                </div>
-                <div class="fs-match-team away">
-                    <a href="{% url 'teams:profile' match.away_team.id %}"
-                        style="color: inherit; text-decoration: none;">
+                    </div>
+                    <div class="fs-match-score">
+                        {{ match.home_score }} - {{ match.away_score }}
+                    </div>
+                    <div class="fs-match-team away">
                         {{ match.away_team.team_name }}
-                    </a>
+                    </div>
+                </div>
+                <div>
+                    <span class="fs-badge fs-badge-completed">FT</span>
                 </div>
             </div>
-            <div>
-                <span class="fs-badge fs-badge-completed">FT</span>
-            </div>
-        </div>
+        </a>
         {% endfor %}
         {% endfor %}
         {% else %}

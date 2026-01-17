@@ -378,8 +378,7 @@
                     {% else %}🏅
                     {% endif %}
                 </div>
-                <strong style="color: var(--primary-gold); display: block; margin-bottom: 0.25rem;">{{ badge.badge.name
-                    }}</strong>
+                <strong style="color: var(--primary-gold); display: block; margin-bottom: 0.25rem;">{{ badge.badge.name }}</strong>
                 <div style="opacity: 0.7; font-size: 0.85rem;">{{ badge.tournament.name }}</div>
                 <div style="opacity: 0.5; font-size: 0.75rem; margin-top: 0.5rem;">{{ badge.awarded_at|date:"M d, Y" }}
                 </div>
@@ -405,19 +404,15 @@
                     style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--primary-gold); transition: background 0.2s;">
                     <div style="flex: 1;">
                         <div style="color: var(--text-light); font-weight: 600;">
-                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.home_team.team_name }}</span>
+                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{ match.home_team.team_name }}</span>
                             <span style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0.5rem;">vs</span>
-                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.away_team.team_name }}</span>
+                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{ match.away_team.team_name }}</span>
                         </div>
-                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{
-                            match.tournament.name }} • {{ match.match_date|date:"F j, Y" }} at {{ match.match_time }}
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{ match.tournament.name }} • {{ match.match_date|date:"F j, Y" }} at {{ match.match_time }}
                         </div>
                     </div>
                     <span class="badge"
-                        style="background: rgba(10, 120, 190, 0.2); color: #0A78BE; border: 1px solid #0A78BE; padding: 0.4rem 0.8rem;">{{
-                        match.get_status_display }}</span>
+                        style="background: rgba(10, 120, 190, 0.2); color: #0A78BE; border: 1px solid #0A78BE; padding: 0.4rem 0.8rem;">{{ match.get_status_display }}</span>
                 </div>
                 {% endfor %}
             </div>
@@ -438,14 +433,11 @@
                     style="padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid {% if match.home_team == team and match.home_score > match.away_score %}var(--success-green){% elif match.away_team == team and match.away_score > match.home_score %}var(--success-green){% elif match.home_score == match.away_score %}var(--text-muted){% else %}var(--danger-red){% endif %}; transition: background 0.2s;">
                     <div style="flex: 1;">
                         <div style="color: var(--text-light); font-weight: 600;">
-                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.home_team.team_name }}</span>
+                            <span style="{% if match.home_team == team %}color: var(--primary-gold);{% endif %}">{{ match.home_team.team_name }}</span>
                             <span style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0.5rem;">vs</span>
-                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{
-                                match.away_team.team_name }}</span>
+                            <span style="{% if match.away_team == team %}color: var(--primary-gold);{% endif %}">{{ match.away_team.team_name }}</span>
                         </div>
-                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{
-                            match.tournament.name }} • {{ match.match_date }}</div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">{{ match.tournament.name }} • {{ match.match_date }}</div>
                     </div>
                     {% if match.home_score is not None %}
                     <div
@@ -453,8 +445,7 @@
                         {{ match.home_score }} - {{ match.away_score }}
                     </div>
                     {% else %}
-                    <span class="badge" style="background: var(--text-muted); font-size: 0.75rem;">{{
-                        match.get_status_display }}</span>
+                    <span class="badge" style="background: var(--text-muted); font-size: 0.75rem;">{{ match.get_status_display }}</span>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -477,13 +468,11 @@
                     <div>
                         <div style="color: var(--text-light); font-weight: 600;">{{ standing.tournament.name }}</div>
                         <div style="color: var(--text-muted); font-size: 0.8rem;">
-                            {{ standing.played }} P | {{ standing.won }} W | {{ standing.drawn }} D | {{ standing.lost
-                            }} L
+                            {{ standing.played }} P | {{ standing.won }} W | {{ standing.drawn }} D | {{ standing.lost }} L
                         </div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="color: var(--primary-gold); font-weight: 800; font-size: 1.2rem;">{{ standing.points
-                            }} pts</div>
+                        <div style="color: var(--primary-gold); font-weight: 800; font-size: 1.2rem;">{{ standing.points }} pts</div>
                         <div style="font-size: 0.8rem; color: var(--text-muted);">
                             GD: {% if standing.goal_difference > 0 %}+{% endif %}{{ standing.goal_difference }}
                         </div>
