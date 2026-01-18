@@ -425,7 +425,19 @@
 
                 <div class="match-actions">
                     {% if match.status == 'ready_pending' %}
+                    {% if match.home_team == team %}
+                    {% if match.home_ready %}
+                    <div class="waiting-status">Waiting for opponent...</div>
+                    {% else %}
                     <a href="{% url 'matches:ready' match.id %}" class="btn btn-primary">Mark Ready ✓</a>
+                    {% endif %}
+                    {% elif match.away_team == team %}
+                    {% if match.away_ready %}
+                    <div class="waiting-status">Waiting for opponent...</div>
+                    {% else %}
+                    <a href="{% url 'matches:ready' match.id %}" class="btn btn-primary">Mark Ready ✓</a>
+                    {% endif %}
+                    {% endif %}
                     {% elif match.status == 'creating_game' %}
                     {% if match.home_team == team %}
                     <a href="{% url 'matches:create_code' match.id %}" class="btn btn-primary">Create Game Code</a>

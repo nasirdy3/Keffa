@@ -23,10 +23,16 @@ def match_ready(request, match_id):
         return redirect('players:player_dashboard')
     
     if match.home_team == team:
+        if match.home_ready:
+            messages.info(request, 'You are already marked as ready. Waiting for opponent.')
+            return redirect('players:player_dashboard')
         match.home_ready = True
         match.save()
         messages.success(request, 'You are marked as ready!')
     elif match.away_team == team:
+        if match.away_ready:
+            messages.info(request, 'You are already marked as ready. Waiting for opponent.')
+            return redirect('players:player_dashboard')
         match.away_ready = True
         match.save()
         messages.success(request, 'You are marked as ready!')
